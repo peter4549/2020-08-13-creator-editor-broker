@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Creator-Editor Broker</string>
+
+    <!-- Facebook -->
+    <string name="facebook_app_id">332612361244166</string>
+    <string name="fb_login_protocol_scheme">fb332612361244166</string>
+
+    <string name="sign_in_with_google">구글로 로그인</string>
+    <string name="email">이메일</string>
+    <string name="password">패스워드</string>
+    <string name="sign_in">로그인</string>
+    <string name="profile">Profile</string>
+    <string name="public_name">공개이름</string>
+    <string name="user_type_selection">유저 타입 선택</string>
+    <string name="categories_selection">카테고리 선택</string>
+    <string name="categories_selection_description">주 컨텐츠와 관련된 카테고리를 선택해주세요.</string>
+    <string name="phone_number">전화번호</string>
+    <string name="phone_number_with_description">전화번호 (본인인증에만 사용됩니다.)</string>
+    <string name="verification">본인인증</string>
+    <string name="sign_in_with_facebook">페이스북으로 로그인</string>
+    <string name="sign_in_with_twitter">트위터로 로그인</string>
+    <string name="failed_to_sign_in_with_google">구글 로그인에 실패했습니다.</string>
+    <string name="failed_to_sign_in_with_facebook">페이스북 로그인에 실패했습니다.</string>
+    <string name="register">등록</string>
+    <string name="failed_to_read_user_data">유저 정보를 불러오지 못했습니다.</string>
+    <string name="signed_in">로그인되었습니다.</string>
+    <string name="signed_out">로그아웃되었습니다.</string>
+    <string name="failed_to_store_profile_image">프로필 이미지 저장에 실패했습니다.</string>
+
+    <!-- User Types -->
+    <string name="creator">크리에이터</string>
+    <string name="editor">에디터</string>
+
+    <!-- Content Categories -->
+    <string name="category_car">자동차</string>
+    <string name="category_beauty_fashion">뷰티/패션</string>
+    <string name="category_comedy">코미디</string>
+    <string name="category_education">교육</string>
+    <string name="category_entertainment">엔터테인먼트</string>
+    <string name="category_family_entertainment">가족 엔터테인먼트</string>
+    <string name="category_movie_animation">영화/애니메이션</string>
+    <string name="category_food">음식</string>
+    <string name="category_game">게임</string>
+    <string name="category_know_how_style">노하우/스타일</string>
+    <string name="category_music">음악</string>
+    <string name="category_news_politics">뉴스/정치</string>
+    <string name="category_non_profit_social_movement">비영리/사회운동</string>
+    <string name="category_people_blog">인물/블로그</string>
+    <string name="category_pets_animals">애완동물/동물</string>
+    <string name="category_science_technology">과학기술</string>
+    <string name="category_sports">스포츠</string>
+    <string name="category_travel_event">여행/이벤트</string>
+
+</resources>
