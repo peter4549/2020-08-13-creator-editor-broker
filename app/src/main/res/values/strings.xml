@@ -9,7 +9,7 @@
     <string name="email">이메일</string>
     <string name="password">패스워드</string>
     <string name="sign_in">로그인</string>
-    <string name="profile">Profile</string>
+    <string name="profile">프로필</string>
     <string name="public_name">공개이름</string>
     <string name="user_type_selection">유저 타입 선택</string>
     <string name="categories_selection">카테고리 선택</string>
@@ -26,29 +26,42 @@
     <string name="signed_in">로그인되었습니다.</string>
     <string name="signed_out">로그아웃되었습니다.</string>
     <string name="failed_to_store_profile_image">프로필 이미지 저장에 실패했습니다.</string>
+    <string name="profile_stored">프로필이 저장되었습니다.</string>
+    <string name="failed_to_store_profile">프로필 저장에 실패했습니다.</string>
+    <string name="failed_to_generate_token_and_regenerated_upon_sign_in">토큰 생성에 실패했습니다.
+        \n로그인시 다시 생성됩니다.</string>
+    <string name="uid_not_found">유저 아이디를 찾을 수 없습니다.</string>
+    <string name="enter_public_name">공개이름을 입력하세요.</string>
+    <string name="select_user_type">유저 타입을 선택하세요.</string>
+    <string name="select_one_or_more_categories">1개 이상의 카테고리를 선택하세요.</string>
+
 
     <!-- User Types -->
     <string name="creator">크리에이터</string>
     <string name="editor">에디터</string>
 
     <!-- Content Categories -->
-    <string name="category_car">자동차</string>
-    <string name="category_beauty_fashion">뷰티/패션</string>
-    <string name="category_comedy">코미디</string>
-    <string name="category_education">교육</string>
-    <string name="category_entertainment">엔터테인먼트</string>
-    <string name="category_family_entertainment">가족 엔터테인먼트</string>
-    <string name="category_movie_animation">영화/애니메이션</string>
-    <string name="category_food">음식</string>
-    <string name="category_game">게임</string>
-    <string name="category_know_how_style">노하우/스타일</string>
-    <string name="category_music">음악</string>
-    <string name="category_news_politics">뉴스/정치</string>
-    <string name="category_non_profit_social_movement">비영리/사회운동</string>
-    <string name="category_people_blog">인물/블로그</string>
-    <string name="category_pets_animals">애완동물/동물</string>
-    <string name="category_science_technology">과학기술</string>
-    <string name="category_sports">스포츠</string>
-    <string name="category_travel_event">여행/이벤트</string>
+    <string name="category_car">자동차</string>  <!-- Category number 1 -->
+    <string name="category_beauty_fashion">뷰티/패션</string>  <!-- Category number 2 -->
+    <string name="category_comedy">코미디</string>  <!-- Category number 3 -->
+    <string name="category_education">교육</string>  <!-- Category number 4 -->
+    <string name="category_entertainment">엔터테인먼트</string>  <!-- Category number 5 -->
+    <string name="category_family_entertainment">가족 엔터테인먼트</string>  <!-- Category number 6 -->
+    <string name="category_movie_animation">영화/애니메이션</string>  <!-- Category number 7 -->
+    <string name="category_food">음식</string>  <!-- Category number 8 -->
+    <string name="category_game">게임</string>  <!-- Category number 9 -->
+    <string name="category_know_how_style">노하우/스타일</string>  <!-- Category number 10 -->
+    <string name="category_music">음악</string>  <!-- Category number 11 -->
+    <string name="category_news_politics">뉴스/정치</string>  <!-- Category number 12 -->
+    <string name="category_non_profit_social_movement">비영리/사회운동</string>  <!-- Category number 13 -->
+    <string name="category_people_blog">인물/블로그</string>  <!-- Category number 14 -->
+    <string name="category_pets_animals">애완동물/동물</string>  <!-- Category number 15 -->
+    <string name="category_science_technology">과학기술</string>  <!-- Category number 16 -->
+    <string name="category_sports">스포츠</string>  <!-- Category number 17 -->
+    <string name="category_travel_event">여행/이벤트</string> <!-- Category number 18 -->
+
+    <string name="write_pr">PR 작성</string>
+    <string name="favorites">관심목록</string>
+    <string name="my_stars">나의 별</string>
 
 </resources>

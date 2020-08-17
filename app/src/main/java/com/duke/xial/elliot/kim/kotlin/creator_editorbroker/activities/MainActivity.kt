@@ -10,7 +10,13 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.FragmentSta
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.EnterUserInformationFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PartnersFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PrListFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SignInFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.CommentModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.Tier
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
@@ -23,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
     val errorHandler = ErrorHandler(this)
+    val prListFragment = PrListFragment()
+    val partnersFragment = PartnersFragment()
 
     private val tabIconResourceIds = arrayOf(
         R.drawable.ic_round_home_24,
@@ -39,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         setAuthStateListener()
 
         contentCategories = createContentCategories()
+        userTypes = createUserTypes()
 
         startFragment(SignInFragment(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
     }
@@ -84,6 +93,12 @@ class MainActivity : AppCompatActivity() {
         getString(R.string.category_travel_event)
     )
 
+    private fun createUserTypes(): Array<String> = arrayOf(
+        "-",
+        getString(R.string.creator),
+        getString(R.string.editor)
+    )
+
     private fun setAuthStateListener() {
         firebaseAuth.addAuthStateListener { firebaseAuth ->
             if (firebaseAuth.currentUser != null)
@@ -95,11 +110,18 @@ class MainActivity : AppCompatActivity() {
 
     private val eventAfterSignIn = {
         showToast(this, getString(R.string.signed_in))
+        popAllFragments()
         readUserData()
     }
 
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
+        currentUserInformation = null
+    }
+
+    private fun popAllFragments() {
+        while (supportFragmentManager.backStackEntryCount > 0)
+            supportFragmentManager.popBackStackImmediate()
     }
 
     fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null) {
@@ -120,11 +142,13 @@ class MainActivity : AppCompatActivity() {
             .get().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     if (task.result != null)
-                        if (task.result?.data == null)
+                        if (task.result?.data == null) {
+                            currentUserInformation = null
                             startEnterUserInformationFragment()
-                        else
-                            //setCurrentUserData(task.result?.data as Map<String, Any>)
-                            setCurrentUserData()
+                        }
+                        else {
+                            setCurrentUserData(task.result?.data as Map<String, Any>)
+                        }
                     else
                         errorHandler.errorHandling(
                             Exception("failed to read user data, task.result is null"),
@@ -142,8 +166,49 @@ class MainActivity : AppCompatActivity() {
             TAG_ENTER_USER_INFORMATION_FRAGMENT)
     }
 
-    private fun setCurrentUserData() {
-
+    private fun setCurrentUserData(map: Map<String, Any>) {
+        println("AAAAAAA: $map")
+        currentUserInformation
+    }
+//
+    var categories: MutableList<Int>,
+    var publicName: String,
+    var uid: String,
+    var userType: Int,
+    var channelIds: MutableList<String> = mutableListOf(),
+    var commentsWritten: MutableList<CommentModel> = mutableListOf(),
+    var favoritePrIds: MutableList<String> = mutableListOf(),
+    var favoriteUserIds: MutableList<String> = mutableListOf(),
+    var myPrIds: MutableList<String> = mutableListOf(),
+    var partnerIds: MutableList<String> = mutableListOf(),
+    var profileImageUri: String? = null,
+    var pushToken: String? = null,
+    var receivedStarCount: Int = 0,
+    var registeredOnPartners: Boolean = false,
+    var tier: Int = Tier.NORMAL,
+    var userIdsReceivedMyStar: MutableList<String> = mutableListOf(),
+    var youtubeVideos: MutableList<VideoModel> = mutableListOf())
+//
+    @Suppress("UNCHECKED_CAST")
+    private fun createUserInformationFromMap(map: Map<String, Any>): UserInformationModel {
+        return UserInformationModel(categories = map[UserInformationModel.KEY_CATEGORIES] as MutableList<Int>,
+            publicName = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            uid = map[UserInformationModel.KEY_UID] as String,
+            userType = map[UserInformationModel.KEY_USER_TYPE] as Int,
+            channelIds = map[UserInformationModel.KEY_CHANNEL_IDS] as MutableList<String>,
+            commentsWritten = map[UserInformationModel.KEY_COMMENTS_WRITTEN] as MutableList<CommentModel>,
+            favoritePrIds = map[UserInformationModel.KEY_FAVORITE_PR_IDS] as MutableList<String>,
+            favoriteUserIds = map[UserInformationModel.KEY_FAVORITE_USER_IDS] as MutableList<String>,
+            myPrIds = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            partnerIds = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            profileImageUri = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            pushToken = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            receivedStarCount = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            registeredOnPartners = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            tier = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            userIdsReceivedMyStar = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
+            youtubeVideos = map[UserInformationModel.KEY_PUBLIC_NAME] as String
+        )
     }
 
     companion object {
@@ -151,5 +216,8 @@ class MainActivity : AppCompatActivity() {
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
 
         lateinit var contentCategories: Array<String>
+        lateinit var userTypes: Array<String>
+
+        var currentUserInformation: UserInformationModel? = null
     }
 }

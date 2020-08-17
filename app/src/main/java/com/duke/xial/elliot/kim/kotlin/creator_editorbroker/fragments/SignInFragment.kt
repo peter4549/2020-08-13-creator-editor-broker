@@ -86,7 +86,7 @@ class SignInFragment : Fragment() {
             else
                 (requireActivity() as MainActivity).errorHandler
                     .errorHandling(task.exception ?:
-                Exception("failed to Google sign in, task.exception is null"),
+                NullPointerException("failed to Google sign in, task.exception is null"),
                     getString(R.string.failed_to_sign_in_with_google))
         }
     }
