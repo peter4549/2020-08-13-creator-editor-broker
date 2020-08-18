@@ -89,7 +89,7 @@ class EnterUserInformationFragment : Fragment() {
             .load(uri)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .skipMemoryCache(true)
-            .placeholder(R.drawable.ic_baseline_add_to_photos_128)
+            .placeholder(R.drawable.ic_round_add_to_photos_128)
             .transition(DrawableTransitionOptions.withCrossFade())
             .transform(CenterCrop(), RoundedCorners(8))
             .into(image_view_profile)

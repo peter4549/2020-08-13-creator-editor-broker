@@ -26,6 +26,11 @@ data class SnippetModel(val publishedAt: String,
                         val description: String,
                         val thumbnails: ThumbnailsModel)
 
+data class ChannelModel(val id: String,
+                        val description: String,
+                        val thumbnailUri: String,
+                        val title: String)
+
 data class ThumbnailsModel(val default: DefaultModel,
                            val standard: StandardModel)
 

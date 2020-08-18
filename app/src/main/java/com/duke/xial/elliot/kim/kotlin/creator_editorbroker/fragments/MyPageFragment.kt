@@ -17,6 +17,13 @@ class MyPageFragment: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_my_page, container, false)
         view.text_view_public_name.text = MainActivity.currentUserInformation?.publicName
+
+        view.text_view_write_pr.setOnClickListener {
+            (requireActivity() as MainActivity).startFragment(WritePrFragment(),
+                R.id.constraint_layout_activity_main,
+                MainActivity.TAG_WRITE_PR_FRAGMENT,
+                MainActivity.VERTICAL)
+        }
         return view
     }
 

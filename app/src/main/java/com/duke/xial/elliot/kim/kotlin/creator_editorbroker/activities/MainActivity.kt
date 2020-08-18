@@ -13,17 +13,16 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.EnterUserI
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PartnersFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PrListFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SignInFragment
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.CommentModel
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.Tier
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
@@ -124,15 +123,25 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.popBackStackImmediate()
     }
 
-    fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null) {
-        supportFragmentManager.beginTransaction()
-            .addToBackStack(null)
-            .setCustomAnimations(
-                R.anim.anim_slide_in_left,
-                R.anim.anim_slide_out_left,
-                R.anim.anim_slide_in_right,
-                R.anim.anim_slide_out_right
-            ).replace(containerViewId, fragment, tag).commit()
+    fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null, direction: Int = HORIZONTAL) {
+        when (direction) {
+            HORIZONTAL -> supportFragmentManager.beginTransaction()
+                .addToBackStack(null)
+                .setCustomAnimations(
+                    R.anim.anim_slide_in_left,
+                    R.anim.anim_slide_out_left,
+                    R.anim.anim_slide_in_right,
+                    R.anim.anim_slide_out_right
+                ).replace(containerViewId, fragment, tag).commit()
+            VERTICAL -> supportFragmentManager.beginTransaction()
+                .addToBackStack(null)
+                .setCustomAnimations(
+                    R.anim.anim_slide_in_bottom,
+                    R.anim.anim_slide_out_top,
+                    R.anim.anim_slide_in_top,
+                    R.anim.anim_slide_out_bottom
+                ).replace(containerViewId, fragment, tag).commit()
+        }
     }
 
     private fun readUserData() {
@@ -147,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                             startEnterUserInformationFragment()
                         }
                         else {
-                            setCurrentUserData(task.result?.data as Map<String, Any>)
+                            currentUserInformation = getCurrentUserData(task.result?.data as Map<String, Any>)
                         }
                     else
                         errorHandler.errorHandling(
@@ -166,58 +175,21 @@ class MainActivity : AppCompatActivity() {
             TAG_ENTER_USER_INFORMATION_FRAGMENT)
     }
 
-    private fun setCurrentUserData(map: Map<String, Any>) {
-        println("AAAAAAA: $map")
-        currentUserInformation
-    }
-//
-    var categories: MutableList<Int>,
-    var publicName: String,
-    var uid: String,
-    var userType: Int,
-    var channelIds: MutableList<String> = mutableListOf(),
-    var commentsWritten: MutableList<CommentModel> = mutableListOf(),
-    var favoritePrIds: MutableList<String> = mutableListOf(),
-    var favoriteUserIds: MutableList<String> = mutableListOf(),
-    var myPrIds: MutableList<String> = mutableListOf(),
-    var partnerIds: MutableList<String> = mutableListOf(),
-    var profileImageUri: String? = null,
-    var pushToken: String? = null,
-    var receivedStarCount: Int = 0,
-    var registeredOnPartners: Boolean = false,
-    var tier: Int = Tier.NORMAL,
-    var userIdsReceivedMyStar: MutableList<String> = mutableListOf(),
-    var youtubeVideos: MutableList<VideoModel> = mutableListOf())
-//
-    @Suppress("UNCHECKED_CAST")
-    private fun createUserInformationFromMap(map: Map<String, Any>): UserInformationModel {
-        return UserInformationModel(categories = map[UserInformationModel.KEY_CATEGORIES] as MutableList<Int>,
-            publicName = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            uid = map[UserInformationModel.KEY_UID] as String,
-            userType = map[UserInformationModel.KEY_USER_TYPE] as Int,
-            channelIds = map[UserInformationModel.KEY_CHANNEL_IDS] as MutableList<String>,
-            commentsWritten = map[UserInformationModel.KEY_COMMENTS_WRITTEN] as MutableList<CommentModel>,
-            favoritePrIds = map[UserInformationModel.KEY_FAVORITE_PR_IDS] as MutableList<String>,
-            favoriteUserIds = map[UserInformationModel.KEY_FAVORITE_USER_IDS] as MutableList<String>,
-            myPrIds = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            partnerIds = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            profileImageUri = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            pushToken = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            receivedStarCount = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            registeredOnPartners = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            tier = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            userIdsReceivedMyStar = map[UserInformationModel.KEY_PUBLIC_NAME] as String,
-            youtubeVideos = map[UserInformationModel.KEY_PUBLIC_NAME] as String
-        )
-    }
+    private fun getCurrentUserData(map: Map<String, Any>): UserInformationModel =
+        Gson().fromJson(JSONObject(map).toString(), UserInformationModel::class.java)
+
 
     companion object {
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
+        const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
 
         lateinit var contentCategories: Array<String>
         lateinit var userTypes: Array<String>
 
         var currentUserInformation: UserInformationModel? = null
+
+        const val HORIZONTAL = 0
+        const val VERTICAL = 1
     }
 }

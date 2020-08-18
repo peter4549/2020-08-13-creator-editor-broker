@@ -34,7 +34,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.3.2'
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.firebase:firebase-core:17.4.4'
+    implementation 'com.google.firebase:firebase-core:17.5.0'
     implementation 'com.google.firebase:firebase-firestore:21.5.0'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
@@ -65,4 +65,7 @@ dependencies {
 
     // Facebook SDK
     implementation 'com.facebook.android:facebook-android-sdk:7.1.0'
+
+    // Custom Tabs
+    implementation "androidx.browser:browser:1.2.0"
 }
