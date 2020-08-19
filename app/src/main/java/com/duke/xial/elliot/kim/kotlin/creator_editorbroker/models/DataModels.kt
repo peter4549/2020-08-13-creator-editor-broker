@@ -54,6 +54,15 @@ data class PrModel(var categories: MutableList<String?>,
 data class VideoModel(val id: String,
                       val snippet: SnippetModel)
 
+data class ChannelModel(val id: String,
+                        val title: String,
+                        val thumbnailUri: String)
+
+data class PlaylistDataModel(val id: String,
+                             val title: String,
+                             val description: String,
+                             val thumbnailUri: String)
+
 object Tier {
     const val NORMAL = 0
     const val PREMIUM = 1

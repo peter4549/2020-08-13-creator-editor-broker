@@ -2,24 +2,20 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2
 
 import android.content.Context
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChannelsItemsModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistItemsModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistsModel
+import com.google.gson.internal.LinkedTreeMap
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.*
 
 class YouTubeDataApi(context: Context) {
 
     init {
         googleApiKey = context.getString(R.string.google_api_key)
     }
-
-    data class AuthorizationRequest(val code: String,
-                                    val client_id: String = ANDROID_CLIENT_ID,
-                                    val redirect_uri: String = REDIRECT_URI,
-                                    val grant_type: String = "authorization_code")
 
     fun getGoogleAuthorizationServerUrl() = "https://accounts.google.com/o/oauth2/auth?" +
             "client_id=$ANDROID_CLIENT_ID&" +
@@ -29,27 +25,90 @@ class YouTubeDataApi(context: Context) {
             "access_type=offline"
 
     interface AuthorizationService {
+        @FormUrlEncoded
         @POST(GOOGLE_AUTHORIZATION_SERVER_URL)
         fun requestAuthorization(
-            code: String,
-            @Body authorizationRequest: AuthorizationRequest = AuthorizationRequest(
-                code
-            )
-        )
+            @Field("code") code: String,
+            @Field("client_id") client_id: String = ANDROID_CLIENT_ID,
+            @Field("redirect_uri") redirect_uri: String = REDIRECT_URI,
+            @Field("grant_type") grant_type: String = "authorization_code"
+        ): Call<LinkedTreeMap<String, Any>>
+    }
+
+    interface ChannelsService {
+        @GET("/youtube/v3/channels")
+        fun requestByAccessToken(
+            @Header("Authorization") Authorization: String,
+            @Query("part") part: String = "id,snippet",
+            @Query("mine") mine: Boolean = true
+        ): Call<ChannelsItemsModel>
+
+        @GET("/youtube/v3/channels?")
+        fun requestById(
+            @Query("part") part: String = "snippet",
+            @Query("id") id: String
+        ): Call<ChannelsItemsModel>
+    }
+
+    /*
+    fun getChannelIdsRequestByAccessToken(accessToken: String) =
+        Request.Builder().header("Content-Type", "application/json")
+            .addHeader("Authorization", "Bearer $accessToken")
+            .url(CHANNELS_REQUEST_URL)
+            .get()
+            .build()
+
+     */
+
+    interface PlaylistsService {
+        @GET("/youtube/v3/playlists")
+        fun requestByChannelId(
+            @Query("key") key: String = googleApiKey,
+            @Query("part") part: String = "snippet",
+            @Query("channelId") channelId: String,
+            @Query("maxResults") maxResults: Int = 10
+        ): Call<PlaylistsModel>
     }
 
     interface PlaylistItemsService {
         @GET("/youtube/v3/playlistItems")
-        fun requestPlaylistItems(
+        fun requestById(
             @Query("key") key: String = googleApiKey,
             @Query("part") part: String = "contentDetails",
             @Query("playlistId") playlistId: String
         ): Call<PlaylistItemsModel>
     }
 
-    object YouTubeApisRequest {
-        private val retrofit = Retrofit.Builder().baseUrl("https://www.googleapis.com")
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://www.googleapis.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    fun getAuthorizationService(): AuthorizationService =
+        retrofit.create(AuthorizationService::class.java)
+
+    fun getChannelsService(): ChannelsService =
+        retrofit.create(ChannelsService::class.java)
+
+    fun getPlaylistsService(): PlaylistsService =
+        retrofit.create(PlaylistsService::class.java)
+
+
+    /*
+    object GoogleApisRequest {
+        private val retrofit =
+            Retrofit.Builder().baseUrl("https://www.googleapis.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+        fun getPlaylistItemsService(): YouTubeDataApis.PlaylistItemsService =
+            retrofit.create(YouTubeDataApis.PlaylistItemsService::class.java)
+
+        fun getVideosService(): YouTubeDataApis.VideosService =
+            retrofit.create(YouTubeDataApis.VideosService::class.java)
     }
+
+     */
 
     // Authorization
     /*
@@ -224,7 +283,6 @@ class YouTubeDataApi(context: Context) {
     companion object {
         private const val GOOGLE_AUTHORIZATION_SERVER_URL = "https://accounts.google.com/o/oauth2/token"
         private const val ANDROID_CLIENT_ID = "39537376089-vjs4br85vjkm2mf7lacb3fu7j98r1aii.apps.googleusercontent.com"
-        private const val CHANNELS_REQUEST_URL = "https://www.googleapis.com/youtube/v3/channels?part=id&mine=true"
         private const val REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
         private const val RESPONSE_TYPE = "code"
         private const val SCOPE = "https://www.googleapis.com/auth/youtube"

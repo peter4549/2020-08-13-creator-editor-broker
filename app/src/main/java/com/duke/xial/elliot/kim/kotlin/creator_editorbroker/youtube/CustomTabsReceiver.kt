@@ -6,7 +6,7 @@ import android.content.Intent
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 
-class CustomTabsReceiver : BroadcastReceiver() {
+class CustomTabsReceiver : BroadcastReceiver() { // 딱히 필요없어보임??
     override fun onReceive(context: Context?, intent: Intent?) {
         val url = intent?.dataString!!
 

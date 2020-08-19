@@ -6,23 +6,40 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChannelModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChannelsItemsModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2.YouTubeDataApi
+import com.google.gson.internal.LinkedTreeMap
 import kotlinx.android.synthetic.main.activity_youtube_channels.*
+import kotlinx.android.synthetic.main.item_view_channel.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class YouTubeChannelsActivity: AppCompatActivity() {
 
     private var connection: CustomTabsServiceConnection? = null
-    private lateinit var errorHandler: ErrorHandler
-    private lateinit var youTubeDataApi: YouTubeDataApi
+    private lateinit var channelRecyclerViewAdapter: ChannelRecyclerViewAdapter
+    lateinit var errorHandler: ErrorHandler
+    lateinit var youTubeDataApi: YouTubeDataApi
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -50,20 +67,131 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         super.onNewIntent(intent)
         if (intent?.action == ACTION_NEW_INTENT) {
             val code = intent.getStringExtra(KEY_AUTHORIZATION_CODE) as String
-            //getAccessCode(code)
+            getAccessTokenChannels(code)
             unbindCustomTabsService()
         }
     }
 
+    private fun getAccessTokenChannels(code: String) {
+        youTubeDataApi.getAuthorizationService()
+            .requestAuthorization(code).enqueue(object: Callback<LinkedTreeMap<String, Any>> {
+                override fun onFailure(call: Call<LinkedTreeMap<String, Any>>, t: Throwable) {
+                    errorHandler.errorHandling(t, getString(R.string.failed_to_get_access_token))
+                }
+
+                override fun onResponse(
+                    call: Call<LinkedTreeMap<String, Any>>,
+                    response: Response<LinkedTreeMap<String, Any>>
+                ) {
+                    val accessToken =(response.body() as LinkedTreeMap<String, Any>)["access_token"] as String
+                    getChannels(accessToken)
+                }
+            })
+
+        /*
+        youTubeDataApi..getPlaylistItemsService()
+            .requestPlaylistItems().enqueue(object:
+                Callback<PlaylistItemsModel> {
+                override fun onFailure(call: Call<PlaylistItemsModel>, t: Throwable) {
+                    errorHandler.errorHandling(t, "플레이리스트를 불러오지 못했습니다.")
+                }
+
+                override fun onResponse(
+                    call: Call<PlaylistItemsModel>,
+                    response: Response<PlaylistItemsModel>
+                ) {
+                    if (response.isSuccessful) {
+                        val videoIds =
+                            response.body()?.items?.map { it.contentDetails }
+                                ?.joinToString(",") { it.videoId }
+                        if (videoIds != null) {
+                            getVideos(tabLayout, viewPager, videoIds)
+                        } else
+                            errorHandler.errorHandling(
+                                Exception("failed to load playlist, videoIds is null, unknown exception"),
+                                getString(R.string.failed_to_load_playlist), throwing = true)
+                    } else
+                        response.errorBody()?.let {
+                            ResponseFailedException(
+                                "failed to load playlist",
+                                it
+                            )
+                        }?.let { errorHandler.errorHandling(it, getString(R.string.failed_to_load_playlist)) }
+                }
+            })
+
+         */
+
+    }
+
+    private fun getChannels(accessToken: String) {
+        youTubeDataApi.getChannelsService().requestByAccessToken("Bearer $accessToken")
+            .enqueue(object: Callback<ChannelsItemsModel>{
+                override fun onFailure(call: Call<ChannelsItemsModel>, t: Throwable) {
+                    errorHandler.errorHandling(t, getString(R.string.failed_to_get_channels))
+                }
+
+                override fun onResponse(
+                    call: Call<ChannelsItemsModel>,
+                    response: Response<ChannelsItemsModel>
+                ) {
+                    response.body()?.let {
+                        channelRecyclerViewAdapter.insert(createChannelModel(it))
+                    } ?: run {
+                        errorHandler.errorHandling(NullPointerException("failed to get channels"),
+                            getString(R.string.failed_to_get_channels))
+                    }
+                }
+            })
+    }
+
+    private fun createChannelModel(channelsItemsModel: ChannelsItemsModel): ChannelModel {
+        val channelItem = channelsItemsModel.items[0]
+        return ChannelModel(id = channelItem.id,
+            title = channelItem.snippet.title,
+            thumbnailUri = channelItem.snippet.thumbnails.medium.url)
+    }
+
+    /*
+    private fun getAccessCode(code: String) {
+        val request = youTubeDataApi.getAuthorizationRequest(code)
+
+        val okHttpClient = OkHttpClient()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                ErrorHandler.errorHandling(this@YouTubeChannelsActivity, e,
+                    getString(R.string.failed_to_get_access_token))
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val map: Map<*, *>? =
+                        Gson().fromJson(response.body?.string(), Map::class.java)
+                    getChannelId(map?.get("access_token") as String) // 채널 아이디를 가져옴. 이 액세스 코드를 이용. 얘를 리턴하는 식으로 flatten할수잇으면 좋은디.
+                } else
+                    ErrorHandler.errorHandling(this@YouTubeChannelsActivity,
+                        ResponseFailedException("response failed, failed to get access token", response),
+                        getString(R.string.failed_to_get_access_token))
+            }
+        })
+    }
+
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_youtube_channels)
+        // 여기서 아이디로부터 채널 생성 해야함.
+
+        channelRecyclerViewAdapter = ChannelRecyclerViewAdapter(arrayListOf()) // 여기에 메인 유저 모델로부터 얻은 채널리스트 가져올것.
 
         errorHandler = ErrorHandler(this)
-        youTubeDataApi =
-            YouTubeDataApi(
-                this
-            )
+        youTubeDataApi = YouTubeDataApi(this)
+
+        recycler_view_channels.apply {
+            adapter = channelRecyclerViewAdapter
+            layoutManager = GridLayoutManagerWrapper(this@YouTubeChannelsActivity, 1)
+        }
 
         if (MainActivity.currentUserInformation?.channelIds?.isEmpty()!!)
             text_view_empty.visibility = View.VISIBLE
@@ -149,18 +277,59 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         }
     }
 
-    /*
-
     inner class ChannelRecyclerViewAdapter(private val channels: ArrayList<ChannelModel>,
-                                           layoutId: Int = R.layout.item_view_image)
+                                           layoutId: Int = R.layout.item_view_channel)
         : BaseRecyclerViewAdapter<ChannelModel>(channels, layoutId)  {
 
-        init {
-            if (channelIds.isNotEmpty())
-                insertChannelsByIds(channelIds)
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val channel = channels[position]
+
+            loadImage(holder.view.image_view_thumbnail, channel.thumbnailUri)
+            holder.view.text_view_title.text = channel.title
+            holder.view.setOnClickListener {
+                startPlaylistsFragment(channel.id)
+            }
         }
 
-        private fun insertChannelsByIds(channelIds: MutableList<String>) {
+        private fun loadImage(imageView: ImageView, imageUri: String) {
+            Glide.with(imageView.context)
+                .load(imageUri)
+                .error(R.drawable.ic_baseline_sentiment_dissatisfied_80)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .transform(CenterCrop(), RoundedCorners(8))
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .listener(null)
+                .into(imageView)
+        }
+
+        private fun startPlaylistsFragment(channelId: String) {
+            supportFragmentManager.beginTransaction()
+                .addToBackStack(null)
+                .setCustomAnimations(
+                    R.anim.anim_slide_in_left,
+                    R.anim.anim_slide_out_left,
+                    R.anim.anim_slide_in_right,
+                    R.anim.anim_slide_out_right
+                ).replace(R.id.constraint_layout_activity_youtube_channels,
+                    YouTubePlaylistsFragment().apply {
+                        setChannelId(channelId)
+                    }, TAG_YOUTUBE_PLAYLISTS_FRAGMENT)
+                .commit()
+        }
+    }
+
+    companion object {
+        const val ACTION_NEW_INTENT = "youtube.channels.activity.action.new.intent"
+        const val KEY_AUTHORIZATION_CODE = "key_authorization_code"
+        private const val CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome"
+        private const val TAG = "YouTubeChannelsActivity"
+        private const val TAG_YOUTUBE_PLAYLISTS_FRAGMENT = "tag_youtube_playlists_fragment"
+    }
+}
+
+/* 이거슨 채널을 아이도로 찾아 채널 객체를 찾아오는 거시다.
+private fun insertChannelsByIds(channelIds: MutableList<String>) {
             val request = youTubeDataApi.getChannelsRequestByIds(channelIds)
             val okHttpClient = OkHttpClient()
             var channelCount = 0
@@ -210,90 +379,4 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                 }
             })
         }
-
-        private fun insertChannelById(channelId: String) {
-            val request = youTubeDataApi.getChannelRequestById(channelId)
-            val okHttpClient = OkHttpClient()
-            okHttpClient.newCall(request).enqueue(object: Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    ErrorHandler.errorHandling(this@YouTubeChannelsActivity,
-                        Exception("failed to register channel"),
-                        getString(R.string.failed_to_register_channel))
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (response.isSuccessful) {
-                        try {
-                            channels.add(0, youTubeDataApi.getChannelFromResponse(response))
-                            CoroutineScope(Dispatchers.Main).launch {
-                                notifyItemInserted(0)
-                            }
-                        } catch (e: Exception) {
-                            ErrorHandler.errorHandling(this@YouTubeChannelsActivity,
-                                e,
-                                getString(R.string.failed_to_register_channel))
-                        }
-                    } else {
-                        ErrorHandler.errorHandling(this@YouTubeChannelsActivity,
-                            Exception("failed to register channel"),
-                            getString(R.string.failed_to_register_channel))
-                    }
-                }
-            })
-        }
-
-        inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_view_channel, parent, false)
-
-            return ViewHolder(view)
-        }
-
-        override fun getItemCount(): Int {
-            return channels.size
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val channel = channels[position]
-
-            holder.view.text_view_title.text = channel.title
-            holder.view.text_view_description
-            loadImage(holder.view.image_view, channel.thumbnailUri)
-
-            holder.view.setOnClickListener {
-                PlaylistsDialogFragment(
-                    channel.id
-                ).show(this@YouTubeChannelsActivity.supportFragmentManager,
-                    TAG
-                )
-            }
-        }
-
-        private fun loadImage(imageView: ImageView, imageUri: String) {
-            Glide.with(imageView.context)
-                .load(imageUri)
-                .error(R.drawable.ic_sentiment_dissatisfied_grey_24dp)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .transform(CenterCrop())
-                .into(imageView)
-        }
-
-        fun insert(channelId: String) {
-            insertChannelById(channelId)
-        }
-    }
-
-     */
-
-    companion object {
-        const val ACTION_NEW_INTENT = "youtube.channels.activity.action.new.intent"
-        const val KEY_AUTHORIZATION_CODE = "key_authorization_code"
-        private const val CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome"
-        private const val TAG = "YouTubeChannelsActivity"
-    }
-}
+ */
