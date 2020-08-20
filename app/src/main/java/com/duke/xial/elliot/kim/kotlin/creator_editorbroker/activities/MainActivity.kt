@@ -15,17 +15,21 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PrListFrag
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SignInFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
+import java.lang.NullPointerException
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
+    lateinit var fireStoreDocumentReference: DocumentReference
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
     val errorHandler = ErrorHandler(this)
     val prListFragment = PrListFragment()
@@ -145,10 +149,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readUserData() {
-        FirebaseFirestore.getInstance()
-            .collection(FireStore.Collection.COLLECTION_USERS)
+        fireStoreDocumentReference = FirebaseFirestore.getInstance()
+            .collection(FireStore.COLLECTION_USERS)
             .document(firebaseAuth.currentUser?.uid.toString())
-            .get().addOnCompleteListener { task ->
+        fireStoreDocumentReference.get().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     if (task.result != null)
                         if (task.result?.data == null) {
@@ -170,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startEnterUserInformationFragment() {
-        startFragment(EnterUserInformationFragment(),
+        startFragment(EnterUserInformationFragment.newInstance(),
             R.id.constraint_layout_activity_main,
             TAG_ENTER_USER_INFORMATION_FRAGMENT)
     }
@@ -178,18 +182,45 @@ class MainActivity : AppCompatActivity() {
     private fun getCurrentUserData(map: Map<String, Any>): UserInformationModel =
         Gson().fromJson(JSONObject(map).toString(), UserInformationModel::class.java)
 
+    override fun onPause() {
+        if (currentUserInformation != null)
+            updateChangedUserInformation()
+        super.onPause()
+    }
+
+    private fun updateChangedUserInformation() {
+        val map = mutableMapOf<String, Any>()
+
+        if (channelIdsChanged)
+            map[UserInformationModel.KEY_CHANNEL_IDS] = currentUserInformation!!.channelIds
+
+        if (map.isNotEmpty()) {
+            @Suppress("UNCHECKED_CAST")
+            fireStoreDocumentReference
+                .update(map)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        println("$TAG: changed user information updated")
+                    } else
+                        errorHandler.errorHandling(
+                            task.exception
+                                ?: NullPointerException("failed to update user information")
+                        )
+                }
+        }
+    }
 
     companion object {
+        const val HORIZONTAL = 0
+        const val VERTICAL = 1
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
 
         lateinit var contentCategories: Array<String>
         lateinit var userTypes: Array<String>
-
+        private const val TAG = "MainActivity"
         var currentUserInformation: UserInformationModel? = null
-
-        const val HORIZONTAL = 0
-        const val VERTICAL = 1
+        var channelIdsChanged = false
     }
 }

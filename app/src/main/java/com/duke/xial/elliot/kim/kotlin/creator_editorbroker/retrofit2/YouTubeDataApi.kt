@@ -43,22 +43,13 @@ class YouTubeDataApi(context: Context) {
             @Query("mine") mine: Boolean = true
         ): Call<ChannelsItemsModel>
 
-        @GET("/youtube/v3/channels?")
+        @GET("/youtube/v3/channels")
         fun requestById(
+            @Query("key") key: String = googleApiKey,
             @Query("part") part: String = "snippet",
             @Query("id") id: String
         ): Call<ChannelsItemsModel>
     }
-
-    /*
-    fun getChannelIdsRequestByAccessToken(accessToken: String) =
-        Request.Builder().header("Content-Type", "application/json")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .url(CHANNELS_REQUEST_URL)
-            .get()
-            .build()
-
-     */
 
     interface PlaylistsService {
         @GET("/youtube/v3/playlists")

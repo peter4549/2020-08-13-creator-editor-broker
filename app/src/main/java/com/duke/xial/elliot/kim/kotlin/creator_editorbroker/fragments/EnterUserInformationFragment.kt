@@ -15,9 +15,9 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.Collection.COLLECTION_USERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GALLERY
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Storage.Collection.COLLECTION_PROFILE_IMAGES
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Storage.COLLECTION_PROFILE_IMAGES
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.firebase.firestore.FirebaseFirestore
