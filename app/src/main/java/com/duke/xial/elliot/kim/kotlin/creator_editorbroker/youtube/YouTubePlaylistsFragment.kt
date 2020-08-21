@@ -12,8 +12,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistDataModel
-import kotlinx.android.synthetic.main.fragment_youtube_playlists.*
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.*
 import kotlinx.android.synthetic.main.fragment_youtube_playlists.view.*
 import kotlinx.android.synthetic.main.item_view_playlist.view.*
 
@@ -22,7 +21,7 @@ class YouTubePlaylistsFragment: Fragment() {
     private var playlists: ArrayList<PlaylistDataModel>? = null
     private var nextPageToken: String? = null
 
-    fun setNextToken(nextPageToken: String?) {
+    fun setNextPageToken(nextPageToken: String?) {
         this.nextPageToken = nextPageToken
     }
 
@@ -54,7 +53,7 @@ class YouTubePlaylistsFragment: Fragment() {
 
     inner class PlaylistsRecyclerViewAdapter(private val playlists: ArrayList<PlaylistDataModel>,
                                              layoutId: Int = R.layout.item_view_playlist)
-        : BaseRecyclerViewAdapter<PlaylistDataModel>(playlists, layoutId) {
+        : BaseRecyclerViewAdapter<PlaylistDataModel>(layoutId, playlists) {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val playlist = playlists[position]
@@ -62,6 +61,9 @@ class YouTubePlaylistsFragment: Fragment() {
             loadImage(holder.view.image_view_thumbnail, playlist.thumbnailUri)
             holder.view.text_view_title.text = playlist.title
             holder.view.text_view_description.text = playlist.description
+            holder.view.setOnClickListener {
+                startVideosFragment(playlist.id)
+            }
         }
 
         private fun loadImage(imageView: ImageView, imageUri: String) {
@@ -75,5 +77,24 @@ class YouTubePlaylistsFragment: Fragment() {
                 .listener(null)
                 .into(imageView)
         }
+
+        private fun startVideosFragment(playlistId: String) {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .addToBackStack(null)
+                .setCustomAnimations(
+                    R.anim.anim_slide_in_left_without_fading,
+                    R.anim.anim_slide_out_left_wihtout_fading,
+                    R.anim.anim_slide_in_right_without_fading,
+                    R.anim.anim_slide_out_right_without_fading
+                ).replace(R.id.constraint_layout_activity_youtube_channels,
+                    YouTubeVideosFragment().apply {
+                        setPlaylistId(playlistId)
+                    }, TAG_YOUTUBE_VIDEOS_FRAGMENT
+                ).commit()
+        }
+    }
+
+    companion object {
+        const val TAG_YOUTUBE_VIDEOS_FRAGMENT = "tag_youtube_videos_fragment"
     }
 }

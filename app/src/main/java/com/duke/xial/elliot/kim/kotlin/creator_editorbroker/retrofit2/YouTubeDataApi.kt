@@ -5,6 +5,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChannelsItemsModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistItemsModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistsModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideosItemsModel
 import com.google.gson.internal.LinkedTreeMap
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -66,8 +67,19 @@ class YouTubeDataApi(context: Context) {
         fun requestById(
             @Query("key") key: String = googleApiKey,
             @Query("part") part: String = "contentDetails",
-            @Query("playlistId") playlistId: String
+            @Query("playlistId") playlistId: String,
+            @Query("maxResults") maxResults: Int = 20
         ): Call<PlaylistItemsModel>
+    }
+
+    interface VideosService {
+        @GET("/youtube/v3/videos")
+        fun requestById(
+            @Query("key") key: String = googleApiKey,
+            @Query("part") part: String = "snippet,statistics",
+            @Query("id") id: String,
+            @Query("maxResults") maxResults: Int = 20
+        ): Call<VideosItemsModel>
     }
 
     private val retrofit = Retrofit.Builder()
@@ -83,6 +95,12 @@ class YouTubeDataApi(context: Context) {
 
     fun getPlaylistsService(): PlaylistsService =
         retrofit.create(PlaylistsService::class.java)
+
+    fun getPlaylistItemsService(): PlaylistItemsService =
+        retrofit.create(PlaylistItemsService::class.java)
+
+    fun getVideosService(): VideosService =
+        retrofit.create(VideosService::class.java)
 
 
     /*

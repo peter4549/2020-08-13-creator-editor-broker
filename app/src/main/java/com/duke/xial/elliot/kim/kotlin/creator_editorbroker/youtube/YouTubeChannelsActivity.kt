@@ -295,7 +295,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
 
     inner class ChannelRecyclerViewAdapter(private val channels: ArrayList<ChannelModel>,
                                            layoutId: Int = R.layout.item_view_channel)
-        : BaseRecyclerViewAdapter<ChannelModel>(channels, layoutId)  {
+        : BaseRecyclerViewAdapter<ChannelModel>(layoutId, channels)  {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val channel = channels[position]
@@ -331,19 +331,25 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                             call: Call<PlaylistsModel>,
                             response: Response<PlaylistsModel>
                         ) {
-                            val playlistsModel = response.body()
-                            val nextPageToken = playlistsModel?.nextPageToken
-                            val playlistDataList =
-                                playlistsModel?.items?.map { createPlayListModel(it) } as ArrayList<PlaylistDataModel>
-                            val youtubePlaylistsFragment =
-                                YouTubePlaylistsFragment().apply {
-                                    setNextToken(nextPageToken)
-                                    setPlaylists(playlistDataList)
-                                }
+                            val playlists = response.body()
+                            if (playlists != null) {
+                                val nextPageToken = playlists.nextPageToken
+                                val playlistDataList =
+                                    playlists.items.map { createPlayListModel(it) } as ArrayList<PlaylistDataModel>
+                                val youtubePlaylistsFragment =
+                                    YouTubePlaylistsFragment().apply {
+                                        setNextPageToken(nextPageToken)
+                                        setPlaylists(playlistDataList)
+                                    }
 
-                            CoroutineScope(Dispatchers.Main).launch {
-                                startPlaylistsFragment(youtubePlaylistsFragment)
-                            }
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    startPlaylistsFragment(youtubePlaylistsFragment)
+                                }
+                            } else
+                                errorHandler
+                                    .errorHandling(ResponseFailureException("failed to get playlists",
+                                        response.errorBody()!!),
+                                    getString(R.string.failed_to_get_playlists))
                         }
                     })
         }
@@ -359,10 +365,10 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .addToBackStack(null)
                 .setCustomAnimations(
-                    R.anim.anim_slide_in_left,
-                    R.anim.anim_slide_out_left,
-                    R.anim.anim_slide_in_right,
-                    R.anim.anim_slide_out_right
+                    R.anim.anim_slide_in_left_without_fading,
+                    R.anim.anim_slide_out_left_wihtout_fading,
+                    R.anim.anim_slide_in_right_without_fading,
+                    R.anim.anim_slide_out_right_without_fading
                 ).replace(R.id.constraint_layout_activity_youtube_channels,
                     playlistsFragment, TAG_YOUTUBE_PLAYLISTS_FRAGMENT)
                 .commit()

@@ -52,7 +52,8 @@ data class PrModel(var categories: MutableList<String?>,
                    var youtubeVideos: MutableList<VideoModel> = mutableListOf())
 
 data class VideoModel(val id: String,
-                      val snippet: SnippetModel)
+                      val snippet: SnippetModel,
+                      val statistics: StatisticsModel)
 
 data class ChannelModel(val id: String,
                         val title: String,

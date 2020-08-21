@@ -67,7 +67,7 @@ class WritePrFragment: Fragment() {
 
     inner class ImageRecyclerViewAdapter(private val thumbnailUris: ArrayList<Uri?>,
                                          layoutId: Int = R.layout.item_view_image)
-        : BaseRecyclerViewAdapter<Uri?>(thumbnailUris, layoutId) {
+        : BaseRecyclerViewAdapter<Uri?>(layoutId, thumbnailUris) {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             super.onBindViewHolder(holder, position)

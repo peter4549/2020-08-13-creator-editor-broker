@@ -10,17 +10,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Suppress("unused")
-open class BaseRecyclerViewAdapter<T: Any?>(private val items: ArrayList<T>,
-                                            private val layoutId: Int):
+open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
+                                            protected var items: ArrayList<T> = arrayListOf()):
     RecyclerView.Adapter<BaseRecyclerViewAdapter<T>.ViewHolder>() {
 
-    private lateinit var recyclerView: RecyclerView
+    lateinit var recyclerView: RecyclerView
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         this.recyclerView = recyclerView
+        this.recyclerView.scheduleLayoutAnimation()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

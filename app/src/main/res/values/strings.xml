@@ -77,6 +77,7 @@
     <string name="complete">완료</string>
     <string name="failed_to_authorization">인증에 실패했습니다.</string>
     <string name="failed_to_connect_authorization_service">인증 서비스 연결에 실패했습니다.</string>
+    <string name="failed_to_get_videos">비디오를 불러오는데 실패했습니다.</string>
 
     <string name="failed_to_get_access_token">액세스 토큰을 얻는데 실패했습니다.</string>
     <string name="failed_to_get_channels">채널을 가져오는데 실패했습니다.</string>

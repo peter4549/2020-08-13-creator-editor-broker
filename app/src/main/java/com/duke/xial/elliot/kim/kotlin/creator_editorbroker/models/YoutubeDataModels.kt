@@ -2,8 +2,6 @@
 
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models
 
-import com.google.common.primitives.UnsignedInteger
-
 data class ChannelsItemsModel(val items: List<ItemModel>)
 
 data class PlaylistsModel(val kind: String,
@@ -17,15 +15,14 @@ data class PlaylistItemsModel(val kind: String,
                               val items: List<ItemModel>)
 
 data class VideosItemsModel(val nextPageToken: String,
-                            val prevPageToken: String,
-                            val items: List<ItemModel>)
+                            val items: List<VideoModel>)
 
 data class ItemModel(val kind: String,
                      val etag: String,
                      val id: String,
                      val contentDetails: ContentDetailsModel,
                      val snippet: SnippetModel,
-                     val statistics: StandardModel)
+                     val statistics: StatisticsModel)
 
 data class ContentDetailsModel(val itemCount: Int,
                                val videoId: String,
