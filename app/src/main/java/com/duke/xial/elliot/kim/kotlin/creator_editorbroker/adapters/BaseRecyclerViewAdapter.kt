@@ -22,6 +22,7 @@ open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
         super.onAttachedToRecyclerView(recyclerView)
         this.recyclerView = recyclerView
         this.recyclerView.scheduleLayoutAnimation()
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

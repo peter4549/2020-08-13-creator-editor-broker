@@ -29,6 +29,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class YouTubeVideosFragment: Fragment() {
+
+    private var nextPageToken: String? = null
     private var playlistId: String? = null
 
     fun setPlaylistId(playlistId: String) {
@@ -54,7 +56,15 @@ class YouTubeVideosFragment: Fragment() {
         BaseRecyclerViewAdapter<VideoModel>(layoutId = layoutId) {
 
         init {
-            playlistId?.let { setPlaylistItemsById(it) }
+            if ((requireActivity() as YouTubeChannelsActivity).youtubeDataManager
+                    .videosInUse.keys.contains(playlistId)) {
+                nextPageToken = (requireActivity() as YouTubeChannelsActivity).youtubeDataManager
+                    .nextPageTokenOfVideos[playlistId]
+                items = (requireActivity() as YouTubeChannelsActivity).youtubeDataManager
+                    .videosInUse[playlistId] ?: arrayListOf()
+                println("OOOOOOOOOOOOOOO")
+            } else
+                playlistId?.let { setPlaylistItemsById(it) }
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -87,8 +97,7 @@ class YouTubeVideosFragment: Fragment() {
                             val nextPageToken = playlistItems.nextPageToken
                             val joinedVideoIds =
                                 playlistItems.items.joinToString(",") { it.contentDetails.videoId }
-                            setVideosByIds(joinedVideoIds)
-
+                            setVideosByIds(nextPageToken, joinedVideoIds)
                         } else
                             (requireActivity() as YouTubeChannelsActivity).errorHandler
                                 .errorHandling(
@@ -99,7 +108,7 @@ class YouTubeVideosFragment: Fragment() {
                 })
         }
 
-        private fun setVideosByIds(videoIds: String) {
+        private fun setVideosByIds(nextPageToken: String?, videoIds: String) {
             (requireActivity() as YouTubeChannelsActivity).youTubeDataApi.getVideosService()
                 .requestById(id = videoIds)
                 .enqueue(object : Callback<VideosItemsModel>{
@@ -119,6 +128,8 @@ class YouTubeVideosFragment: Fragment() {
                                 recyclerView.scheduleLayoutAnimation()
                                 notifyDataSetChanged()
                             }
+                            (requireActivity() as YouTubeChannelsActivity).youtubeDataManager
+                                .registerNextPageTokenAndVideos(playlistId!!, nextPageToken, items)
                         } else {
                             (requireActivity() as YouTubeChannelsActivity).errorHandler
                                 .errorHandling(ResponseFailureException("failed to get videos",

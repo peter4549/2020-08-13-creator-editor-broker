@@ -44,6 +44,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
     private lateinit var channelRecyclerViewAdapter: ChannelRecyclerViewAdapter
     lateinit var errorHandler: ErrorHandler
     lateinit var youTubeDataApi: YouTubeDataApi
+    var youtubeDataManager = YouTubeDataManager.getInstance()
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -303,7 +304,15 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             loadImage(holder.view.image_view_thumbnail, channel.thumbnailUri)
             holder.view.text_view_title.text = channel.title
             holder.view.setOnClickListener {
-                setPlaylistsByChannelIdAndStartPlaylistsFragment(channel.id)
+                if (youtubeDataManager.playlistsInUse.keys.contains(channel.id)) {
+                    startPlaylistsFragment(YouTubePlaylistsFragment().apply {
+                        setNextPageToken(youtubeDataManager.nextPageTokensOfPlaylists[channel.id])
+                        setPlaylists(youtubeDataManager.playlistsInUse[channel.id])
+                    })
+                    println("AAAAAAAAAAAAAAA")
+                }
+                else
+                    setPlaylistsByChannelIdAndStartPlaylistsFragment(channel.id)
             }
         }
 
@@ -342,6 +351,8 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                                         setPlaylists(playlistDataList)
                                     }
 
+                                youtubeDataManager.registerNextPageTokenAndPlaylists(channelId,
+                                    nextPageToken, playlistDataList)
                                 CoroutineScope(Dispatchers.Main).launch {
                                     startPlaylistsFragment(youtubePlaylistsFragment)
                                 }

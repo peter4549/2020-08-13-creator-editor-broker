@@ -6,12 +6,12 @@ data class ChannelsItemsModel(val items: List<ItemModel>)
 
 data class PlaylistsModel(val kind: String,
                           val etag: String,
-                          val nextPageToken: String,
+                          val nextPageToken: String?,
                           val items: List<ItemModel>)
 
 data class PlaylistItemsModel(val kind: String,
                               val etag: String,
-                              val nextPageToken: String,
+                              val nextPageToken: String?,
                               val items: List<ItemModel>)
 
 data class VideosItemsModel(val nextPageToken: String,

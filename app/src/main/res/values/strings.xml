@@ -21,6 +21,7 @@
     <string name="sign_in_with_twitter">트위터로 로그인</string>
     <string name="failed_to_sign_in_with_google">구글 로그인에 실패했습니다.</string>
     <string name="failed_to_sign_in_with_facebook">페이스북 로그인에 실패했습니다.</string>
+    <string name="failed_to_sign_in_with_email">이메일 로그인에 실패했습니다.</string>
     <string name="register">등록</string>
     <string name="failed_to_read_user_data">유저 정보를 불러오지 못했습니다.</string>
     <string name="signed_in">로그인되었습니다.</string>
@@ -90,4 +91,9 @@
     <string name="invalid_authorization_code">유효하지 않은 인증 코드입니다.</string>
     <string name="videos">비디오</string>
     <string name="there_are_no_registered_videos">등록된 비디오가 없습니다.</string>
+    <string name="settings">설정</string>
+    <string name="sign_out">로그아웃</string>
+    <string name="enter_email">이메일을 입력해주세요.</string>
+    <string name="enter_password">비밀번호를 입력해주세요.</string>
+    <string name="sign_up">회원가입</string>
 </resources>

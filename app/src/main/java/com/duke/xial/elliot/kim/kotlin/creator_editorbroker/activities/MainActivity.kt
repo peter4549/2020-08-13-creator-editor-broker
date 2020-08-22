@@ -15,7 +15,6 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PrListFrag
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SignInFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -215,6 +214,7 @@ class MainActivity : AppCompatActivity() {
         const val VERTICAL = 1
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
+        const val TAG_SIGN_UP_FRAGMENT = "tag_sign_up_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
 
         lateinit var contentCategories: Array<String>

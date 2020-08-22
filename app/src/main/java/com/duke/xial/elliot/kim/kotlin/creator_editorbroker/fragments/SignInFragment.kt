@@ -2,10 +2,9 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
@@ -25,15 +24,17 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.android.synthetic.main.fragment_sign_in.*
 import kotlinx.android.synthetic.main.fragment_sign_in.view.*
 
 class SignInFragment : Fragment() {
 
     private val buttonClickListener = View.OnClickListener { view ->
         when(view.id) {
-            R.id.button_sign_in_with_email -> {  }
+            R.id.button_sign_in_with_email -> signInWithEmail()
             R.id.button_sign_in_with_google -> signInWithGoogle()
             R.id.button_sign_in_with_facebook -> signInWithFacebook()
+            R.id.button_sign_up -> startSignUpFragment()
         }
     }
 
@@ -42,11 +43,30 @@ class SignInFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_sign_in, container, false)
+        initializeToolbar(view.toolbar)
         view.button_sign_in_with_email.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_google.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_facebook.setOnClickListener(buttonClickListener)
 
         return view
+    }
+
+    private fun initializeToolbar(toolbar: Toolbar) {
+        (requireActivity() as MainActivity).setSupportActionBar(toolbar)
+        (requireActivity() as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> requireActivity().onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -64,6 +84,30 @@ class SignInFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun signInWithEmail() {
+        if (edit_text_email.text.isBlank()) {
+            showToast(requireContext(), getString(R.string.enter_email))
+            return
+        }
+
+        if (edit_text_password.text.isBlank()) {
+            showToast(requireContext(), getString(R.string.enter_password))
+            return
+        }
+
+        val email = edit_text_email.text.toString()
+        val password = edit_text_password.text.toString()
+
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful)
+                    println("$TAG: sign in with email")
+                else
+                    (requireActivity() as MainActivity).errorHandler
+                        .errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_email))
+            }
     }
 
     private fun signInWithGoogle() {
@@ -124,6 +168,11 @@ class SignInFragment : Fragment() {
                 println("$TAG: ${task.exception}")
             }
         }
+    }
+
+    private fun startSignUpFragment() {
+        (requireActivity() as MainActivity).startFragment(SignUpFragment(),
+            R.id.constraint_layout_activity_main, MainActivity.TAG_SIGN_UP_FRAGMENT)
     }
 
     companion object {
