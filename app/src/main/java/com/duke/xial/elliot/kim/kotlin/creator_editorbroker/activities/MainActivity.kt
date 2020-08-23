@@ -1,6 +1,7 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.FragmentStateAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.EnterUserInformationFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PartnersFragment
@@ -25,6 +28,7 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 import java.lang.NullPointerException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
@@ -49,9 +53,23 @@ class MainActivity : AppCompatActivity() {
         setAuthStateListener()
 
         contentCategories = createContentCategories()
-        userTypes = createUserTypes()
 
-        startFragment(SignInFragment(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
+        @Suppress("DEPRECATION")
+        locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            resources.configuration.locales[0]
+        } else
+            resources.configuration.locale
+
+        println("LLLLLLLL + $locale")
+        println("DEFAULTLOCALE" + Locale.getDefault().country)
+        println("DEFAULTLOCALE" + Locale.getDefault().toLanguageTag())
+        println("DEFAULTLOCALE" + Locale.getDefault().displayCountry)
+        println("DEFAULTLOCALE" + Locale.getDefault().script)
+        println("AVLOCALE" + Locale.getAvailableLocales())
+        println("IOSCOUNTRY" + Locale.getISOCountries())
+        println("IOSLAN" + Locale.getISOLanguages())
+
+        userTypes = createUserTypes()
     }
 
     override fun onStart() {
@@ -112,18 +130,20 @@ class MainActivity : AppCompatActivity() {
 
     private val eventAfterSignIn = {
         showToast(this, getString(R.string.signed_in))
-        popAllFragments()
         readUserData()
+        popAllFragments()
     }
 
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
         currentUserInformation = null
+        startFragment(SignInFragment(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
     }
 
     private fun popAllFragments() {
-        while (supportFragmentManager.backStackEntryCount > 0)
+        while (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStackImmediate()
+        }
     }
 
     fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null, direction: Int = HORIZONTAL) {
@@ -173,6 +193,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startEnterUserInformationFragment() {
+        println("HAHAHAHAHAHAHHAHHAHAHAH")// 프래그먼트 commit 에러 조사.
         startFragment(EnterUserInformationFragment.newInstance(),
             R.id.constraint_layout_activity_main,
             TAG_ENTER_USER_INFORMATION_FRAGMENT)
@@ -190,8 +211,11 @@ class MainActivity : AppCompatActivity() {
     private fun updateChangedUserInformation() {
         val map = mutableMapOf<String, Any>()
 
-        if (channelIdsChanged)
+        if (ChangedData.channelIdsChanged)
             map[UserInformationModel.KEY_CHANNEL_IDS] = currentUserInformation!!.channelIds
+
+        if (ChangedData.prListChanged)
+            map[UserInformationModel.KEY_MY_PR_IDS] = currentUserInformation!!.myPrIds
 
         if (map.isNotEmpty()) {
             @Suppress("UNCHECKED_CAST")
@@ -209,18 +233,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    object ChangedData {
+        var channelIdsChanged = false
+        var prListChanged = false
+    }
+
     companion object {
-        const val HORIZONTAL = 0
-        const val VERTICAL = 1
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
         const val TAG_SIGN_UP_FRAGMENT = "tag_sign_up_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
 
         lateinit var contentCategories: Array<String>
+        lateinit var locale: Locale
         lateinit var userTypes: Array<String>
         private const val TAG = "MainActivity"
         var currentUserInformation: UserInformationModel? = null
-        var channelIdsChanged = false
     }
 }

@@ -1,5 +1,6 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.*
 import android.graphics.BitmapFactory
@@ -23,6 +24,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_PLAYER
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ResponseFailureException
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.*
@@ -145,6 +147,20 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_YOUTUBE_PLAYER -> {
+                    val video =
+                        data?.getSerializableExtra(KEY_VIDEO_DATA) as VideoDataModel
+                    registerVideo(video)
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         unbindCustomTabsService()
@@ -218,7 +234,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                         else {
                             MainActivity.currentUserInformation!!.channelIds.add(channelItem.id)
                             channelRecyclerViewAdapter.insert(createChannelModel(channelItem))
-                            MainActivity.channelIdsChanged = true
+                            MainActivity.ChangedData.channelIdsChanged = true
                         }
                     } else {
                         errorHandler
@@ -232,7 +248,8 @@ class YouTubeChannelsActivity: AppCompatActivity() {
     private fun createChannelModel(channelItem: ItemModel): ChannelModel {
         return ChannelModel(id = channelItem.id,
             title = channelItem.snippet.title,
-            thumbnailUri = channelItem.snippet.thumbnails.medium.url)
+            thumbnailUri = channelItem.snippet.thumbnails.medium?.url ?:
+            channelItem.snippet.thumbnails.default.url)
     }
 
     override fun onStart() {
@@ -294,6 +311,16 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         }
     }
 
+    fun registerVideo(video: VideoDataModel) {
+        if (MainActivity.currentUserInformation?.channelIds?.contains(video.channelId)!!) {
+            val intent = Intent()
+            intent.putExtra(KEY_VIDEO_DATA, video)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        } else
+            showToast(this, getString(R.string.only_videos_from_my_channel_can_be_registered))
+    }
+
     inner class ChannelRecyclerViewAdapter(private val channels: ArrayList<ChannelModel>,
                                            layoutId: Int = R.layout.item_view_channel)
         : BaseRecyclerViewAdapter<ChannelModel>(layoutId, channels)  {
@@ -309,7 +336,6 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                         setNextPageToken(youtubeDataManager.nextPageTokensOfPlaylists[channel.id])
                         setPlaylists(youtubeDataManager.playlistsInUse[channel.id])
                     })
-                    println("AAAAAAAAAAAAAAA")
                 }
                 else
                     setPlaylistsByChannelIdAndStartPlaylistsFragment(channel.id)
@@ -370,7 +396,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             id = item.id,
             title = item.snippet.title,
             description = item.snippet.description,
-            thumbnailUri = item.snippet.thumbnails.standard?.url ?: item.snippet.thumbnails.medium.url)
+            thumbnailUri = item.snippet.thumbnails.standard?.url ?: item.snippet.thumbnails.default.url)
 
         private fun startPlaylistsFragment(playlistsFragment: YouTubePlaylistsFragment) {
             supportFragmentManager.beginTransaction()
@@ -389,6 +415,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
     companion object {
         const val ACTION_NEW_INTENT = "youtube.channels.activity.action.new.intent"
         const val KEY_AUTHORIZATION_CODE = "key_authorization_code"
+        const val KEY_VIDEO_DATA = "key_video_data"
         private const val CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome"
         private const val TAG = "YouTubeChannelsActivity"
         private const val TAG_YOUTUBE_PLAYLISTS_FRAGMENT = "tag_youtube_playlists_fragment"

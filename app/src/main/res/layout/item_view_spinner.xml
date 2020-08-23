@@ -9,4 +9,4 @@
     android:padding="8dp"
     android:maxLines="1"
     android:ellipsize="end"
-    android:background="@color/colorFragmentBackground"/>
+    android:background="@drawable/text_view_bottom_border"/>

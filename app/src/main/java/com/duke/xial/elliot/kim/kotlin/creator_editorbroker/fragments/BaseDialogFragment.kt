@@ -15,7 +15,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 
 interface DynamicChildViewDialog {
     fun setTitle(text: String)
-    fun addTextView(text: String, drawableResourceId: Int?, onClickListener: View.OnClickListener?)
+    fun addTextView(tag: String, text: String, drawableResourceId: Int?, onClickListener: View.OnClickListener?)
 }
 
 open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
@@ -40,7 +40,7 @@ open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
             gravity = Gravity.CENTER
             setPadding(8, 16, 8, 16)
             setText(text)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 24F)
         }
 
         linearLayout.addView(textViewTitle, 0)
@@ -48,6 +48,7 @@ open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
     }
 
     override fun addTextView(
+        tag: String,
         text: String,
         drawableResourceId: Int?,
         onClickListener: View.OnClickListener?
@@ -62,8 +63,9 @@ open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
             setBackgroundResource(typedValue.resourceId)
             gravity = Gravity.CENTER
             setPadding(8, 16, 8, 16)
+            setTag(tag)
             setText(text)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F)
             setOnClickListener(onClickListener)
             if (drawableResourceId != null)
                 setCompoundDrawablesWithIntrinsicBounds(drawableResourceId, 0, 0, 0)

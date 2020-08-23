@@ -1,5 +1,8 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models
 
+import android.os.Parcelable
+import java.io.Serializable
+
 data class UserInformationModel(var categories: MutableList<Int>,
                                 var publicName: String,
                                 var uid: String,
@@ -42,18 +45,15 @@ data class CommentModel (
     val comment: String
 )
 
-data class PrModel(var categories: MutableList<String?>,
+data class PrModel(var categories: MutableList<Int>,
                    var description: String,
-                   var userType: String,
                    var publisherId: String,
                    var publisherPublicName: String,
-                   var registrationTime: String,
+                   var registrationTime: String,  // used as id
+                   var target: Int,
+                   var tier: Int,
                    var title: String,
-                   var youtubeVideos: MutableList<VideoModel> = mutableListOf())
-
-data class VideoModel(val id: String,
-                      val snippet: SnippetModel,
-                      val statistics: StatisticsModel)
+                   var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf())
 
 data class ChannelModel(val id: String,
                         val title: String,
@@ -63,6 +63,14 @@ data class PlaylistDataModel(val id: String,
                              val title: String,
                              val description: String,
                              val thumbnailUri: String)
+
+data class VideoDataModel(var channelId: String,
+                          var description: String,
+                          var id: String,
+                          var publishedAt: String,
+                          var thumbnailUri: String,
+                          var title: String,
+                          val viewCount: String): Serializable
 
 object Tier {
     const val NORMAL = 0

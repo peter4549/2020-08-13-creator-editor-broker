@@ -9,8 +9,9 @@
     <color name="colorCuriousBlue">#3d85b8</color>
 
     <!-- Background Colors -->
-    <color name="colorFragmentBackground">#FFFFFF</color>
     <color name="colorButtonSignIn">#FFFFFF</color>
+    <color name="colorFragmentBackground">#FFFFFF</color>
+    <color name="colorToolbarBackground">@color/colorCrushedIce</color>
 
     <!-- Tint Colors -->
     <color name="colorFacebook">#3B5998</color>

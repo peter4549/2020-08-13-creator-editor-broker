@@ -4,19 +4,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.IndexOutOfBoundsException
 
 @Suppress("unused")
 open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
                                             protected var items: ArrayList<T> = arrayListOf()):
-    RecyclerView.Adapter<BaseRecyclerViewAdapter<T>.ViewHolder>() {
+    RecyclerView.Adapter<BaseRecyclerViewAdapter.ViewHolder>() {
 
     lateinit var recyclerView: RecyclerView
 
-    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+    class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -47,6 +49,15 @@ open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
 
     fun update(position: Int) {
         notifyItemChanged(position)
+    }
+
+    fun update(position: Int, item: T) {
+        try {
+            items[position] = item
+            notifyItemChanged(position)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
     }
 
     fun remove(item: T, millisecondNotificationDelay: Long = 0L) {

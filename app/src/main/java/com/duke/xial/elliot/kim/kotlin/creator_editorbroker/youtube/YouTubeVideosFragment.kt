@@ -16,6 +16,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecycle
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ResponseFailureException
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PlaylistItemsModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideosItemsModel
 import kotlinx.android.synthetic.main.fragment_youtube_playlists.view.toolbar
@@ -62,7 +63,6 @@ class YouTubeVideosFragment: Fragment() {
                     .nextPageTokenOfVideos[playlistId]
                 items = (requireActivity() as YouTubeChannelsActivity).youtubeDataManager
                     .videosInUse[playlistId] ?: arrayListOf()
-                println("OOOOOOOOOOOOOOO")
             } else
                 playlistId?.let { setPlaylistItemsById(it) }
         }
@@ -70,12 +70,12 @@ class YouTubeVideosFragment: Fragment() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val video = items[position]
             loadImage(holder.view.image_view_thumbnail, video.snippet.thumbnails.standard?.url
-                ?: video.snippet.thumbnails.medium.url)
+                ?: video.snippet.thumbnails.default.url)
             holder.view.text_view_title.text = video.snippet.title
             holder.view.text_view_view_count.text = video.statistics.viewCount
             holder.view.text_view_published_time.text = video.snippet.publishedAt
             holder.view.setOnClickListener {
-                VideoClickDialogFragment().show(requireFragmentManager(), tag)
+                VideoClickDialogFragment(createVideoData(video)).show(requireFragmentManager(), tag)
             }
         }
 
@@ -149,6 +149,19 @@ class YouTubeVideosFragment: Fragment() {
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(null)
                 .into(imageView)
+        }
+
+        private fun createVideoData(videoModel: VideoModel): VideoDataModel {
+            val snippet = videoModel.snippet
+            return VideoDataModel(
+                channelId = snippet.channelId,
+                description = snippet.description,
+                id = videoModel.id,
+                publishedAt = snippet.publishedAt,
+                thumbnailUri = snippet.thumbnails.standard?.url ?: snippet.thumbnails.default.url,
+                title = snippet.title,
+                viewCount = videoModel.statistics.viewCount
+            )
         }
     }
 }

@@ -3,20 +3,17 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GOOGLE_SIGN_IN
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginBehavior
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -47,6 +44,7 @@ class SignInFragment : Fragment() {
         view.button_sign_in_with_email.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_google.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_facebook.setOnClickListener(buttonClickListener)
+        view.button_sign_up.setOnClickListener(buttonClickListener)
 
         return view
     }
@@ -88,12 +86,12 @@ class SignInFragment : Fragment() {
 
     private fun signInWithEmail() {
         if (edit_text_email.text.isBlank()) {
-            showToast(requireContext(), getString(R.string.enter_email))
+            showToast(requireContext(), getString(R.string.please_enter_email))
             return
         }
 
         if (edit_text_password.text.isBlank()) {
-            showToast(requireContext(), getString(R.string.enter_password))
+            showToast(requireContext(), getString(R.string.please_enter_password))
             return
         }
 
@@ -125,13 +123,12 @@ class SignInFragment : Fragment() {
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
-            if (task.isSuccessful)
+            if (task.isSuccessful) {
                 println("$TAG: Google sign in successful")
+            }
             else
                 (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(task.exception ?:
-                NullPointerException("failed to Google sign in, task.exception is null"),
-                    getString(R.string.failed_to_sign_in_with_google))
+                    .errorHandling(task.exception!!)
         }
     }
 

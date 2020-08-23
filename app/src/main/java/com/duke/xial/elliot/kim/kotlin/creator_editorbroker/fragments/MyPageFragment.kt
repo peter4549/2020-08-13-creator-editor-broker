@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -27,7 +28,7 @@ class MyPageFragment: Fragment() {
             (requireActivity() as MainActivity).startFragment(WritePrFragment(),
                 R.id.constraint_layout_activity_main,
                 MainActivity.TAG_WRITE_PR_FRAGMENT,
-                MainActivity.VERTICAL)
+                VERTICAL)
         }
         return view
     }

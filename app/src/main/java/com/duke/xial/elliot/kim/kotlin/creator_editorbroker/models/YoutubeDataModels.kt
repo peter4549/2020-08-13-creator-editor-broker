@@ -17,6 +17,10 @@ data class PlaylistItemsModel(val kind: String,
 data class VideosItemsModel(val nextPageToken: String,
                             val items: List<VideoModel>)
 
+data class VideoModel(val id: String,
+                      val snippet: SnippetModel,
+                      val statistics: StatisticsModel)
+
 data class ItemModel(val kind: String,
                      val etag: String,
                      val id: String,
@@ -35,7 +39,7 @@ data class SnippetModel(val publishedAt: String,
                         val thumbnails: ThumbnailsModel)
 
 data class ThumbnailsModel(val default: DefaultModel,
-                           val medium: MediumModel,
+                           val medium: MediumModel?,
                            val standard: StandardModel?)
 
 data class DefaultModel(val url: String)

@@ -1,12 +1,13 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
 
+import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,15 +20,31 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_CHANNELS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.getCurrentTime
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity.Companion.KEY_VIDEO_DATA
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
+import kotlinx.android.synthetic.main.fragment_write_pr.*
 import kotlinx.android.synthetic.main.fragment_write_pr.view.*
+import kotlinx.android.synthetic.main.fragment_write_pr.view.button_register
 import kotlinx.android.synthetic.main.item_view_image.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class WritePrFragment: Fragment() {
 
-    private var selectedChannelId: String? = null
-    private var selectedPlaylistId: String? = null
+    private lateinit var imageRecyclerViewAdapter: ImageRecyclerViewAdapter
+    private lateinit var targets: Array<String>
+    private var selectedImageViewPosition = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,51 +52,172 @@ class WritePrFragment: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_write_pr, container, false)
 
+        initializeSpinner(view.spinner_target)
         initializeImageRecyclerView(view.recycler_view)
 
         view.button_register.setOnClickListener {
-
+            registerPr()
         }
 
         return view
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_YOUTUBE_CHANNELS -> {
+                    if (data != null) {
+                        val video = data.getSerializableExtra(KEY_VIDEO_DATA) as VideoDataModel
+                        imageRecyclerViewAdapter.update(selectedImageViewPosition, video)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initializeSpinner(spinner: Spinner) {
+        targets = arrayOf(
+            "-",
+            getString(R.string.find_creator),
+            getString(R.string.find_editor)
+        )
+        spinner.adapter = SpinnerAdapter(requireContext(), targets)
+    }
+
     private fun initializeImageRecyclerView(recyclerView: RecyclerView) {
+        imageRecyclerViewAdapter = ImageRecyclerViewAdapter(arrayListOf(null), R.layout.item_view_image)
         recyclerView.apply {
-            adapter = ImageRecyclerViewAdapter(arrayListOf(null), R.layout.item_view_image)
+            adapter = imageRecyclerViewAdapter
             this.layoutManager = GridLayoutManagerWrapper(requireContext(), 1).apply {
                 orientation = LinearLayoutManager.HORIZONTAL
             }
         }
     }
 
-    private fun clearAll() {
+    private fun clearUi() {
 
     }
+
+
+    /*data class PrModel(var categories: MutableList<String?>,
+                       var description: String,
+                       var userType: String,
+                       var publisherId: String,
+                       var publisherPublicName: String,
+                       var registrationTime: String,
+                       var tier: Int,
+                       var title: String,
+                       var youtubeVideos: MutableList<VideoDataModel> = mutableListOf())
+
+     */
 
     private fun registerPr() {
+        val title = edit_text_title.text.toString()
+        val description = edit_text_description.text.toString()
+        val target = spinner_target.selectedItemPosition
 
-    }
-
-    private fun createPr() {
-
-    }
-
-    inner class ImageRecyclerViewAdapter(private val thumbnailUris: ArrayList<Uri?>,
-                                         layoutId: Int = R.layout.item_view_image)
-        : BaseRecyclerViewAdapter<Uri?>(layoutId, thumbnailUris) {
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            super.onBindViewHolder(holder, position)
-            setThumbnail(holder.view.image_view_thumbnail, thumbnailUris[position])
-            holder.view.image_view_thumbnail.setOnClickListener {
-                // selectedImageView = it as ImageView
-                // VideoOptionDialogFragment().show(requireFragmentManager(), TAG)
-                startYouTubeChannelsActivity() // 위에처럼 다이얼로그 추가할것. 아 아니라. 이미 등록된 애에 한해서.
+        when {
+            title.isBlank() -> {
+                showToast(requireContext(), getString(R.string.please_enter_title))
+                return
+            }
+            description.isBlank() -> {
+                showToast(requireContext(), getString(R.string.please_enter_description))
+                return
+            }
+            target == 0 -> {
+                showToast(requireContext(), getString(R.string.please_select_target))
+                return
             }
         }
 
-        private fun setThumbnail(imageView: ImageView, uri: Uri?) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val userInformation = MainActivity.currentUserInformation!!
+            val pr = PrModel(
+                categories = userInformation.categories,
+                description = description,
+                publisherId = userInformation.uid,
+                publisherPublicName = userInformation.publicName,
+                registrationTime = getCurrentTime(),
+                target = target,
+                tier = userInformation.tier,
+                title = title,
+                youtubeVideos = imageRecyclerViewAdapter.videos.toMutableList()
+            )
+
+            if (userInformation.myPrIds.isEmpty())
+                setPrToFireStore(pr)
+            else
+                updatePrToFireStore(pr)
+        }
+    }
+
+    private fun setPrToFireStore(pr: PrModel) {
+        val prList = listOf(pr)
+        FirebaseFirestore.getInstance()
+            .collection(COLLECTION_PR_LIST)
+            .document(pr.publisherId)
+            .set(hashMapOf(PR_LIST to prList))
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    showToast(requireContext(), "PR이 등록되었습니다.1")
+                    clearUi()
+                    MainActivity.currentUserInformation!!.myPrIds.add(pr.registrationTime)
+                    MainActivity.ChangedData.prListChanged = true
+                    //button_upload.isEnabled = true
+                }
+                else {
+                    val s = task.exception
+                    (requireActivity() as MainActivity).errorHandler
+                        .errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
+                    //button_upload.isEnabled = true
+                }
+            }
+    }
+    //washingtonRef.update("regions", FieldValue.arrayUnion("greater_virginia"))
+    private fun updatePrToFireStore(pr: PrModel) {
+        FirebaseFirestore.getInstance()
+            .collection(COLLECTION_PR_LIST)
+            .document(pr.publisherId)
+            .update(PR_LIST, FieldValue.arrayUnion(pr))
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    showToast(requireContext(), "PR이 등록되었습니다.2")
+                    clearUi()
+                    MainActivity.currentUserInformation!!.myPrIds.add(pr.registrationTime)
+                    MainActivity.ChangedData.prListChanged = true
+                    //button_upload.isEnabled = true
+                }
+                else {
+                    val s = task.exception
+                    (requireActivity() as MainActivity).errorHandler
+                        .errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
+                    //button_upload.isEnabled = true
+                }
+            }
+    }
+
+    inner class ImageRecyclerViewAdapter(val videos: ArrayList<VideoDataModel?>,
+                                         layoutId: Int = R.layout.item_view_image)
+        : BaseRecyclerViewAdapter<VideoDataModel?>(layoutId, videos) {
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            super.onBindViewHolder(holder, position)
+            val video = videos[position]
+            if (video != null)
+                setThumbnail(holder.view.image_view_thumbnail, video.thumbnailUri)
+
+            holder.view.image_view_thumbnail.setOnClickListener {
+                selectedImageViewPosition = position
+                // selectedImageView = it as ImageView
+                // VideoOptionDialogFragment().show(requireFragmentManager(), TAG)
+                startYouTubeChannelsActivity()
+            }
+        }
+
+        private fun setThumbnail(imageView: ImageView, uri: String?) {
             if (uri != null)
                 Glide.with(imageView.context)
                     .load(uri)
@@ -100,10 +238,18 @@ class WritePrFragment: Fragment() {
             intent.putExtra(KEY_CHANNELS, MainActivity.currentUserInformation?.channelIds?.toTypedArray())
             startActivityForResult(intent, REQUEST_CODE_YOUTUBE_CHANNELS)
         }
+
+        fun update(position: Int, item: VideoDataModel) {
+            super.update(position, item)
+            insert(null, position + 1)
+            recyclerView.scheduleLayoutAnimation()
+            notifyItemInserted(position + 1)
+        }
     }
 
     companion object {
         const val ACTION_FROM_WRITING_FRAGMENT = "write.pr.fragment.action.from.writing.fragment"
         const val KEY_CHANNELS = "key_channel"
+        private const val PR_LIST = "pr_list"
     }
 }
