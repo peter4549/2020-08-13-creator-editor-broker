@@ -22,6 +22,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecycle
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_PR_LIST
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_CHANNELS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
@@ -169,7 +170,6 @@ class WritePrFragment: Fragment() {
                     //button_upload.isEnabled = true
                 }
                 else {
-                    val s = task.exception
                     (requireActivity() as MainActivity).errorHandler
                         .errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
                     //button_upload.isEnabled = true
@@ -250,6 +250,5 @@ class WritePrFragment: Fragment() {
     companion object {
         const val ACTION_FROM_WRITING_FRAGMENT = "write.pr.fragment.action.from.writing.fragment"
         const val KEY_CHANNELS = "key_channel"
-        private const val PR_LIST = "pr_list"
     }
 }

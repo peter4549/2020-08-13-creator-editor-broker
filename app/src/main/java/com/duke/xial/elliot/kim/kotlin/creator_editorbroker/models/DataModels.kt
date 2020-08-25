@@ -1,6 +1,6 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models
 
-import android.os.Parcelable
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Tier
 import java.io.Serializable
 
 data class UserInformationModel(var categories: MutableList<Int>,
@@ -8,7 +8,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
                                 var uid: String,
                                 var userType: Int,
                                 var channelIds: MutableList<String> = mutableListOf(),
-                                var commentsWritten: MutableList<CommentModel> = mutableListOf(),
+                                var comments: MutableList<CommentModel> = mutableListOf(),
                                 var favoritePrIds: MutableList<String> = mutableListOf(),
                                 var favoriteUserIds: MutableList<String> = mutableListOf(),
                                 var myPrIds: MutableList<String> = mutableListOf(),
@@ -27,7 +27,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
         const val KEY_UID = "uid"
         const val KEY_USER_TYPE = "userType"
         const val KEY_CHANNEL_IDS = "channelIds"
-        const val KEY_COMMENTS_WRITTEN = "commentsWritten"
+        const val KEY_COMMENTS = "comments"
         const val KEY_FAVORITE_PR_IDS = "favoritePrIds"
         const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
         const val KEY_MY_PR_IDS = "myPrIds"
@@ -42,17 +42,23 @@ data class UserInformationModel(var categories: MutableList<Int>,
 }
 
 data class CommentModel (
-    val comment: String
+    var comment: String,
+    val uid: String,
+    var writerPublicName: String,
+    val writtenTime: String
 )
 
 data class PrModel(var categories: MutableList<Int>,
+                   var comments: MutableList<CommentModel> = mutableListOf(),
                    var description: String,
+                   var favorites: Int = 0,
                    var publisherId: String,
                    var publisherPublicName: String,
                    var registrationTime: String,  // used as id
                    var target: Int,
                    var tier: Int,
                    var title: String,
+                   var stars: Int = 0,
                    var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf())
 
 data class ChannelModel(val id: String,
@@ -71,16 +77,6 @@ data class VideoDataModel(var channelId: String,
                           var thumbnailUri: String,
                           var title: String,
                           val viewCount: String): Serializable
-
-object Tier {
-    const val NORMAL = 0
-    const val PREMIUM = 1
-}
-
-object UserType {
-    const val CREATOR = 1
-    const val EDITOR = 2
-}
 
 object CategoryNumber {
     const val CAR = 1

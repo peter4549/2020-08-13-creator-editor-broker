@@ -298,5 +298,10 @@ class YouTubeDataApi(context: Context) {
         // private const val YOUTUBE_OAUTH_SCOPE = "oauth2:https://www.googleapis.com/auth/youtube"
         private lateinit var androidClientId: String
         private lateinit var googleApiKey: String
+
+        // gmRU1s181V8kWd0CO4BsFSRBR  api key
+        // TD6IMVLHWA8S9laBXYKfHTqcP5SvW6XwbjmE4CgqCnToNAflR7 api secret key
+        // AAAAAAAAAAAAAAAAAAAAAGNFHAEAAAAA%2BHJj0VzfhXYW%2B1WgmB5axsVTnq0%3Dy9rOdkTtOh3av9Dky9uQqpU4aRAmIMj9E8OlTg0FRUAEGgfUpH
+        // bearer token
     }
 }

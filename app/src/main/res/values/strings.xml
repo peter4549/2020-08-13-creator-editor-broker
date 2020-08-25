@@ -21,6 +21,7 @@
     <string name="sign_in_with_twitter">트위터로 로그인</string>
     <string name="failed_to_sign_in_with_google">구글 로그인에 실패했습니다.</string>
     <string name="failed_to_sign_in_with_facebook">페이스북 로그인에 실패했습니다.</string>
+    <string name="failed_to_sign_in_with_twitter">트위터 로그인에 실패했습니다.</string>
     <string name="failed_to_sign_in_with_email">이메일 로그인에 실패했습니다.</string>
     <string name="register">등록</string>
     <string name="failed_to_read_user_data">유저 정보를 불러오지 못했습니다.</string>
@@ -152,4 +153,5 @@
     <string name="please_enter_title">제목을 입력하세요.</string>
     <string name="please_enter_description">내용을 입력하세요.</string>
     <string name="please_select_target">타겟을 선택하세요.</string>
+
 </resources>

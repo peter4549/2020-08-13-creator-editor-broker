@@ -18,11 +18,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.auth.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 import kotlinx.android.synthetic.main.fragment_sign_in.view.*
+import java.lang.Exception
+import java.lang.NullPointerException
+
 
 class SignInFragment : Fragment() {
 
@@ -31,6 +33,7 @@ class SignInFragment : Fragment() {
             R.id.button_sign_in_with_email -> signInWithEmail()
             R.id.button_sign_in_with_google -> signInWithGoogle()
             R.id.button_sign_in_with_facebook -> signInWithFacebook()
+            R.id.button_sign_in_with_twitter -> signInWithTwitter()
             R.id.button_sign_up -> startSignUpFragment()
         }
     }
@@ -44,6 +47,7 @@ class SignInFragment : Fragment() {
         view.button_sign_in_with_email.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_google.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_facebook.setOnClickListener(buttonClickListener)
+        view.button_sign_in_with_twitter.setOnClickListener(buttonClickListener)
         view.button_sign_up.setOnClickListener(buttonClickListener)
 
         return view
@@ -77,8 +81,7 @@ class SignInFragment : Fragment() {
                     val account = task.getResult(ApiException::class.java)
                     firebaseAuthWithGoogle(account)
                 } catch (e: ApiException) {
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(e, getString(R.string.failed_to_sign_in_with_google))
+                    errorHandling(e, getString(R.string.failed_to_sign_in_with_google))
                 }
             }
         }
@@ -103,8 +106,7 @@ class SignInFragment : Fragment() {
                 if (task.isSuccessful)
                     println("$TAG: sign in with email")
                 else
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_email))
+                    errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_email))
             }
     }
 
@@ -127,8 +129,7 @@ class SignInFragment : Fragment() {
                 println("$TAG: Google sign in successful")
             }
             else
-                (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(task.exception!!)
+                errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_google))
         }
     }
 
@@ -138,38 +139,88 @@ class SignInFragment : Fragment() {
             .logInWithReadPermissions(requireActivity(), listOf("public_profile", "email"))
         LoginManager.getInstance().registerCallback((activity as MainActivity).callbackManager,
             object : FacebookCallback<LoginResult> {
-            override fun onSuccess(result: LoginResult?) {
-                firebaseAuthWithFacebook(result)
-            }
+                override fun onSuccess(result: LoginResult?) {
+                    firebaseAuthWithFacebook(result)
+                }
 
-            override fun onCancel() {
-                println("$TAG: Facebook sign in canceled")
-            }
+                override fun onCancel() {
+                    println("$TAG: Facebook sign in canceled")
+                }
 
-            override fun onError(error: FacebookException?) {
-                (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(error ?: FacebookException("failed to sign in with Facebook"),
-                    getString(R.string.failed_to_sign_in_with_facebook))
-            }
-        })
+                override fun onError(error: FacebookException?) {
+                    errorHandling(error ?: FacebookException("failed to sign in with Facebook"),
+                            getString(R.string.failed_to_sign_in_with_facebook)
+                    )
+                }
+            })
     }
 
     private fun firebaseAuthWithFacebook(result: LoginResult?) {
         val credential = FacebookAuthProvider.getCredential(result?.accessToken?.token!!)
-        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
-                task ->
+        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful)
                 println("$TAG: Facebook sign in successful")
-            else {
-                //showToast(requireContext(), getString(R.string.authentication_failure_message))
-                println("$TAG: ${task.exception}")
-            }
+            else
+                errorHandling(task.exception!!)
         }
     }
 
+    private fun signInWithTwitter() {
+        val provider = OAuthProvider.newBuilder("twitter.com")
+        val pendingResultTask = (requireActivity() as MainActivity).firebaseAuth.pendingAuthResult
+        if (pendingResultTask != null) {
+            // There's something already here! Finish the sign-in for your user.
+            pendingResultTask
+                .addOnSuccessListener(
+                    OnSuccessListener<AuthResult?> { authResult ->
+                        // IdP Data: authResult.getAdditionalUserInfo().getProfile()
+                        // OAuth Access Token: authResult.getCredential().getAccessToken()
+                        // OAuth Secret: authResult.getCredential().getSecret()
+                        if (authResult != null)
+                            firebaseAuthWithTwitter(authResult)
+                        else
+                            errorHandling(NullPointerException("authResult is null"),
+                                getString(R.string.failed_to_sign_in_with_twitter))
+                    })
+                .addOnFailureListener{
+                    errorHandling(it, getString(R.string.failed_to_sign_in_with_twitter))
+                }
+        } else {
+            (requireActivity() as MainActivity).firebaseAuth
+                .startActivityForSignInWithProvider(requireActivity(), provider.build())
+                .addOnSuccessListener{ authResult ->
+                    firebaseAuthWithTwitter(authResult)
+                }
+                .addOnFailureListener {
+                    errorHandling(it, getString(R.string.failed_to_sign_in_with_twitter))
+                }
+        }
+    }
+
+    private fun firebaseAuthWithTwitter(result: AuthResult) {
+        val credential = result.credential
+        if (credential != null) {
+            FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
+                if (task.isSuccessful)
+                    println("$TAG: Twitter sign in successful")
+                else {
+                    (requireActivity() as MainActivity).errorHandler.errorHandling(task.exception!!)
+                }
+            }
+        } else
+            errorHandling(NullPointerException("credential is null"),
+                getString(R.string.failed_to_sign_in_with_twitter))
+    }
+
     private fun startSignUpFragment() {
-        (requireActivity() as MainActivity).startFragment(SignUpFragment(),
-            R.id.constraint_layout_activity_main, MainActivity.TAG_SIGN_UP_FRAGMENT)
+        (requireActivity() as MainActivity).startFragment(
+            SignUpFragment(),
+            R.id.constraint_layout_activity_main, MainActivity.TAG_SIGN_UP_FRAGMENT
+        )
+    }
+
+    private fun errorHandling(e: Exception, toastMessage: String? = null, throwing: Boolean = false) {
+        (requireActivity() as MainActivity).errorHandler.errorHandling(e, toastMessage, throwing=throwing)
     }
 
     companion object {

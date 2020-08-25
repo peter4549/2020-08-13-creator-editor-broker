@@ -20,4 +20,11 @@
     <!-- Tab Layout -->
     <color name="colorTabIconSelected">@color/colorCuriousBlue</color>
 
+    <!-- PageIndicatorView -->
+    <color name="colorPageIndicatorViewSelected">#DFDFDF</color>
+    <color name="colorPageIndicatorViewUnselected">#A0A0A0</color>
+
+    <!-- Floating Action Button -->
+    <color name="colorFabBackground">@color/colorCrushedIce</color>
+
 </resources>

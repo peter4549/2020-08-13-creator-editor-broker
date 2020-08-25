@@ -32,7 +32,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
-    lateinit var fireStoreDocumentReference: DocumentReference
+    private lateinit var fireStoreDocumentReference: DocumentReference
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
     val errorHandler = ErrorHandler(this)
     val prListFragment = PrListFragment()
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
         currentUserInformation = null
-        startFragment(SignInFragment(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
+        startFragment(SignInFragment.newInstance(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
     }
 
     private fun popAllFragments() {
@@ -208,6 +208,11 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    override fun onStop() {
+        prListFragment.removePrSnapshotListener()
+        super.onStop()
+    }
+
     private fun updateChangedUserInformation() {
         val map = mutableMapOf<String, Any>()
 
@@ -240,6 +245,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
+        const val TAG_PR_FRAGMENT = "tag_pr_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
         const val TAG_SIGN_UP_FRAGMENT = "tag_sign_up_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
