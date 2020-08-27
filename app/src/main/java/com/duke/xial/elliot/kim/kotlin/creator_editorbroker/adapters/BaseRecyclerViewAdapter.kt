@@ -48,13 +48,17 @@ open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
     }
 
     fun update(position: Int) {
-        notifyItemChanged(position)
+        CoroutineScope(Dispatchers.Main).launch {
+            notifyItemChanged(position)
+        }
     }
 
     fun update(position: Int, item: T) {
         try {
             items[position] = item
-            notifyItemChanged(position)
+            CoroutineScope(Dispatchers.Main).launch {
+                notifyItemChanged(position)
+            }
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
         }

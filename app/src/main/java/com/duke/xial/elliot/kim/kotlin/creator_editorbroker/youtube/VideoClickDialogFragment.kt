@@ -7,7 +7,7 @@ import android.view.View
 import android.view.WindowManager
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_PLAYER
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.BaseDialogFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.BaseDialogFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity.Companion.KEY_VIDEO_DATA

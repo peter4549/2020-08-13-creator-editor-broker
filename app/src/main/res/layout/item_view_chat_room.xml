@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/image_view_profile"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_round_account_circle_24"
+            android:contentDescription="@string/profile" />
+
+        <TextView
+            android:id="@+id/text_view_users_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:maxLines="1"
+            android:padding="4dp"
+            app:autoSizeMaxTextSize="16sp"
+            app:autoSizeMinTextSize="14sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintEnd_toEndOf="@+id/text_view_last_message"
+            app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+            app:layout_constraintTop_toTopOf="@+id/image_view_profile"
+            tools:text="Users" />
+
+        <TextView
+            android:id="@+id/text_view_last_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:textSize="12sp"
+            android:maxLines="2"
+            app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+            app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_users_name"
+            tools:text="Last Message" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/text_view_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:textSize="10sp"
+                tools:text="오전 00:00"
+                tools:ignore="SmallSp" />
+
+            <TextView
+                android:id="@+id/text_view_unread_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:textSize="12sp"
+                tools:text="1" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

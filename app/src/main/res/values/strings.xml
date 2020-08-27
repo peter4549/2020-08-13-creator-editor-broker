@@ -154,4 +154,17 @@
     <string name="please_enter_description">내용을 입력하세요.</string>
     <string name="please_select_target">타겟을 선택하세요.</string>
 
+    <!-- Push Token -->
+    <string name="token_generation_failed">토큰 생성에 실패했습니다.</string>
+    <string name="send">Send</string>
+
+    <!-- Chat -->
+    <string name="failed_to_create_chat_room">채팅방 생성에 실패했습니다.</string>
+    <string name="failed_to_load_chat_rooms">채팅방을 불러오지 못했습니다.</string>
+    <string name="failed_to_load_chat_messages">채팅 메시지를 불러오지 못했습니다.</string>
+    <string name="my_partners">내 파트너스</string>
+    <string name="chat">채팅</string>
+    <string name="failed_to_send_message">메시지 전송에 실패했습니다.</string>
+    <string name="please_enter_your_message">메시지를 입력해주세요.</string>
+
 </resources>

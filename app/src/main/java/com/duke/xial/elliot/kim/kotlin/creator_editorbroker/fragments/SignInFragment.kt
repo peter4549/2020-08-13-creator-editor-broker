@@ -215,7 +215,7 @@ class SignInFragment : Fragment() {
     private fun startSignUpFragment() {
         (requireActivity() as MainActivity).startFragment(
             SignUpFragment(),
-            R.id.constraint_layout_activity_main, MainActivity.TAG_SIGN_UP_FRAGMENT
+            R.id.frame_layout_activity_main, MainActivity.TAG_SIGN_UP_FRAGMENT
         )
     }
 

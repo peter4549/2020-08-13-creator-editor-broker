@@ -108,7 +108,7 @@ class PrListFragment : Fragment() {
             }
 
             val comments = pr.comments.filter { it.uid != pr.publisherId }
-            val replies = pr.comments.filter { it.uid == pr.publisherId }
+            val replies = pr.comments.filter { it.uid == pr.publisherId } // 필요없을듯.
 
             holder.view.text_view_title.text = pr.title
             holder.view.text_view_public_name.text = pr.publisherPublicName
@@ -118,9 +118,10 @@ class PrListFragment : Fragment() {
             holder.view.text_view_comments.text = comments.count().toString()
             holder.view.text_view_favorites.text = pr.favorites.toString()
             holder.view.text_view_stars.text = pr.stars.toString()
+
             holder.view.setOnClickListener {
-                (requireActivity() as MainActivity).startFragment(PrFragment(),
-                    R.id.constraint_layout_activity_main,
+                (requireActivity() as MainActivity).startFragment(PrFragment(pr),
+                    R.id.frame_layout_activity_main,
                     MainActivity.TAG_PR_FRAGMENT,
                     VERTICAL)
             }

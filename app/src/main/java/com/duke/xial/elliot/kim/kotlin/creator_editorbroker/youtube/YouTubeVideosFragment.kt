@@ -31,6 +31,7 @@ import retrofit2.Response
 
 class YouTubeVideosFragment: Fragment() {
 
+    private lateinit var videosRecyclerViewAdapter: VideosRecyclerViewAdapter
     private var nextPageToken: String? = null
     private var playlistId: String? = null
 
@@ -45,15 +46,16 @@ class YouTubeVideosFragment: Fragment() {
         (requireActivity() as YouTubeChannelsActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
 
+        videosRecyclerViewAdapter = VideosRecyclerViewAdapter()
         view.recycler_view_videos.apply {
-            adapter = VideosRecyclerView()
+            adapter = videosRecyclerViewAdapter
             layoutManager = GridLayoutManagerWrapper(requireContext(), 1)
         }
 
         return view
     }
 
-    private inner class VideosRecyclerView(layoutId: Int = R.layout.item_view_video):
+    private inner class VideosRecyclerViewAdapter(layoutId: Int = R.layout.item_view_video):
         BaseRecyclerViewAdapter<VideoModel>(layoutId = layoutId) {
 
         init {

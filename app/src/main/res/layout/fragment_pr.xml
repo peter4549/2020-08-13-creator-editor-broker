@@ -3,22 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorFragmentBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <RelativeLayout
         android:id="@+id/relative_layout"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
-        android:minWidth="200dp"
-        android:minHeight="110dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintHeight_max="160dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-
         <!-- ViewPager and Toolbar color was set for test. + viewpager height must be modified. -->
         <androidx.viewpager.widget.ViewPager
-            android:id="@+id/viewPager"
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -28,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="@android:color/black"
+            android:background="#00000000"
             android:minHeight="?attr/actionBarSize" />
 
         <com.rd.PageIndicatorView
@@ -41,7 +43,7 @@
             app:piv_interactiveAnimation="true"
             app:piv_selectedColor="@color/colorPageIndicatorViewSelected"
             app:piv_unselectedColor="@color/colorPageIndicatorViewUnselected"
-            app:piv_viewPager="@id/viewPager"
+            app:piv_viewPager="@id/view_pager"
             tools:piv_padding="12dp"
             tools:piv_radius="8dp" />
 
@@ -153,5 +155,48 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_double_up_arrow_angles" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+        android:id="@+id/fab_star"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorFabBackground"
+        android:enabled="false"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/fab_eject"
+        app:layout_constraintEnd_toEndOf="@+id/fab_eject"
+        app:srcCompat="@drawable/ic_round_favorite_24" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+        android:id="@+id/fab_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/colorFabBackground"
+        android:enabled="false"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/fab_star"
+        app:layout_constraintEnd_toEndOf="@+id/fab_star"
+        app:srcCompat="@drawable/ic_round_star_16" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+        android:id="@+id/fab_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/colorFabBackground"
+        android:enabled="false"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/fab_favorite"
+        app:layout_constraintEnd_toEndOf="@+id/fab_favorite"
+        app:srcCompat="@drawable/ic_speech_bubble_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

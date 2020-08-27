@@ -8,15 +8,13 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.FragmentStateAdapter
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.EnterUserInformationFragment
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PartnersFragment
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.PrListFragment
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SignInFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.*
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel.Companion.KEY_PUSH_TOKEN
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
@@ -24,6 +22,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
@@ -33,10 +34,14 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
     private lateinit var fireStoreDocumentReference: DocumentReference
+    private lateinit var userSnapshotListenerRegistration: ListenerRegistration
+    private lateinit var userDocumentReference: DocumentReference
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
     val errorHandler = ErrorHandler(this)
     val prListFragment = PrListFragment()
-    val partnersFragment = PartnersFragment()
+    val publicPartnersFragment = PublicPartnersFragment()
+    val chatRoomsFragment = ChatRoomsFragment()
+    val myPartnersFragment = MyPartnersFragment()
 
     private val tabIconResourceIds = arrayOf(
         R.drawable.ic_round_home_24,
@@ -84,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeTabLayoutViewPager(tabLayout: TabLayout, viewPager: ViewPager2) {
         viewPager.adapter = FragmentStateAdapter(this)
+        view_pager.isUserInputEnabled = false
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.tag = position
@@ -130,14 +136,15 @@ class MainActivity : AppCompatActivity() {
 
     private val eventAfterSignIn = {
         showToast(this, getString(R.string.signed_in))
-        readUserData()
+        //readUserData()
+        setUserDocumentListener(firebaseAuth.uid.toString())
         popAllFragments()
     }
 
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
         currentUserInformation = null
-        startFragment(SignInFragment.newInstance(), R.id.constraint_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
+        startFragment(SignInFragment.newInstance(), R.id.frame_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
     }
 
     private fun popAllFragments() {
@@ -148,28 +155,33 @@ class MainActivity : AppCompatActivity() {
 
     fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null, direction: Int = HORIZONTAL) {
         when (direction) {
-            HORIZONTAL -> supportFragmentManager.beginTransaction()
-                .addToBackStack(null)
-                .setCustomAnimations(
-                    R.anim.anim_slide_in_left,
-                    R.anim.anim_slide_out_left,
-                    R.anim.anim_slide_in_right,
-                    R.anim.anim_slide_out_right
-                ).replace(containerViewId, fragment, tag).commit()
-            VERTICAL -> supportFragmentManager.beginTransaction()
-                .addToBackStack(null)
-                .setCustomAnimations(
-                    R.anim.anim_slide_in_bottom,
-                    R.anim.anim_slide_out_top,
-                    R.anim.anim_slide_in_top,
-                    R.anim.anim_slide_out_bottom
-                ).replace(containerViewId, fragment, tag).commit()
+            HORIZONTAL -> {
+                supportFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .setCustomAnimations(
+                        R.anim.anim_slide_in_left,
+                        R.anim.anim_slide_out_left,
+                        R.anim.anim_slide_in_right,
+                        R.anim.anim_slide_out_right
+                    ).replace(containerViewId, fragment, tag).commit()
+            }
+            VERTICAL -> {
+                supportFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .setCustomAnimations(
+                        R.anim.anim_slide_in_bottom,
+                        R.anim.anim_slide_out_top,
+                        R.anim.anim_slide_in_top,
+                        R.anim.anim_slide_out_bottom
+                    ).replace(containerViewId, fragment, tag).commit()
+            }
         }
     }
 
+    /*
     private fun readUserData() {
         fireStoreDocumentReference = FirebaseFirestore.getInstance()
-            .collection(FireStore.COLLECTION_USERS)
+            .collection(COLLECTION_USERS)
             .document(firebaseAuth.currentUser?.uid.toString())
         fireStoreDocumentReference.get().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -180,6 +192,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         else {
                             currentUserInformation = getCurrentUserData(task.result?.data as Map<String, Any>)
+                            setUserDocumentListener(currentUserInformation!!.uid)
                         }
                     else
                         errorHandler.errorHandling(
@@ -192,14 +205,16 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+     */
+
     private fun startEnterUserInformationFragment() {
         println("HAHAHAHAHAHAHHAHHAHAHAH")// 프래그먼트 commit 에러 조사.
         startFragment(EnterUserInformationFragment.newInstance(),
-            R.id.constraint_layout_activity_main,
+            R.id.frame_layout_activity_main,
             TAG_ENTER_USER_INFORMATION_FRAGMENT)
     }
 
-    private fun getCurrentUserData(map: Map<String, Any>): UserInformationModel =
+    fun getUserData(map: Map<String, Any>): UserInformationModel =
         Gson().fromJson(JSONObject(map).toString(), UserInformationModel::class.java)
 
     override fun onPause() {
@@ -210,6 +225,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         prListFragment.removePrSnapshotListener()
+        if (::userSnapshotListenerRegistration.isInitialized)
+            userSnapshotListenerRegistration.remove()
+        chatRoomsFragment.removeListenerRegistration()
         super.onStop()
     }
 
@@ -218,6 +236,9 @@ class MainActivity : AppCompatActivity() {
 
         if (ChangedData.channelIdsChanged)
             map[UserInformationModel.KEY_CHANNEL_IDS] = currentUserInformation!!.channelIds
+
+        if (ChangedData.chatRoomsChanged)
+            map[UserInformationModel.KEY_CHAT_ROOMS] = currentUserInformation!!.chatRoomIds
 
         if (ChangedData.prListChanged)
             map[UserInformationModel.KEY_MY_PR_IDS] = currentUserInformation!!.myPrIds
@@ -238,12 +259,59 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setUserDocumentListener(uid: String) {
+        userDocumentReference = FirebaseFirestore.getInstance()
+            .collection(COLLECTION_USERS).document(uid)
+        userSnapshotListenerRegistration = userDocumentReference.addSnapshotListener { snapshot, e ->
+            if (e != null)
+                errorHandler.errorHandling(e)
+            else {
+                if (snapshot != null && snapshot.exists()) {
+                    currentUserInformation = getUserData(snapshot.data!!) // 이거 완료 전까지 다른 프래그먼트 터치 봉인할것.
+                } else {
+                    startEnterUserInformationFragment()
+                    println("$TAG: data is null")
+                }
+            }
+        }
+    }
+
+    private fun createToken() { // 생성이 아닌 참조. 굳이 실행할 필요가 없다.
+        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val pushToken = task.result?.token
+                if (pushToken != null) {
+                    val map = mapOf(
+                        KEY_PUSH_TOKEN to pushToken
+                    )
+
+                    currentUserInformation?.pushToken = pushToken
+
+                    FirebaseFirestore.getInstance()
+                        .collection(COLLECTION_USERS)
+                        .document(firebaseAuth.currentUser?.uid.toString())
+                        .update(map).addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful)
+                                println("$TAG: token updated")
+                            else
+                                errorHandler.errorHandling(task.exception as FirebaseFirestoreException)
+                        }
+                } else
+                    errorHandler.errorHandling(NullPointerException("token generation failed"),
+                        getString(R.string.token_generation_failed))
+            } else
+                errorHandler.errorHandling(task.exception!!, getString(R.string.token_generation_failed))
+        }
+    }
+
     object ChangedData {
         var channelIdsChanged = false
+        var chatRoomsChanged = false
         var prListChanged = false
     }
 
     companion object {
+        const val TAG_CHAT_FRAGMENT = "tag_chat_fragment"
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_PR_FRAGMENT = "tag_pr_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"

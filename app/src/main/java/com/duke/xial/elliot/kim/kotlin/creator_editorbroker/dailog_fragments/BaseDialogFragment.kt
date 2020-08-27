@@ -1,4 +1,4 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog

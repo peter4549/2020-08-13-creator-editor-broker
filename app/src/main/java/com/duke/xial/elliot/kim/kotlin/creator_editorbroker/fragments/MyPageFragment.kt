@@ -26,7 +26,7 @@ class MyPageFragment: Fragment() {
 
         view.text_view_write_pr.setOnClickListener {
             (requireActivity() as MainActivity).startFragment(WritePrFragment(),
-                R.id.constraint_layout_activity_main,
+                R.id.frame_layout_activity_main,
                 MainActivity.TAG_WRITE_PR_FRAGMENT,
                 VERTICAL)
         }

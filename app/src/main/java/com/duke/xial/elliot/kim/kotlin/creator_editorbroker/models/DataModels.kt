@@ -8,6 +8,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
                                 var uid: String,
                                 var userType: Int,
                                 var channelIds: MutableList<String> = mutableListOf(),
+                                var chatRoomIds: MutableList<String> = mutableListOf(),
                                 var comments: MutableList<CommentModel> = mutableListOf(),
                                 var favoritePrIds: MutableList<String> = mutableListOf(),
                                 var favoriteUserIds: MutableList<String> = mutableListOf(),
@@ -20,6 +21,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
                                 var tier: Int = Tier.NORMAL,
                                 var userIdsReceivedMyStar: MutableList<String> = mutableListOf(),
                                 var youtubeVideos: MutableList<VideoModel> = mutableListOf()) {
+
     companion object {
         const val KEY_CATEGORIES = "categories"
         const val KEY_PROFILE_IMAGE_URI = "profileImageUri"
@@ -27,6 +29,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
         const val KEY_UID = "uid"
         const val KEY_USER_TYPE = "userType"
         const val KEY_CHANNEL_IDS = "channelIds"
+        const val KEY_CHAT_ROOMS = "chatRoomIds"
         const val KEY_COMMENTS = "comments"
         const val KEY_FAVORITE_PR_IDS = "favoritePrIds"
         const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
