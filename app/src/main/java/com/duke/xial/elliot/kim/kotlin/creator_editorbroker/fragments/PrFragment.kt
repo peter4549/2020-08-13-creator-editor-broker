@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.scaleDown
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.scaleUp
@@ -29,7 +30,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
                 animateFab()
             }
             R.id.fab_chat -> {
-                startChatFragment(pr?.publisherId!!)
+                startChatFragment(pr?.userInformation!!)
             }
         }
     }
@@ -101,9 +102,9 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         isFabOpen = !isFabOpen
     }
 
-    private fun startChatFragment(targetUserId: String) {
+    private fun startChatFragment(targetUser: UserInformationModel) {
         (requireActivity() as MainActivity).startFragment(
-            ChatFragment(targetUserId),
+            ChatFragment(targetUser),
             R.id.frame_layout_activity_main, MainActivity.TAG_CHAT_FRAGMENT
         )
     }

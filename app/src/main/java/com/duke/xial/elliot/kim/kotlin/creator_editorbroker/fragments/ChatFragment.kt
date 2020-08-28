@@ -9,29 +9,38 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.cloud_messaging.CloudMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_CHAT_ROOMS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel.Companion.KEY_CHAT_MESSAGES
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel.Companion.KEY_USER_IDS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2.CloudMessaging
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.getCurrentTime
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.hashString
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.*
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_chat.*
 import kotlinx.android.synthetic.main.fragment_chat.view.*
-import kotlinx.android.synthetic.main.item_view_chat.view.*
-import kotlinx.coroutines.*
+import kotlinx.android.synthetic.main.item_view_chat_left.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ChatFragment(private val targetUserId: String? = null): Fragment() {
+class ChatFragment(private val targetUser: UserInformationModel? = null,
+                   private val existingChatRoomId: String? = null): Fragment() {
 
     private lateinit var chatMessagesRecyclerViewAdapter: ChatMessageRecyclerViewAdapter
     private lateinit var chatRoomsCollectionReference: CollectionReference
@@ -40,6 +49,7 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
     private lateinit var listenerRegistration: ListenerRegistration
     private lateinit var previousChatMessages: MutableList<ChatMessageModel>
     private lateinit var userInformation: UserInformationModel
+    private lateinit var usersCollectionReference: CollectionReference
     private val gson = Gson()
     private var chatRoomCreated = false
     private var chatMessagesIsInitialized = false
@@ -54,47 +64,77 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
         chatRoomsCollectionReference = FirebaseFirestore.getInstance().collection(
             COLLECTION_CHAT_ROOMS
         )
+        usersCollectionReference = FirebaseFirestore.getInstance().collection(
+            COLLECTION_USERS
+        )
+
         userInformation = MainActivity.currentUserInformation!!
-        startChatWithCheckExistingChatRoom(targetUserId!!, view)
+        if (existingChatRoomId == null)
+            startChatWithCheckExistingChatRoom(targetUser?.uid!!, view)
+        else {
+            openExistingChatRoom(existingChatRoomId, view)
+        }
 
         view.button_send.setOnClickListener {
             if (edit_text_chat_message.text.isBlank())
-                showToast(requireContext(), "메시지를 입력하세요.")
+                showToast(requireContext(), getString(R.string.please_enter_your_message))
             else {
                 if (chatRoomCreated) {
                     sendMessage(edit_text_chat_message.text.toString())
                 } else {
-                    generateChatRoom(edit_text_chat_message.text.toString(), view)
+                    createChatRoom(edit_text_chat_message.text.toString(), view)
                 }
+
+                edit_text_chat_message.text.clear()
             }
         }
 
         return view
     }
 
-    private fun generateChatRoom(message: String, view: View) {
+    private fun openExistingChatRoom(roomId: String, view: View) {
+        chatRoomsCollectionReference.document(roomId).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot != null && snapshot.data != null)
+                    currentChatRoom = gson.fromJson(JSONObject(snapshot.data!!).toString(),
+                        ChatRoomModel::class.java)
+                initializeRecyclerView(view)
+                chatRoomCreated = true
+                MainActivity.currentChatRoomId = currentChatRoom.roomId
+            }
+            .addOnFailureListener {
+                errorHandling(it, getString(R.string.chat_room_not_found))
+            }
+    }
+
+    private fun errorHandling(e: Exception, toastMessage: String, throwing: Boolean = false) {
+        (requireActivity() as MainActivity).errorHandler.errorHandling(e, toastMessage, throwing)
+    }
+
+    private fun createChatRoom(message: String, view: View) {
         val creationTime = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(Date())
-        val roomId = hashString(userInformation.uid + targetUserId + creationTime).chunked(32)[0]
+        val roomId = hashString(userInformation.uid + targetUser?.uid + creationTime).chunked(32)[0]
         val firstChatMessage = generateChatMessage(message, creationTime)
         currentChatRoom = generateChatRoom(
             mutableListOf(firstChatMessage),
-            creationTime, message, roomId, mutableListOf(userInformation.uid, targetUserId!!)
+            creationTime, message, roomId, mutableListOf(userInformation.uid, targetUser?.uid!!),
+            mutableListOf(userInformation, targetUser)
         )
+
+        MainActivity.currentUserInformation?.chatRoomIds?.add(roomId)
+
         chatRoomsCollectionReference
             .document(roomId)
             .set(currentChatRoom)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     initializeRecyclerView(view)
-                    // sendCloudMessage.
+                    if (targetUser.pushToken != null)
+                        sendCloudMessage(mutableListOf(targetUser.pushToken!!), message)
                     chatRoomCreated = true
-                } else {
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(
-                            task.exception!!,
-                            getString(R.string.failed_to_create_chat_room)
-                        )
-                }
+                    MainActivity.currentChatRoomId = currentChatRoom.roomId
+                } else
+                    errorHandling(task.exception!!, getString(R.string.failed_to_create_chat_room))
             }
     }
 
@@ -112,20 +152,16 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
                                 currentChatRoom = chatRoom
                                 initializeRecyclerView(view)
                                 chatRoomCreated = true
+                                MainActivity.currentChatRoomId = currentChatRoom.roomId
                             }
                         }
                     }
                 } else
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(
-                            NullPointerException("data is null"),
-                            getString(R.string.uid_not_found)
-                        )
-
+                    errorHandling(NullPointerException("data is null"),
+                        getString(R.string.uid_not_found))
             }
             .addOnFailureListener { e ->
-                (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(e, getString(R.string.uid_not_found))
+                errorHandling(e, getString(R.string.uid_not_found))
             }
     }
 
@@ -174,49 +210,33 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
                 }
             }
     }
+    */
 
-    private fun sendCloudMessage(pushToken: String) { // 이 함수, 통일할 것.
-        val url = "https://fcm.googleapis.com/fcm/send"
-        val cloudMessage = CloudMessageModel()
+    private fun sendCloudMessage(pushTokens: List<String>, message: String) { // 이 함수, 통일할 것.
+        val cloudMessage = CloudMessageModel(pushTokens)
+        cloudMessage.notification.title = userInformation.publicName
+        cloudMessage.notification.body = message
+        cloudMessage.notification.click_action = "action.ad.astra.cloud.message.click"
+        cloudMessage.notification.tag = currentChatRoom.roomId
 
-        cloudMessage.to = pushToken
-
-        // cloudMessage.notification.click_action = ACTION_MAIN
-        cloudMessage.notification.title = currentUserPublicName
-        cloudMessage.notification.text = edit_text_message.text.toString()
-
-        cloudMessage.data.message = edit_text_message.text.toString()
-        cloudMessage.data.roomId = chatRoom!!.roomId
-        cloudMessage.data.senderPublicName = currentUserPublicName
-
-        val requestBody =
-            RequestBody.create(MediaType.parse("application/json; charset=utf8"),
-                Gson().toJson(cloudMessage))
-        val request = Request.Builder().header("Content-Type", "application/json")
-            .addHeader("Authorization", API_KEY)
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object: Callback {
-            override fun onFailure(request: Request?, e: IOException?) {
-                showToast(requireContext(), getString(R.string.chat_message_sending_failure_message))
-                println("$TAG: ${e?.message}")
+        cloudMessage.data.message = message
+        cloudMessage.data.roomId = currentChatRoom.roomId
+        cloudMessage.data.senderPublicName = userInformation.publicName
+        CloudMessaging.getCloudMessagingService().request(requestBody = (cloudMessage))
+            .enqueue(object: Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful)
+                    println("$TAG: cloud message sending success")
+                else {
+                    errorHandling(Exception("failed to send cloud message"), getString(R.string.failed_to_send_cloud_message))
+                }
             }
 
-            override fun onResponse(response: Response?) {
-                if (response?.isSuccessful == true)
-                    println("$TAG: ${response.body()?.string()}")
-                else {
-                    showToast(requireContext(), getString(R.string.chat_message_sending_failure_message))
-                    println("$TAG: message sending failed")
-                }
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                (requireActivity() as MainActivity).errorHandler.errorHandling(t)
             }
         })
     }
-
-     */
 
     private fun generateChatMessage(message: String, time: String) =
         ChatMessageModel(
@@ -228,7 +248,8 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
 
     private fun generateChatRoom(
         chatMessages: MutableList<ChatMessageModel>, creationTime: String,
-        lastMessage: String, roomId: String, userIds: MutableList<String>
+        lastMessage: String, roomId: String, userIds: MutableList<String>,
+        users: MutableList<UserInformationModel>
     ) =
         ChatRoomModel(
             chatMessages = chatMessages,
@@ -236,7 +257,8 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
             lastMessage = lastMessage,
             lastMessageTime = creationTime,
             roomId = roomId,
-            userIds = userIds
+            userIds = userIds,
+            users = users
         )
 
     private fun getChatRoom(map: Map<*, *>) =
@@ -244,7 +266,6 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
 
     private fun sendMessage(message: String) {
         button_send.isEnabled = false
-        edit_text_chat_message.text.clear()
         val newChatMessage = generateChatMessage(message, getCurrentTime())
         val newPosition = currentChatRoom.chatMessages.count()
 
@@ -255,35 +276,80 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
             .update(mapOf(KEY_CHAT_MESSAGES to currentChatRoom.chatMessages))
             .addOnSuccessListener {
                 button_send.isEnabled = true
-
+                val pushTokens = currentChatRoom.users
+                    .filter { it.pushToken != userInformation.pushToken }
+                    .mapNotNull { it.pushToken }
+                sendCloudMessage(pushTokens, message)
             }
             .addOnFailureListener {
-                (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(it, getString(R.string.failed_to_send_message))
+                errorHandling(it, getString(R.string.failed_to_send_message))
                 button_send.isEnabled = true
             }
     }
 
-    inner class ChatMessageRecyclerViewAdapter(layoutId: Int = R.layout.item_view_chat):
+    override fun onStop() {
+        MainActivity.currentChatRoomId = null
+        super.onStop()
+    }
+
+    inner class ChatMessageRecyclerViewAdapter(layoutId: Int = R.layout.item_view_chat_left):
         BaseRecyclerViewAdapter<ChatMessageModel>(layoutId) {
 
+        private val myChatMessage = 0
+        private val othersChatMessage = 1
+        // Key: uid
+        // Pair: (publicName, profileImageUri)
+        private val userNameProfileUriMap =
+            mutableMapOf<String, Pair<String, String?>>()
+
         init {
+            setChatRoomUsersInformation()
             setChatMessageSnapshotListener()
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            return if (viewType == othersChatMessage)
+                super.onCreateViewHolder(parent, viewType)
+            else {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_view_chat_right, parent, false)
+                ViewHolder(view)
+            }
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            return if (items[position].senderId == userInformation.uid) {
+                myChatMessage
+            } else {
+                othersChatMessage
+            }
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val chatMessage = items[position]
-            // setImage(holder.view.image_view_profile, chatMessage.profileUri)
 
-            holder.view.text_view_message.text = chatMessage.message
+            if (chatMessage.senderId == userInformation.uid) {
+                holder.view.text_view_message.text = chatMessage.message
+                holder.view.text_view_time.text = chatMessage.time
+            } else {
+                setImage(holder.view.image_view_profile, userNameProfileUriMap[chatMessage.senderId]?.second)
+                holder.view.text_view_public_name.text = userNameProfileUriMap[chatMessage.senderId]?.first
+                holder.view.text_view_message.text = chatMessage.message
+                holder.view.text_view_time.text = chatMessage.time
+            }
+        }
+
+        private fun setChatRoomUsersInformation() {
+            for (user in currentChatRoom.users) {
+                userNameProfileUriMap[user.uid] = Pair(user.publicName, user.profileImageUri)
+            }
         }
 
         private fun setChatMessageSnapshotListener() {
             chatRoomDocumentReference = chatRoomsCollectionReference.document(currentChatRoom.roomId)
             listenerRegistration = chatRoomDocumentReference.addSnapshotListener { snapshot, e ->
                 if (e != null)
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(e, getString(R.string.failed_to_load_chat_messages))
+                    errorHandling(e, getString(R.string.failed_to_load_chat_messages))
                 else {
                     if (snapshot != null && snapshot.data != null) {
                         if(!chatMessagesIsInitialized) {
@@ -319,7 +385,7 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
         private fun insertAll(position: Int = 0, messages: List<ChatMessageModel>) {
             items.addAll(position, messages.filter { it.senderId != userInformation.uid })
             CoroutineScope(Dispatchers.Main).launch {
-                notifyDataSetChanged()
+                notifyItemRangeChanged(position, items.count())
                 delay(200)
                 recyclerView.scrollToPosition(items.count() - 1)
             }
@@ -327,5 +393,9 @@ class ChatFragment(private val targetUserId: String? = null): Fragment() {
 
         private fun getChatMessages(map: Map<*, *>)  =
             gson.fromJson(JSONObject(map).toString(), ChatRoomModel::class.java).chatMessages
+    }
+
+    companion object {
+        private const val TAG = "ChatFragment"
     }
 }

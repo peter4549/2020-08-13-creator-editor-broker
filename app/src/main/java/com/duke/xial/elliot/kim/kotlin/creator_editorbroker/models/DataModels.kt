@@ -29,7 +29,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
         const val KEY_UID = "uid"
         const val KEY_USER_TYPE = "userType"
         const val KEY_CHANNEL_IDS = "channelIds"
-        const val KEY_CHAT_ROOMS = "chatRoomIds"
+        const val KEY_CHAT_ROOM_IDS = "chatRoomIds"
         const val KEY_COMMENTS = "comments"
         const val KEY_FAVORITE_PR_IDS = "favoritePrIds"
         const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
@@ -62,7 +62,8 @@ data class PrModel(var categories: MutableList<Int>,
                    var tier: Int,
                    var title: String,
                    var stars: Int = 0,
-                   var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf())
+                   var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf(),
+                   val userInformation: UserInformationModel)
 
 data class ChannelModel(val id: String,
                         val title: String,

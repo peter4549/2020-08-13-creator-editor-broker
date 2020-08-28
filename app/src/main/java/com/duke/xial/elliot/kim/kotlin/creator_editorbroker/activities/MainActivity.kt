@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.FragmentStateAdapter
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.cloud_messaging.FirebaseMessagingService
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
@@ -77,9 +78,23 @@ class MainActivity : AppCompatActivity() {
         userTypes = createUserTypes()
     }
 
-    override fun onStart() {
-        super.onStart()
-
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent?.action != null) {
+            when (intent.action) {
+                FirebaseMessagingService.ACTION_CHAT_NOTIFICATION -> {
+                    val chatRoomId = intent.getStringExtra(FirebaseMessagingService.KEY_CHAT_ROOM_ID)
+                    if (chatRoomId != null && chatRoomId.isNotBlank())
+                        startFragment(
+                            ChatFragment(existingChatRoomId = chatRoomId),
+                            R.id.frame_layout_activity_main, TAG_CHAT_FRAGMENT, VERTICAL
+                        )
+                    else
+                        errorHandler.errorHandling(Exception("chat room not found"),
+                            getString(R.string.chat_room_not_found))
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -137,6 +152,9 @@ class MainActivity : AppCompatActivity() {
     private val eventAfterSignIn = {
         showToast(this, getString(R.string.signed_in))
         //readUserData()
+        fireStoreDocumentReference = FirebaseFirestore.getInstance()
+            .collection(COLLECTION_USERS)
+            .document(firebaseAuth.currentUser?.uid.toString())
         setUserDocumentListener(firebaseAuth.uid.toString())
         popAllFragments()
     }
@@ -237,8 +255,8 @@ class MainActivity : AppCompatActivity() {
         if (ChangedData.channelIdsChanged)
             map[UserInformationModel.KEY_CHANNEL_IDS] = currentUserInformation!!.channelIds
 
-        if (ChangedData.chatRoomsChanged)
-            map[UserInformationModel.KEY_CHAT_ROOMS] = currentUserInformation!!.chatRoomIds
+        if (ChangedData.chatRoomsChanged) /** 챗룸정보 불필요할 수 있음.*/
+            map[UserInformationModel.KEY_CHAT_ROOM_IDS] = currentUserInformation!!.chatRoomIds
 
         if (ChangedData.prListChanged)
             map[UserInformationModel.KEY_MY_PR_IDS] = currentUserInformation!!.myPrIds
@@ -255,6 +273,10 @@ class MainActivity : AppCompatActivity() {
                             task.exception
                                 ?: NullPointerException("failed to update user information")
                         )
+
+                    ChangedData.channelIdsChanged = false
+                    ChangedData.chatRoomsChanged = false
+                    ChangedData.prListChanged = false
                 }
         }
     }
@@ -268,6 +290,18 @@ class MainActivity : AppCompatActivity() {
             else {
                 if (snapshot != null && snapshot.exists()) {
                     currentUserInformation = getUserData(snapshot.data!!) // 이거 완료 전까지 다른 프래그먼트 터치 봉인할것.
+                    if (intent != null) {
+                        if (intent.action == "action.ad.astra.cloud.message.click") {
+                            val chatRoomId = intent.extras?.get("roomId") as String?
+                            if (chatRoomId != null) {
+                                startFragment(
+                                    ChatFragment(existingChatRoomId = chatRoomId),
+                                    R.id.frame_layout_activity_main, TAG_CHAT_FRAGMENT, VERTICAL
+                                )
+                            } else
+                                showToast(this, getString(R.string.chat_room_not_found))
+                        }
+                    }
                 } else {
                     startEnterUserInformationFragment()
                     println("$TAG: data is null")
@@ -306,7 +340,7 @@ class MainActivity : AppCompatActivity() {
 
     object ChangedData {
         var channelIdsChanged = false
-        var chatRoomsChanged = false
+        var chatRoomsChanged = false /** 챗룸정보 불필요할 수 있음.*/
         var prListChanged = false
     }
 
@@ -317,11 +351,11 @@ class MainActivity : AppCompatActivity() {
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
         const val TAG_SIGN_UP_FRAGMENT = "tag_sign_up_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
-
         lateinit var contentCategories: Array<String>
         lateinit var locale: Locale
         lateinit var userTypes: Array<String>
         private const val TAG = "MainActivity"
         var currentUserInformation: UserInformationModel? = null
+        var currentChatRoomId: String? = null
     }
 }

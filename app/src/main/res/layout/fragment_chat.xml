@@ -36,6 +36,8 @@
         android:inputType="textMultiLine"
         android:autofillHints="Chat Message"
         android:hint="@string/please_enter_your_message"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_send"
         app:layout_constraintStart_toStartOf="parent"

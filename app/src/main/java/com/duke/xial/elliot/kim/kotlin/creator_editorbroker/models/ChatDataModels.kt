@@ -5,7 +5,8 @@ data class ChatRoomModel(var chatMessages: MutableList<ChatMessageModel>,
                          var lastMessage: String,
                          var lastMessageTime: String,
                          val roomId: String,
-                         val userIds: MutableList<String>) {
+                         val userIds: MutableList<String>,
+                         val users: MutableList<UserInformationModel>) {
 
     companion object {
         const val KEY_CHAT_MESSAGES = "chatMessages"

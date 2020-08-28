@@ -166,5 +166,13 @@
     <string name="chat">채팅</string>
     <string name="failed_to_send_message">메시지 전송에 실패했습니다.</string>
     <string name="please_enter_your_message">메시지를 입력해주세요.</string>
+    <string name="chat_room_not_found">채팅방을 찾을 수 없습니다.</string>
+
+    <!-- PR -->
+    <string name="pr_has_registered">PR이 등록되었습니다.</string>
+    <string name="failed_to_register_pr">PR을 등록하지 못했습니다.</string>
+
+    <!-- Cloud Messaging -->
+    <string name="failed_to_send_cloud_message">클라우드 메시지 전송에 실패했습니다.</string>
 
 </resources>

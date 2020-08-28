@@ -1,5 +1,15 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.cloud_messaging
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.media.RingtoneManager
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.google.firebase.messaging.RemoteMessage
 
 class FirebaseMessagingService: com.google.firebase.messaging.FirebaseMessagingService() {
@@ -8,26 +18,23 @@ class FirebaseMessagingService: com.google.firebase.messaging.FirebaseMessagingS
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.data.isNotEmpty().let {
-            roomId = remoteMessage.data["roomId"]!!
 
-            val message = remoteMessage.data["message"] ?: "Message Error"
-            val senderPublicName = remoteMessage.data["senderPublicName"] ?: "Sender Error"
+            val message = remoteMessage.data["message"] ?: "Message has been lost"
+            val senderPublicName = remoteMessage.data["senderPublicName"]
+                ?: "Sender public name has been lost"
+            roomId = remoteMessage.data["roomId"] ?: ""
 
-            /* 걍 챗 룸 에서 끌고오는게 더 나은듯. 메인에 더 쓰지말고.
             if (MainActivity.currentChatRoomId != roomId)
                 sendNotification(senderPublicName, message)
-
-             */
         }
     }
 
-    // 여기서 업데이트 해주면됨.
+    // 여기서 업데이트 해주면됨.  업로드 로직만 짜놓을 것.
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         println("$TAG: new token: $token")
     }
 
-    /*
     private fun sendNotification(senderPublicName: String, message: String) {
         val intent = Intent(this, MainActivity::class.java)
         intent.action = ACTION_CHAT_NOTIFICATION
@@ -35,9 +42,9 @@ class FirebaseMessagingService: com.google.firebase.messaging.FirebaseMessagingS
         intent.putExtra(KEY_CHAT_ROOM_ID, roomId)
 
         val pendingIntent = PendingIntent.getActivity(this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT)
+            PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val channelId = getString(R.string.default_notification_channel_id)
+        val channelId = CHANNEL_ID
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setAutoCancel(true)
@@ -45,10 +52,11 @@ class FirebaseMessagingService: com.google.firebase.messaging.FirebaseMessagingS
             .setContentText(message)
             .setContentTitle(senderPublicName)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSmallIcon(R.drawable.ic_star_64dp)
-            .setSound(defaultSoundUri)
+            .setSmallIcon(R.drawable.ic_round_check_circle_24)
+            .setSound(defaultSoundUri)  // 사운드 조정 필요.
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId,
@@ -57,16 +65,14 @@ class FirebaseMessagingService: com.google.firebase.messaging.FirebaseMessagingS
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(0, notificationBuilder.build()) // id 부분, 만약 메시지 다른데서 왓어도 정상동작할런지.
     }
 
-     */
-
     companion object {
-        private const val TAG = "FirebaseMessagingService"
-
-        const val ACTION_CHAT_NOTIFICATION = "action_chat_notification"
+        const val ACTION_CHAT_NOTIFICATION = "action.chat.notification"
         const val KEY_CHAT_ROOM_ID = "key_chat_room_id"
-        private const val CHANNEL_TITLE = "channel title"
+        private const val CHANNEL_ID = "notification_channel_id"
+        private const val CHANNEL_TITLE = "chat_room_notification"
+        private const val TAG = "FirebaseMessagingService"
     }
 }

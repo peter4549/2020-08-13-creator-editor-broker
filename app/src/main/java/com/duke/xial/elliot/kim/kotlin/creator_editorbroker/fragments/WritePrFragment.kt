@@ -32,7 +32,6 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChann
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity.Companion.KEY_VIDEO_DATA
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
 import kotlinx.android.synthetic.main.fragment_write_pr.*
 import kotlinx.android.synthetic.main.fragment_write_pr.view.*
 import kotlinx.android.synthetic.main.fragment_write_pr.view.button_register
@@ -145,7 +144,8 @@ class WritePrFragment: Fragment() {
                 target = target,
                 tier = userInformation.tier,
                 title = title,
-                youtubeVideos = imageRecyclerViewAdapter.videos.toMutableList()
+                youtubeVideos = imageRecyclerViewAdapter.videos.toMutableList(),
+                userInformation = userInformation
             )
 
             if (userInformation.myPrIds.isEmpty())
@@ -184,7 +184,7 @@ class WritePrFragment: Fragment() {
             .update(PR_LIST, FieldValue.arrayUnion(pr))
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    showToast(requireContext(), "PR이 등록되었습니다.2")
+                    showToast(requireContext(), getString(R.string.pr_has_registered))
                     clearUi()
                     MainActivity.currentUserInformation!!.myPrIds.add(pr.registrationTime)
                     MainActivity.ChangedData.prListChanged = true
@@ -193,7 +193,7 @@ class WritePrFragment: Fragment() {
                 else {
                     val s = task.exception
                     (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
+                        .errorHandling(task.exception!!, getString(R.string.failed_to_register_pr))
                     //button_upload.isEnabled = true
                 }
             }
