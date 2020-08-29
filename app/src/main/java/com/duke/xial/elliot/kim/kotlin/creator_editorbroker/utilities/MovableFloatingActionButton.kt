@@ -1,8 +1,6 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities
 
-import android.animation.Animator
 import android.content.Context
-import android.graphics.Matrix
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View

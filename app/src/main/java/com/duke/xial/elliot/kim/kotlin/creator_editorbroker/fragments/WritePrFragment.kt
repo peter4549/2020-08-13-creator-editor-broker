@@ -27,6 +27,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CO
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.getCurrentTime
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.hashString
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity.Companion.KEY_VIDEO_DATA
@@ -135,9 +136,12 @@ class WritePrFragment: Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val userInformation = MainActivity.currentUserInformation!!
+            val id = hashString(MainActivity.currentUserInformation?.uid!! +
+                    getCurrentTime().toString()).chunked(32)[0]
             val pr = PrModel(
                 categories = userInformation.categories,
                 description = description,
+                id = id,
                 publisherId = userInformation.uid,
                 publisherPublicName = userInformation.publicName,
                 registrationTime = getCurrentTime(),
@@ -148,24 +152,24 @@ class WritePrFragment: Fragment() {
                 userInformation = userInformation
             )
 
-            if (userInformation.myPrIds.isEmpty())
+            if (userInformation.myPrIds.count() < 1)
                 setPrToFireStore(pr)
             else
-                updatePrToFireStore(pr)
+                showToast(requireContext(), "기본회원은 1개만 가능.")
+                // updatePrToFireStore(pr)
         }
     }
 
     private fun setPrToFireStore(pr: PrModel) {
-        val prList = listOf(pr)
         FirebaseFirestore.getInstance()
             .collection(COLLECTION_PR_LIST)
-            .document(pr.publisherId)
-            .set(hashMapOf(PR_LIST to prList))
+            .document(pr.id)
+            .set(pr)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     showToast(requireContext(), "PR이 등록되었습니다.1")
                     clearUi()
-                    MainActivity.currentUserInformation!!.myPrIds.add(pr.registrationTime)
+                    MainActivity.currentUserInformation!!.myPrIds.add(pr.id)
                     MainActivity.ChangedData.prListChanged = true
                     //button_upload.isEnabled = true
                 }
@@ -176,22 +180,21 @@ class WritePrFragment: Fragment() {
                 }
             }
     }
-    //washingtonRef.update("regions", FieldValue.arrayUnion("greater_virginia"))
+
     private fun updatePrToFireStore(pr: PrModel) {
         FirebaseFirestore.getInstance()
             .collection(COLLECTION_PR_LIST)
-            .document(pr.publisherId)
+            .document(pr.id)
             .update(PR_LIST, FieldValue.arrayUnion(pr))
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     showToast(requireContext(), getString(R.string.pr_has_registered))
                     clearUi()
-                    MainActivity.currentUserInformation!!.myPrIds.add(pr.registrationTime)
+                    MainActivity.currentUserInformation!!.myPrIds.add(pr.id)
                     MainActivity.ChangedData.prListChanged = true
                     //button_upload.isEnabled = true
                 }
                 else {
-                    val s = task.exception
                     (requireActivity() as MainActivity).errorHandler
                         .errorHandling(task.exception!!, getString(R.string.failed_to_register_pr))
                     //button_upload.isEnabled = true

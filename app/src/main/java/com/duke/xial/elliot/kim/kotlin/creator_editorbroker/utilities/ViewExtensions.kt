@@ -1,4 +1,4 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities
 
 import android.animation.Animator
 import android.view.View

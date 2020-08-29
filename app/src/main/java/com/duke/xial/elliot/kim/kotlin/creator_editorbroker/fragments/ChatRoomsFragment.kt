@@ -15,19 +15,23 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_single_recycler_view.view.*
 import kotlinx.android.synthetic.main.item_view_chat_room.view.*
+import org.json.JSONObject
 
 class ChatRoomsFragment: Fragment() {
 
-    private lateinit var listenerRegistration: ListenerRegistration
+    private lateinit var chatRoomsListenerRegistration: ListenerRegistration
     private lateinit var userCollectionReference: CollectionReference
-    private lateinit var usersInformationList: ArrayList<ArrayList<UserInformationModel>>
+    private val usersInformationList: ArrayList<ArrayList<UserInformationModel>> = arrayListOf()
     private lateinit var chatRoomsRecyclerViewAdapter: ChatRoomsRecyclerViewAdapter
+    private val gson = Gson()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,28 +48,9 @@ class ChatRoomsFragment: Fragment() {
         return view
     }
 
-    private fun addUsersInformationAndUpdateUi(chatRoomUserIds: MutableList<String>, view: View) {
-        userCollectionReference
-            .whereArrayContainsAny(UserInformationModel.KEY_UID, chatRoomUserIds)
-            .get()
-            .addOnSuccessListener { documents ->
-                val chatRoomUsers = arrayListOf<UserInformationModel>()
-                for (document in documents) {
-                    chatRoomUsers.add(document.toObject(UserInformationModel::class.java))
-                }
-                setImage(view.image_view_profile, chatRoomUsers[0].profileImageUri)
-                view.text_view_users_name.text = chatRoomUsers.joinToString { it.publicName }
-                usersInformationList.add(chatRoomUsers)
-            }
-            .addOnFailureListener { exception ->
-                (requireActivity() as MainActivity).errorHandler
-                    .errorHandling(exception, getString(R.string.failed_to_read_user_data))
-            }
-    }
-
     fun removeListenerRegistration() {
-        if (::listenerRegistration.isInitialized)
-            listenerRegistration.remove()
+        if (::chatRoomsListenerRegistration.isInitialized)
+            chatRoomsListenerRegistration.remove()
     }
 
     inner class ChatRoomsRecyclerViewAdapter:
@@ -77,16 +62,22 @@ class ChatRoomsFragment: Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val chatRoom = items[position]
-            holder.view.text_view_last_message.text = chatRoom.lastMessage
-            holder.view.text_view_time.text = chatRoom.lastMessageTime
-            addUsersInformationAndUpdateUi(chatRoom.userIds, holder.view)
+            val profileImageUris =
+                chatRoom.users.filter { it.uid != MainActivity.currentUserInformation?.uid }
+                    .filter { it.profileImageUri != null && it.profileImageUri != "null" }
+                    .map { it.profileImageUri }
+            if (profileImageUris.isNotEmpty())
+                setImage(holder.view.image_view_profile, profileImageUris[0])  // 이후 반복문으로 전환할 것.
+            holder.view.text_view_users_name.text = chatRoom.users.joinToString { it.publicName }
+            holder.view.text_view_last_message.text = chatRoom.lastMessage.message
+            holder.view.text_view_time.text = chatRoom.lastMessage.time.toLocalTimeString()
         }
 
-        fun setChatRoomSnapshotListener() {
-            listenerRegistration = FirebaseFirestore.getInstance()
+        private fun setChatRoomSnapshotListener() {
+            chatRoomsListenerRegistration = FirebaseFirestore.getInstance()
                 .collection(COLLECTION_CHAT_ROOMS)
-                .whereEqualTo(ChatRoomModel.KEY_ROOM_ID,
-                    MainActivity.currentUserInformation!!.chatRoomIds)
+                .whereArrayContains(ChatRoomModel.KEY_USER_IDS,
+                    MainActivity.currentUserInformation!!.uid)
                 .addSnapshotListener { value, error ->
                     if (error != null) {
                         showToast(requireContext(), getString(R.string.failed_to_load_chat_rooms))
@@ -95,11 +86,11 @@ class ChatRoomsFragment: Fragment() {
                         for (change in value!!.documentChanges) {
                             when (change.type) {
                                 DocumentChange.Type.ADDED ->
-                                    chatRoomsRecyclerViewAdapter.insert(change.document.toObject(ChatRoomModel::class.java))
+                                    chatRoomsRecyclerViewAdapter.insert(getChatRoom(change.document.data))
                                 DocumentChange.Type.MODIFIED ->
-                                    chatRoomsRecyclerViewAdapter.update(change.document.toObject(ChatRoomModel::class.java))
+                                    chatRoomsRecyclerViewAdapter.update(getChatRoom(change.document.data))
                                 DocumentChange.Type.REMOVED ->
-                                    chatRoomsRecyclerViewAdapter.remove(change.document.toObject(ChatRoomModel::class.java))
+                                    chatRoomsRecyclerViewAdapter.remove(getChatRoom(change.document.data))
                             }
                         }
                         recyclerView.scheduleLayoutAnimation()
@@ -107,5 +98,10 @@ class ChatRoomsFragment: Fragment() {
                     }
                 }
         }
+    }
+
+    private fun getChatRoom(map: Map<String, Any>): ChatRoomModel {
+        println("MMMMMMMM + " + map)
+        return gson.fromJson(JSONObject(map).toString(), ChatRoomModel::class.java)
     }
 }

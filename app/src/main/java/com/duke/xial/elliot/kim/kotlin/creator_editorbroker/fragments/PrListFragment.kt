@@ -20,7 +20,9 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.UserType.CREATOR
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
@@ -68,14 +70,25 @@ class PrListFragment : Fragment() {
                 else {
                     for (change in documentSnapshot!!.documentChanges) {
                         when (change.type) {
-                            DocumentChange.Type.ADDED -> this.insertPrArrayList(change.document.data)
-                            DocumentChange.Type.MODIFIED -> {  }
-                            DocumentChange.Type.REMOVED -> this.removePrArrayList(change.document.data)
+                            DocumentChange.Type.ADDED -> this.insert(mapToPrModel(change.document.data))
+                            DocumentChange.Type.MODIFIED -> this.findMessageAndUpdate(mapToPrModel(change.document.data))
+                            DocumentChange.Type.REMOVED -> this.remove(mapToPrModel(change.document.data))
                             else -> { println("$TAG: unexpected DocumentChange Type") }
                         }
                     }
                 }
             }
+        }
+
+        private fun findMessageAndUpdate(prModel: PrModel) {
+            val item = items.find { it.id == prModel.id }
+            val position = items.indexOf(item)
+
+            if (position == -1)
+                return
+
+            items[position] = prModel
+            notifyItemChanged(position)
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -113,10 +126,10 @@ class PrListFragment : Fragment() {
             holder.view.text_view_title.text = pr.title
             holder.view.text_view_public_name.text = pr.publisherPublicName
             holder.view.text_view_target.text = targetText
-            holder.view.text_view_published_time.text = pr.registrationTime
+            holder.view.text_view_published_time.text = pr.registrationTime.toLocalTimeString()
             holder.view.text_view_replies.text = replies.count().toString()
             holder.view.text_view_comments.text = comments.count().toString()
-            holder.view.text_view_favorites.text = pr.favorites.toString()
+            holder.view.text_view_favorites.text = pr.favoriteUserIds.count().toString()
             holder.view.text_view_stars.text = pr.stars.toString()
 
             holder.view.setOnClickListener {

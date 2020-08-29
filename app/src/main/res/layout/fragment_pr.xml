@@ -142,7 +142,7 @@
         app:layout_constraintTop_toBottomOf="@+id/text_view_description"
         tools:text="Comments"/>
 
-    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_eject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_double_up_arrow_angles" />
 
-    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_star"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -169,9 +169,9 @@
         app:fabSize="auto"
         app:layout_constraintBottom_toTopOf="@+id/fab_eject"
         app:layout_constraintEnd_toEndOf="@+id/fab_eject"
-        app:srcCompat="@drawable/ic_round_favorite_24" />
+        app:srcCompat="@drawable/ic_round_star_28" />
 
-    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -183,9 +183,9 @@
         app:fabSize="auto"
         app:layout_constraintBottom_toTopOf="@+id/fab_star"
         app:layout_constraintEnd_toEndOf="@+id/fab_star"
-        app:srcCompat="@drawable/ic_round_star_16" />
+        app:srcCompat="@drawable/ic_round_favorite_24" />
 
-    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.MovableFloatingActionButton
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_chat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

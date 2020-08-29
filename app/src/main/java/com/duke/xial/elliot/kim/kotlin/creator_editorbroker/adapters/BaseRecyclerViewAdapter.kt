@@ -38,7 +38,7 @@ open class BaseRecyclerViewAdapter<T: Any?>(private val layoutId: Int,
 
     }
 
-    fun insert(item: T, position: Int = 0) {
+    open fun insert(item: T, position: Int = 0) {
         items.add(position, item)
         notifyItemInserted(position)
     }

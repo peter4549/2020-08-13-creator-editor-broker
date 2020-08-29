@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,8 +24,22 @@ fun showToast(context: Context, text: String, duration: Int = Toast.LENGTH_LONG)
     }
 }
 
-fun getCurrentTime(): String =
-    SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(Date())
+fun getCurrentTime(): Long = System.currentTimeMillis()
+
+fun Long.toLocalTimeString(): String {
+    val dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
+        .apply {
+            timeZone = TimeZone.getDefault()
+        }
+    val timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT)
+        .apply {
+            timeZone = TimeZone.getDefault()
+        }
+
+    val localDate = dateFormat.format(Date(this))
+    val localTime = timeFormat.format(Date(this))
+    return "$localDate $localTime"
+}
 
 fun hashString(input: String, algorithm: String = "SHA-256"): String {
     return MessageDigest.getInstance(algorithm)

@@ -171,6 +171,7 @@
     <!-- PR -->
     <string name="pr_has_registered">PR이 등록되었습니다.</string>
     <string name="failed_to_register_pr">PR을 등록하지 못했습니다.</string>
+    <string name="failed_to_add_to_watchlist">관심 목록에 추가하지 못했습니다.</string>
 
     <!-- Cloud Messaging -->
     <string name="failed_to_send_cloud_message">클라우드 메시지 전송에 실패했습니다.</string>

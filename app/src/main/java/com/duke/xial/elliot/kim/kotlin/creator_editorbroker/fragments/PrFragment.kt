@@ -4,23 +4,35 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel.Companion.KEY_FAVORITE_USER_IDS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.scaleDown
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.scaleUp
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleDown
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleUp
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.android.synthetic.main.fragment_pr.*
 import kotlinx.android.synthetic.main.fragment_pr.view.*
+import java.lang.Exception
+import java.lang.NullPointerException
 
 class PrFragment(private val pr: PrModel? = null): Fragment() {
 
     private lateinit var fragmentView: View
+    private lateinit var prDocumentReference: DocumentReference
+    private lateinit var prListenerRegistration: ListenerRegistration
     private lateinit var youtubeVideos: Array<VideoDataModel>
     private var isFabOpen = false
     private val fabClickListener = View.OnClickListener { view ->
@@ -32,6 +44,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
             R.id.fab_chat -> {
                 startChatFragment(pr?.userInformation!!)
             }
+            R.id.fab_favorite -> favoriteUserIdsUpdate()
         }
     }
 
@@ -46,10 +59,20 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
             fragmentView = inflater.inflate(R.layout.fragment_pr, container, false)
             youtubeVideos = pr?.youtubeVideos?.filterNotNull()?.toTypedArray() ?: arrayOf()
             initializeViewPager(fragmentView.view_pager)
-            initializeFab(fragmentView)
+            prDocumentReference = FirebaseFirestore.getInstance()
+                .collection(PR_LIST)
+                .document(pr?.id!!)
 
-            fragmentView.text_view_title.text = pr?.title
-            fragmentView.text_view_public_name.text = pr?.publisherPublicName
+            updateFavoritesUi()
+            setPrSnapshotListener()
+
+            if (pr.publisherId == MainActivity.currentUserInformation?.uid)
+                setFabToGone()
+            else
+                initializeFab(fragmentView)
+
+            fragmentView.text_view_title.text = pr.title
+            fragmentView.text_view_public_name.text = pr.publisherPublicName
 
             fragmentView
         }
@@ -73,11 +96,21 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         view.fab_eject.setChildButtons(view.fab_chat, view.fab_favorite, view.fab_star)
     }
 
-    private fun disableFab() {
-        fab_chat.visibility = View.GONE
-        fab_eject.visibility = View.GONE
-        fab_favorite.visibility = View.GONE
-        fab_star.visibility = View.GONE
+    private fun updateFavoritesUi() {
+        if (pr?.favoriteUserIds!!.contains(MainActivity.currentUserInformation?.uid)) {
+            fragmentView.text_view_favorites.setBackgroundColor(ContextCompat.getColor(requireContext(),
+                R.color.colorCrushedIce))
+            fragmentView.fab_favorite.isEnabled = false
+        } else {
+            fragmentView.fab_favorite.isEnabled = true
+        }
+    }
+
+    private fun setFabToGone() {
+        fragmentView.fab_chat.visibility = View.GONE
+        fragmentView.fab_eject.visibility = View.GONE
+        fragmentView.fab_favorite.visibility = View.GONE
+        fragmentView.fab_star.visibility = View.GONE
     }
 
     private fun animateFab() {
@@ -109,10 +142,66 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         )
     }
 
+    private fun setPrSnapshotListener() {
+        prListenerRegistration = prDocumentReference.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    errorHandling(e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    if (snapshot.data != null) {
+                        text_view_favorites.text =
+                            (snapshot.data?.get(KEY_FAVORITE_USER_IDS) as MutableList<*>)
+                                .count().toString()
+                    }
+                } else {
+                    errorHandling(NullPointerException("snapshot: null"))
+                }
+            }
+    }
+
+    private fun favoriteUserIdsUpdate() {
+        fragmentView.text_view_favorites.isEnabled = false
+        fragmentView.fab_favorite.isEnabled = false
+        prDocumentReference
+            .update(KEY_FAVORITE_USER_IDS,
+            FieldValue.arrayUnion(MainActivity.currentUserInformation?.uid!!))
+            .addOnSuccessListener {
+                println("$TAG: favoriteUserIds updated")
+                MainActivity.currentUserInformation?.favoritePrIds
+                    ?.add(pr?.registrationTime.toString())
+                updateFavoritesUi()
+            }
+            .addOnFailureListener {
+                errorHandling(it, getString(R.string.failed_to_add_to_watchlist))
+                fragmentView.text_view_favorites.isEnabled = true
+                fragmentView.fab_favorite.isEnabled = true
+            }
+    }
+
+    override fun onStop() {
+        removeListenerRegistration()
+        super.onStop()
+    }
+
+    private fun removeListenerRegistration() {
+        if(::prListenerRegistration.isInitialized)
+            prListenerRegistration.remove()
+    }
+
+    private fun errorHandling(e: Exception, toastMessage: String? = null, throwing: Boolean = false) {
+        (requireActivity() as MainActivity).errorHandler.errorHandling(e, toastMessage, throwing)
+    }
+
     inner class ImageViewPagerAdapter(fragmentManager: FragmentManager) :
         FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getCount(): Int = youtubeVideos.count()
 
         override fun getItem(position: Int): Fragment = SingleImageViewFragment(youtubeVideos[position].thumbnailUri)
+    }
+
+    companion object {
+        private const val TAG = "PrFragment"
     }
 }

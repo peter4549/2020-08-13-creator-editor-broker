@@ -2,8 +2,9 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
@@ -29,7 +30,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
-import java.lang.NullPointerException
+import java.text.DateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -66,15 +67,6 @@ class MainActivity : AppCompatActivity() {
         } else
             resources.configuration.locale
 
-        println("LLLLLLLL + $locale")
-        println("DEFAULTLOCALE" + Locale.getDefault().country)
-        println("DEFAULTLOCALE" + Locale.getDefault().toLanguageTag())
-        println("DEFAULTLOCALE" + Locale.getDefault().displayCountry)
-        println("DEFAULTLOCALE" + Locale.getDefault().script)
-        println("AVLOCALE" + Locale.getAvailableLocales())
-        println("IOSCOUNTRY" + Locale.getISOCountries())
-        println("IOSLAN" + Locale.getISOLanguages())
-
         userTypes = createUserTypes()
     }
 
@@ -83,15 +75,18 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action != null) {
             when (intent.action) {
                 FirebaseMessagingService.ACTION_CHAT_NOTIFICATION -> {
-                    val chatRoomId = intent.getStringExtra(FirebaseMessagingService.KEY_CHAT_ROOM_ID)
+                    val chatRoomId =
+                        intent.getStringExtra(FirebaseMessagingService.KEY_CHAT_ROOM_ID)
                     if (chatRoomId != null && chatRoomId.isNotBlank())
                         startFragment(
                             ChatFragment(existingChatRoomId = chatRoomId),
                             R.id.frame_layout_activity_main, TAG_CHAT_FRAGMENT, VERTICAL
                         )
                     else
-                        errorHandler.errorHandling(Exception("chat room not found"),
-                            getString(R.string.chat_room_not_found))
+                        errorHandler.errorHandling(
+                            Exception("chat room not found"),
+                            getString(R.string.chat_room_not_found)
+                        )
                 }
             }
         }
@@ -162,7 +157,11 @@ class MainActivity : AppCompatActivity() {
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
         currentUserInformation = null
-        startFragment(SignInFragment.newInstance(), R.id.frame_layout_activity_main, TAG_SIGN_IN_FRAGMENT)
+        startFragment(
+            SignInFragment.newInstance(),
+            R.id.frame_layout_activity_main,
+            TAG_SIGN_IN_FRAGMENT
+        )
     }
 
     private fun popAllFragments() {
@@ -171,7 +170,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startFragment(fragment: Fragment, containerViewId: Int, tag: String? = null, direction: Int = HORIZONTAL) {
+    fun startFragment(
+        fragment: Fragment,
+        containerViewId: Int,
+        tag: String? = null,
+        direction: Int = HORIZONTAL
+    ) {
         when (direction) {
             HORIZONTAL -> {
                 supportFragmentManager.beginTransaction()
@@ -196,40 +200,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*
-    private fun readUserData() {
-        fireStoreDocumentReference = FirebaseFirestore.getInstance()
-            .collection(COLLECTION_USERS)
-            .document(firebaseAuth.currentUser?.uid.toString())
-        fireStoreDocumentReference.get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (task.result != null)
-                        if (task.result?.data == null) {
-                            currentUserInformation = null
-                            startEnterUserInformationFragment()
-                        }
-                        else {
-                            currentUserInformation = getCurrentUserData(task.result?.data as Map<String, Any>)
-                            setUserDocumentListener(currentUserInformation!!.uid)
-                        }
-                    else
-                        errorHandler.errorHandling(
-                            Exception("failed to read user data, task.result is null"),
-                            getString(R.string.failed_to_read_user_data))
-                } else
-                    errorHandler.errorHandling(task.exception ?:
-                    Exception("failed to read user data, task.exception is null"),
-                        getString(R.string.failed_to_read_user_data))
-            }
-    }
-
-     */
-
     private fun startEnterUserInformationFragment() {
         println("HAHAHAHAHAHAHHAHHAHAHAH")// 프래그먼트 commit 에러 조사.
-        startFragment(EnterUserInformationFragment.newInstance(),
+        startFragment(
+            EnterUserInformationFragment.newInstance(),
             R.id.frame_layout_activity_main,
-            TAG_ENTER_USER_INFORMATION_FRAGMENT)
+            TAG_ENTER_USER_INFORMATION_FRAGMENT
+        )
     }
 
     fun getUserData(map: Map<String, Any>): UserInformationModel =
@@ -331,10 +308,15 @@ class MainActivity : AppCompatActivity() {
                                 errorHandler.errorHandling(task.exception as FirebaseFirestoreException)
                         }
                 } else
-                    errorHandler.errorHandling(NullPointerException("token generation failed"),
-                        getString(R.string.token_generation_failed))
+                    errorHandler.errorHandling(
+                        NullPointerException("token generation failed"),
+                        getString(R.string.token_generation_failed)
+                    )
             } else
-                errorHandler.errorHandling(task.exception!!, getString(R.string.token_generation_failed))
+                errorHandler.errorHandling(
+                    task.exception!!,
+                    getString(R.string.token_generation_failed)
+                )
         }
     }
 

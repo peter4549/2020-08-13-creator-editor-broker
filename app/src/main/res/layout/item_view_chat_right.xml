@@ -33,4 +33,13 @@
         app:layout_constraintEnd_toStartOf="@+id/text_view_message"
         tools:text="00:00:00" />
 
+    <TextView
+        android:id="@+id/text_view_unread_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/text_view_time"
+        app:layout_constraintEnd_toEndOf="@+id/text_view_time"
+        tools:text="1" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

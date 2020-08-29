@@ -54,16 +54,22 @@ data class CommentModel (
 data class PrModel(var categories: MutableList<Int>,
                    var comments: MutableList<CommentModel> = mutableListOf(),
                    var description: String,
-                   var favorites: Int = 0,
+                   var favoriteUserIds: MutableList<String> = mutableListOf(),
+                   var id: String,
                    var publisherId: String,
                    var publisherPublicName: String,
-                   var registrationTime: String,  // used as id
+                   var registrationTime: Long,
                    var target: Int,
                    var tier: Int,
                    var title: String,
                    var stars: Int = 0,
                    var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf(),
-                   val userInformation: UserInformationModel)
+                   val userInformation: UserInformationModel) {
+
+    companion object {
+        const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
+    }
+}
 
 data class ChannelModel(val id: String,
                         val title: String,
