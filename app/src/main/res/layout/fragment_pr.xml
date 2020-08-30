@@ -65,21 +65,23 @@
         android:id="@+id/text_view_public_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_title"
-        tools:text="Public Name"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/text_view_view_count"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        tools:text="Public Name" />
 
     <TextView
         android:id="@+id/text_view_view_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_public_name"
-        tools:text="View Count"/>
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        tools:text="View Count" />
 
     <TextView
         android:id="@+id/text_view_published_time"
@@ -198,5 +200,15 @@
         app:layout_constraintBottom_toTopOf="@+id/fab_favorite"
         app:layout_constraintEnd_toEndOf="@+id/fab_favorite"
         app:srcCompat="@drawable/ic_speech_bubble_24" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_title"
+        tools:srcCompat="@tools:sample/avatars" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

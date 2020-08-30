@@ -19,6 +19,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageMo
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel.Companion.KEY_TIME
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel.Companion.KEY_LAST_MESSAGE
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel.Companion.KEY_UNREAD_COUNTER
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel.Companion.KEY_USER_IDS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2.CloudMessaging
@@ -234,6 +235,10 @@ class ChatFragment(private val targetUser: UserInformationModel? = null,
             creationTime = creationTime,
             lastMessage = lastMessage,
             roomId = roomId,
+            unreadCounter = mutableMapOf(
+                userInformation.uid to 0L,
+                targetUser?.uid!! to 1L
+            ),
             userIds = userIds,
             users = users
         )
@@ -252,9 +257,20 @@ class ChatFragment(private val targetUser: UserInformationModel? = null,
                 val pushTokens = currentChatRoom.users
                     .filter { it.pushToken != userInformation.pushToken }
                     .mapNotNull { it.pushToken }
+
                 sendCloudMessage(pushTokens, message)
+
+                // Update unread count
+                for (uid in currentChatRoom.userIds) {
+                    if (uid != userInformation.uid) {
+                        currentChatRoom.unreadCounter[uid] =
+                            currentChatRoom.unreadCounter[uid]?.plus(1L) ?: 0L
+                    }
+                }
+
                 chatRoomsCollectionReference.document(currentChatRoom.roomId)
-                    .update(mapOf(KEY_LAST_MESSAGE to currentChatRoom.lastMessage))
+                    .update(mapOf(KEY_LAST_MESSAGE to currentChatRoom.lastMessage,
+                        KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
                     .addOnSuccessListener {
                         println("$TAG: last message updated")
                     }
@@ -294,6 +310,18 @@ class ChatFragment(private val targetUser: UserInformationModel? = null,
 
     override fun onStop() {
         MainActivity.currentChatRoomId = null
+        chatRoomsCollectionReference
+
+        // Update unread count
+        currentChatRoom.unreadCounter[userInformation.uid] = 0L
+        chatRoomsCollectionReference.document(currentChatRoom.roomId)
+            .update(mapOf(KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
+            .addOnSuccessListener {
+                println("$TAG: unread count updated")
+            }
+            .addOnFailureListener {
+                errorHandling(it)
+            }
         super.onStop()
     }
 

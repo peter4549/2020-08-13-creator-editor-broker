@@ -20,7 +20,6 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.UserType.CREATOR
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
 import com.google.firebase.firestore.CollectionReference
@@ -35,6 +34,7 @@ import org.json.JSONObject
 class PrListFragment : Fragment() {
 
     private lateinit var listenerRegistration: ListenerRegistration
+    @Suppress("SpellCheckingInspection")
     private val gson = GsonBuilder().create()
 
     override fun onCreateView(

@@ -11,6 +11,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecycle
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_CHAT_ROOMS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
@@ -71,6 +72,8 @@ class ChatRoomsFragment: Fragment() {
             holder.view.text_view_users_name.text = chatRoom.users.joinToString { it.publicName }
             holder.view.text_view_last_message.text = chatRoom.lastMessage.message
             holder.view.text_view_time.text = chatRoom.lastMessage.time.toLocalTimeString()
+            holder.view.text_view_unread_count.text =
+                chatRoom.unreadCounter[MainActivity.currentUserInformation?.uid].toString()
         }
 
         private fun setChatRoomSnapshotListener() {
@@ -88,7 +91,7 @@ class ChatRoomsFragment: Fragment() {
                                 DocumentChange.Type.ADDED ->
                                     chatRoomsRecyclerViewAdapter.insert(getChatRoom(change.document.data))
                                 DocumentChange.Type.MODIFIED ->
-                                    chatRoomsRecyclerViewAdapter.update(getChatRoom(change.document.data))
+                                    chatRoomsRecyclerViewAdapter.findRoomAndUpdate(getChatRoom(change.document.data))
                                 DocumentChange.Type.REMOVED ->
                                     chatRoomsRecyclerViewAdapter.remove(getChatRoom(change.document.data))
                             }
@@ -98,10 +101,21 @@ class ChatRoomsFragment: Fragment() {
                     }
                 }
         }
+
+        private fun findRoomAndUpdate(chatRoom: ChatRoomModel) {
+            val item = items.find { it.roomId == chatRoom.roomId
+                    && it.creationTime == chatRoom.creationTime }
+            val position = items.indexOf(item)
+
+            if (position == -1)
+                return
+
+            items[position] = chatRoom
+            notifyItemChanged(position)
+        }
     }
 
     private fun getChatRoom(map: Map<String, Any>): ChatRoomModel {
-        println("MMMMMMMM + " + map)
         return gson.fromJson(JSONObject(map).toString(), ChatRoomModel::class.java)
     }
 }
