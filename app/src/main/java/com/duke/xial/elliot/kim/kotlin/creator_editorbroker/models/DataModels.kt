@@ -3,24 +3,26 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Tier
 import java.io.Serializable
 
-data class UserInformationModel(var categories: MutableList<Int>,
-                                var publicName: String,
-                                var uid: String,
-                                var userType: Int,
-                                var channelIds: MutableList<String> = mutableListOf(),
-                                var chatRoomIds: MutableList<String> = mutableListOf(),
-                                var comments: MutableList<CommentModel> = mutableListOf(),
-                                var favoritePrIds: MutableList<String> = mutableListOf(),
-                                var favoriteUserIds: MutableList<String> = mutableListOf(),
-                                var myPrIds: MutableList<String> = mutableListOf(),
-                                var partnerIds: MutableList<String> = mutableListOf(),
-                                var profileImageUri: String? = null,
-                                var pushToken: String? = null,
-                                var receivedStarCount: Int = 0,
-                                var registeredOnPartners: Boolean = false,
-                                var tier: Int = Tier.NORMAL,
-                                var userIdsReceivedMyStar: MutableList<String> = mutableListOf(),
-                                var youtubeVideos: MutableList<VideoModel> = mutableListOf()) {
+data class UserModel(var categories: MutableList<Int>,
+                     var contactPhoneNumber: String? = null,
+                     val contactEmail: String? = null,
+                     var publicName: String,
+                     var uid: String,
+                     var userType: Int,
+                     var channelIds: MutableList<String> = mutableListOf(),
+                     var chatRoomIds: MutableList<String> = mutableListOf(),
+                     var comments: MutableList<CommentModel> = mutableListOf(),
+                     var favoritePrIds: MutableList<String> = mutableListOf(),
+                     var favoriteUserIds: MutableList<String> = mutableListOf(),
+                     var myPrIds: MutableList<String> = mutableListOf(),
+                     var partnerIds: MutableList<String> = mutableListOf(),
+                     var profileImageUri: String? = null,
+                     var pushToken: String? = null,
+                     var userIdsGaveMeStar: MutableList<String> = mutableListOf(),
+                     var registeredOnPartners: Boolean = false,
+                     var tier: Int = Tier.NORMAL,
+                     var userIdsReceivedMyStar: MutableList<String> = mutableListOf(),
+                     var youtubeVideos: MutableList<VideoModel> = mutableListOf()) {
 
     companion object {
         const val KEY_CATEGORIES = "categories"
@@ -36,7 +38,7 @@ data class UserInformationModel(var categories: MutableList<Int>,
         const val KEY_MY_PR_IDS = "myPrIds"
         const val KEY_PARTNER_IDS = "partnerIds"
         const val KEY_PUSH_TOKEN = "pushToken"
-        const val KEY_RECEIVED_STAR_COUNT = "receivedStarCount"
+        const val KEY_USER_IDS_GAVE_STAR = "userIdsGaveStar"
         const val KEY_REGISTERED_ON_PARTNERS = "registeredOnPartners"
         const val KEY_TIER = "tier"
         const val KEY_USER_IDS_RECEIVED_MY_STAR = "userIdsReceivedMyStar"
@@ -64,10 +66,11 @@ data class PrModel(var categories: MutableList<Int>,
                    var title: String,
                    var stars: Int = 0,
                    var youtubeVideos: MutableList<VideoDataModel?> = mutableListOf(),
-                   val userInformation: UserInformationModel) {
+                   val publisher: UserModel) {
 
     companion object {
         const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
+        const val KEY_PUBLISHER = "publisher"
     }
 }
 

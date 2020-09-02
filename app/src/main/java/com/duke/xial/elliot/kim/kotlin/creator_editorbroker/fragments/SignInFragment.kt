@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GOOGLE_SIGN_IN
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.FacebookCallback
@@ -204,7 +205,7 @@ class SignInFragment : Fragment() {
                 if (task.isSuccessful)
                     println("$TAG: Twitter sign in successful")
                 else {
-                    (requireActivity() as MainActivity).errorHandler.errorHandling(task.exception!!)
+                    errorHandler.errorHandling(task.exception!!)
                 }
             }
         } else
@@ -220,7 +221,7 @@ class SignInFragment : Fragment() {
     }
 
     private fun errorHandling(e: Exception, toastMessage: String? = null, throwing: Boolean = false) {
-        (requireActivity() as MainActivity).errorHandler.errorHandling(e, toastMessage, throwing=throwing)
+        errorHandler.errorHandling(e, toastMessage, throwing=throwing)
     }
 
     companion object {

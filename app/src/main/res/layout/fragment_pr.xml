@@ -159,7 +159,7 @@
         app:srcCompat="@drawable/ic_double_up_arrow_angles" />
 
     <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
-        android:id="@+id/fab_star"
+        android:id="@+id/fab_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -171,7 +171,7 @@
         app:fabSize="auto"
         app:layout_constraintBottom_toTopOf="@+id/fab_eject"
         app:layout_constraintEnd_toEndOf="@+id/fab_eject"
-        app:srcCompat="@drawable/ic_round_star_28" />
+        app:srcCompat="@drawable/ic_round_account_circle_24" />
 
     <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_favorite"
@@ -183,8 +183,8 @@
         android:scaleType="center"
         android:visibility="invisible"
         app:fabSize="auto"
-        app:layout_constraintBottom_toTopOf="@+id/fab_star"
-        app:layout_constraintEnd_toEndOf="@+id/fab_star"
+        app:layout_constraintBottom_toTopOf="@+id/fab_profile"
+        app:layout_constraintEnd_toEndOf="@+id/fab_profile"
         app:srcCompat="@drawable/ic_round_favorite_24" />
 
     <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton

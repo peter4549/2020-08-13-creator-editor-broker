@@ -18,6 +18,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
@@ -101,19 +102,6 @@ class WritePrFragment: Fragment() {
 
     }
 
-
-    /*data class PrModel(var categories: MutableList<String?>,
-                       var description: String,
-                       var userType: String,
-                       var publisherId: String,
-                       var publisherPublicName: String,
-                       var registrationTime: String,
-                       var tier: Int,
-                       var title: String,
-                       var youtubeVideos: MutableList<VideoDataModel> = mutableListOf())
-
-     */
-
     private fun registerPr() {
         val title = edit_text_title.text.toString()
         val description = edit_text_description.text.toString()
@@ -135,8 +123,8 @@ class WritePrFragment: Fragment() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            val userInformation = MainActivity.currentUserInformation!!
-            val id = hashString(MainActivity.currentUserInformation?.uid!! +
+            val userInformation = MainActivity.currentUser!!
+            val id = hashString(MainActivity.currentUser?.uid!! +
                     getCurrentTime().toString()).chunked(32)[0]
             val pr = PrModel(
                 categories = userInformation.categories,
@@ -149,7 +137,7 @@ class WritePrFragment: Fragment() {
                 tier = userInformation.tier,
                 title = title,
                 youtubeVideos = imageRecyclerViewAdapter.videos.toMutableList(),
-                userInformation = userInformation
+                publisher = userInformation
             )
 
             if (userInformation.myPrIds.count() < 1)
@@ -169,13 +157,12 @@ class WritePrFragment: Fragment() {
                 if (task.isSuccessful) {
                     showToast(requireContext(), "PR이 등록되었습니다.1")
                     clearUi()
-                    MainActivity.currentUserInformation!!.myPrIds.add(pr.id)
+                    MainActivity.currentUser!!.myPrIds.add(pr.id)
                     MainActivity.ChangedData.prListChanged = true
                     //button_upload.isEnabled = true
                 }
                 else {
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
+                    errorHandler.errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
                     //button_upload.isEnabled = true
                 }
             }
@@ -190,13 +177,12 @@ class WritePrFragment: Fragment() {
                 if (task.isSuccessful) {
                     showToast(requireContext(), getString(R.string.pr_has_registered))
                     clearUi()
-                    MainActivity.currentUserInformation!!.myPrIds.add(pr.id)
+                    MainActivity.currentUser!!.myPrIds.add(pr.id)
                     MainActivity.ChangedData.prListChanged = true
                     //button_upload.isEnabled = true
                 }
                 else {
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(task.exception!!, getString(R.string.failed_to_register_pr))
+                    errorHandler.errorHandling(task.exception!!, getString(R.string.failed_to_register_pr))
                     //button_upload.isEnabled = true
                 }
             }
@@ -238,7 +224,7 @@ class WritePrFragment: Fragment() {
             val intent = Intent(requireActivity(), YouTubeChannelsActivity::class.java)
 
             intent.action = ACTION_FROM_WRITING_FRAGMENT
-            intent.putExtra(KEY_CHANNELS, MainActivity.currentUserInformation?.channelIds?.toTypedArray())
+            intent.putExtra(KEY_CHANNELS, MainActivity.currentUser?.channelIds?.toTypedArray())
             startActivityForResult(intent, REQUEST_CODE_YOUTUBE_CHANNELS)
         }
 

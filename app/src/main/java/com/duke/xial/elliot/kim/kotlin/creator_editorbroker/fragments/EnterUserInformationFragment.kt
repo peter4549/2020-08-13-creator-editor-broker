@@ -14,11 +14,12 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GALLERY
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Storage.COLLECTION_PROFILE_IMAGES
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
@@ -132,7 +133,7 @@ class EnterUserInformationFragment : Fragment() {
                     .child(it)
                     .child(profileImageFileName)
             } ?: run {
-            (requireActivity() as MainActivity).errorHandler
+            errorHandler
                 .errorHandling(NullPointerException(
                     "failed to store user information," +
                             " FirebaseAuth.currentUser or FirebaseAuth.currentUser.uid is null"),
@@ -151,9 +152,7 @@ class EnterUserInformationFragment : Fragment() {
                     println("$TAG: profile image uploaded")
                     storeUserInformation(profileImageDownloadUri)
                 } else {
-                    (requireActivity() as MainActivity).errorHandler
-                        .errorHandling(
-                            it.exception
+                    errorHandler.errorHandling(it.exception
                                 ?: Exception("failed to store profile image, it.exception is null"),
                             getString(R.string.failed_to_store_profile_image)
                         )
@@ -167,8 +166,7 @@ class EnterUserInformationFragment : Fragment() {
             .firebaseAuth.currentUser?.uid
 
         if (uid == null) {
-            (requireActivity() as MainActivity).errorHandler
-                .errorHandling(NullPointerException("failed to store user information, uid is null"),
+            errorHandler.errorHandling(NullPointerException("failed to store user information, uid is null"),
                     getString(R.string.uid_not_found))
             return
         }
@@ -183,19 +181,17 @@ class EnterUserInformationFragment : Fragment() {
                         userInformation.pushToken = result.token
                         setUserInformationInDocument(userInformation)
                     } ?: run {
-                        (requireActivity() as MainActivity).errorHandler
-                            .errorHandling(NullPointerException("failed to get token, task.result is null"),
+                        errorHandler.errorHandling(NullPointerException("failed to get token, task.result is null"),
                                 getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
                         setUserInformationInDocument(userInformation)
                     }
                 } else {
                     task.exception?.let { e ->
-                        (requireActivity() as MainActivity).errorHandler
+                        errorHandler
                             .errorHandling(e, getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
                         setUserInformationInDocument(userInformation)
                     } ?: run {
-                        (requireActivity() as MainActivity).errorHandler
-                            .errorHandling(NullPointerException("failed to get token, task.exception is null"),
+                        errorHandler.errorHandling(NullPointerException("failed to get token, task.exception is null"),
                                 getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
                         setUserInformationInDocument(userInformation)
                     }
@@ -205,29 +201,28 @@ class EnterUserInformationFragment : Fragment() {
     }
 
     private fun createUserInformationModel(uid: String) =
-        UserInformationModel(categories = selectedCategories,
+        UserModel(categories = selectedCategories,
             publicName = publicName,
             uid = uid,
             userType = selectedUserType)
 
-    private fun setUserInformationInDocument(userInformation: UserInformationModel) {
+    private fun setUserInformationInDocument(user: UserModel) {
         val documentReference = FirebaseFirestore.getInstance()
-            .collection(COLLECTION_USERS).document(userInformation.uid)
+            .collection(COLLECTION_USERS).document(user.uid)
 
-        if (MainActivity.currentUserInformation != null)
+        if (MainActivity.currentUser != null)
             "프로필 업데이트"
         else {
-            documentReference.set(userInformation).addOnCompleteListener { task ->
+            documentReference.set(user).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     showToast(requireContext(), getString(R.string.profile_stored))
-                    MainActivity.currentUserInformation = userInformation
+                    MainActivity.currentUser = user
+                    requireActivity().onBackPressed()
                 } else {
                     task.exception?.let { e ->
-                        (requireActivity() as MainActivity).errorHandler
-                            .errorHandling(e, getString(R.string.failed_to_store_profile))
+                        errorHandler.errorHandling(e, getString(R.string.failed_to_store_profile))
                     } ?: run {
-                        (requireActivity() as MainActivity).errorHandler
-                            .errorHandling(NullPointerException("failed to store user information, task.exception is null"),
+                        errorHandler.errorHandling(NullPointerException("failed to store user information, task.exception is null"),
                                 getString(R.string.failed_to_store_profile))
                     }
                 }

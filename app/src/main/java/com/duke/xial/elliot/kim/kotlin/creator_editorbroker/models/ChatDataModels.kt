@@ -4,7 +4,7 @@ data class ChatRoomModel(val creationTime: Long,
                          val roomId: String,
                          val unreadCounter: MutableMap<String, Long>,
                          val userIds: MutableList<String>,
-                         val users: MutableList<UserInformationModel>,
+                         val users: MutableList<UserModel>,
                          var lastMessage: ChatMessageModel) {
 
     companion object {

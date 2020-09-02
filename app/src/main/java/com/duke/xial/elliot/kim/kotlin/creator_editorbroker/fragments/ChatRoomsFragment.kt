@@ -11,9 +11,8 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecycle
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_CHAT_ROOMS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatMessageModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.ChatRoomModel
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
@@ -30,7 +29,7 @@ class ChatRoomsFragment: Fragment() {
 
     private lateinit var chatRoomsListenerRegistration: ListenerRegistration
     private lateinit var userCollectionReference: CollectionReference
-    private val usersInformationList: ArrayList<ArrayList<UserInformationModel>> = arrayListOf()
+    private val usersList: ArrayList<ArrayList<UserModel>> = arrayListOf()
     private lateinit var chatRoomsRecyclerViewAdapter: ChatRoomsRecyclerViewAdapter
     private val gson = Gson()
 
@@ -64,7 +63,7 @@ class ChatRoomsFragment: Fragment() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val chatRoom = items[position]
             val profileImageUris =
-                chatRoom.users.filter { it.uid != MainActivity.currentUserInformation?.uid }
+                chatRoom.users.filter { it.uid != MainActivity.currentUser?.uid }
                     .filter { it.profileImageUri != null && it.profileImageUri != "null" }
                     .map { it.profileImageUri }
             if (profileImageUris.isNotEmpty())
@@ -73,14 +72,14 @@ class ChatRoomsFragment: Fragment() {
             holder.view.text_view_last_message.text = chatRoom.lastMessage.message
             holder.view.text_view_time.text = chatRoom.lastMessage.time.toLocalTimeString()
             holder.view.text_view_unread_count.text =
-                chatRoom.unreadCounter[MainActivity.currentUserInformation?.uid].toString()
+                chatRoom.unreadCounter[MainActivity.currentUser?.uid].toString()
         }
 
         private fun setChatRoomSnapshotListener() {
             chatRoomsListenerRegistration = FirebaseFirestore.getInstance()
                 .collection(COLLECTION_CHAT_ROOMS)
                 .whereArrayContains(ChatRoomModel.KEY_USER_IDS,
-                    MainActivity.currentUserInformation!!.uid)
+                    MainActivity.currentUser!!.uid)
                 .addSnapshotListener { value, error ->
                     if (error != null) {
                         showToast(requireContext(), getString(R.string.failed_to_load_chat_rooms))

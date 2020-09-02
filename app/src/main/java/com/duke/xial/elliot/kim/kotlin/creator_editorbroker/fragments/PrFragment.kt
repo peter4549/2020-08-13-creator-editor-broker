@@ -11,14 +11,14 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel.Companion.KEY_FAVORITE_USER_IDS
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleDown
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleUp
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,10 +41,10 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
                 fab_eject.isMovable = isFabOpen
                 animateFab()
             }
-            R.id.fab_chat -> {
-                startChatFragment(pr?.userInformation!!)
-            }
+            R.id.fab_chat ->
+                (requireActivity() as MainActivity).startChatFragment(pr?.publisher!!)
             R.id.fab_favorite -> favoriteUserIdsUpdate()
+            R.id.fab_profile -> startProfileFragment(pr?.publisher!!)
         }
     }
 
@@ -66,7 +66,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
             updateFavoritesUi()
             setPrSnapshotListener()
 
-            if (pr.publisherId == MainActivity.currentUserInformation?.uid)
+            if (pr.publisherId == MainActivity.currentUser?.uid)
                 setFabToGone()
             else
                 initializeFab(fragmentView)
@@ -86,18 +86,18 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         view.fab_chat.setOnClickListener(fabClickListener)
         view.fab_eject.setOnClickListener(fabClickListener)
         view.fab_favorite.setOnClickListener(fabClickListener)
-        view.fab_star.setOnClickListener(fabClickListener)
+        view.fab_profile.setOnClickListener(fabClickListener)
         view.fab_chat.isMovable = false
         view.fab_favorite.isMovable = false
-        view.fab_star.isMovable = false
+        view.fab_profile.isMovable = false
         view.fab_chat.scaleDown()
         view.fab_favorite.scaleDown()
-        view.fab_star.scaleDown()
-        view.fab_eject.setChildButtons(view.fab_chat, view.fab_favorite, view.fab_star)
+        view.fab_profile.scaleDown()
+        view.fab_eject.setChildButtons(view.fab_chat, view.fab_favorite, view.fab_profile)
     }
 
     private fun updateFavoritesUi() {
-        if (pr?.favoriteUserIds!!.contains(MainActivity.currentUserInformation?.uid)) {
+        if (pr?.favoriteUserIds!!.contains(MainActivity.currentUser?.uid)) {
             fragmentView.text_view_favorites.setBackgroundColor(ContextCompat.getColor(requireContext(),
                 R.color.colorCrushedIce))
             fragmentView.fab_favorite.isEnabled = false
@@ -110,7 +110,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         fragmentView.fab_chat.visibility = View.GONE
         fragmentView.fab_eject.visibility = View.GONE
         fragmentView.fab_favorite.visibility = View.GONE
-        fragmentView.fab_star.visibility = View.GONE
+        fragmentView.fab_profile.visibility = View.GONE
     }
 
     private fun animateFab() {
@@ -118,27 +118,26 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
             fab_eject.animate().rotation(0F).setDuration(240L).start()
             fab_chat.scaleDown()
             fab_favorite.scaleDown()
-            fab_star.scaleDown()
+            fab_profile.scaleDown()
             fab_chat.isEnabled = false
             fab_favorite.isEnabled = false
-            fab_star.isEnabled = false
+            fab_profile.isEnabled = false
         } else {
             fab_eject.animate().rotation(45F).setDuration(240L).start()
             fab_chat.scaleUp()
             fab_favorite.scaleUp()
-            fab_star.scaleUp()
+            fab_profile.scaleUp()
             fab_chat.isEnabled = true
             fab_favorite.isEnabled = true
-            fab_star.isEnabled = true
+            fab_profile.isEnabled = true
         }
 
         isFabOpen = !isFabOpen
     }
 
-    private fun startChatFragment(targetUser: UserInformationModel) {
+    private fun startProfileFragment(targetUser: UserModel) {
         (requireActivity() as MainActivity).startFragment(
-            ChatFragment(targetUser),
-            R.id.frame_layout_activity_main, MainActivity.TAG_CHAT_FRAGMENT
+            ProfileFragment(targetUser), R.id.frame_layout_activity_main, MainActivity.TAG_PROFILE_FRAGMENT
         )
     }
 
@@ -166,10 +165,10 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         fragmentView.fab_favorite.isEnabled = false
         prDocumentReference
             .update(KEY_FAVORITE_USER_IDS,
-            FieldValue.arrayUnion(MainActivity.currentUserInformation?.uid!!))
+            FieldValue.arrayUnion(MainActivity.currentUser?.uid!!))
             .addOnSuccessListener {
                 println("$TAG: favoriteUserIds updated")
-                MainActivity.currentUserInformation?.favoritePrIds
+                MainActivity.currentUser?.favoritePrIds
                     ?.add(pr?.registrationTime.toString())
                 updateFavoritesUi()
             }
@@ -191,7 +190,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
     }
 
     private fun errorHandling(e: Exception, toastMessage: String? = null, throwing: Boolean = false) {
-        (requireActivity() as MainActivity).errorHandler.errorHandling(e, toastMessage, throwing)
+        errorHandler.errorHandling(e, toastMessage, throwing)
     }
 
     inner class ImageViewPagerAdapter(fragmentManager: FragmentManager) :

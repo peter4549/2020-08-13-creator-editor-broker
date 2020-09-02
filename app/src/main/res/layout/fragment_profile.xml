@@ -1,6 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorFragmentBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_view_profile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:srcCompat="@tools:sample/avatars"
+        android:contentDescription="@string/profile" />
+
+    <TextView
+        android:id="@+id/text_view_public_name_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/public_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_view_profile" />
+
+    <TextView
+        android:id="@+id/text_view_public_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="8dp"
+        tools:text="Public Name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_stars" />
+
+    <TextView
+        android:id="@+id/text_view_phone_number"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="8dp"
+        tools:text="000-000-0000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_phone_number_title" />
+
+    <TextView
+        android:id="@+id/text_view_phone_number_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/phone_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_view_works" />
+
+    <TextView
+        android:id="@+id/text_view_stars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        tools:text="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_view_profile"
+        app:drawableStartCompat="@drawable/ic_round_star_16"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_works"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_public_name" />
+
+    <TextView
+        android:id="@+id/text_view_email_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/email"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_phone_number" />
+
+    <TextView
+        android:id="@+id/text_view_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="8dp"
+        tools:text="E-Mail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_email_title" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
+        android:id="@+id/fab_eject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/colorFabBackground"
+        android:scaleType="center"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_double_up_arrow_angles" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
+        android:id="@+id/fab_star"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorFabBackground"
+        android:enabled="false"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/fab_eject"
+        app:layout_constraintEnd_toEndOf="@+id/fab_eject"
+        app:srcCompat="@drawable/ic_round_star_28" />
+
+    <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
+        android:id="@+id/fab_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/colorFabBackground"
+        android:enabled="false"
+        android:scaleType="center"
+        android:visibility="invisible"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/fab_star"
+        app:layout_constraintEnd_toEndOf="@+id/fab_star"
+        app:srcCompat="@drawable/ic_speech_bubble_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

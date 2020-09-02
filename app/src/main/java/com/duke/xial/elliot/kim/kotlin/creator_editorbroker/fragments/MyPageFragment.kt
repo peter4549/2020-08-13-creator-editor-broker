@@ -6,7 +6,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_REGISTERED_ON_PARTNERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -22,7 +25,7 @@ class MyPageFragment: Fragment() {
 
         initializeToolbar(view.toolbar)
 
-        view.text_view_public_name.text = MainActivity.currentUserInformation?.publicName
+        view.text_view_public_name.text = MainActivity.currentUser?.publicName
 
         view.text_view_write_pr.setOnClickListener {
             (requireActivity() as MainActivity).startFragment(WritePrFragment(),
@@ -30,6 +33,11 @@ class MyPageFragment: Fragment() {
                 MainActivity.TAG_WRITE_PR_FRAGMENT,
                 VERTICAL)
         }
+
+        view.button_register_on_partners.setOnClickListener {
+            registerOnPartners()
+        }
+
         return view
     }
 
@@ -72,6 +80,17 @@ class MyPageFragment: Fragment() {
 
     private fun clearUi() {
 
+    }
+
+    private fun registerOnPartners() {
+        (requireActivity() as MainActivity).userDocumentReference
+            .update(mapOf(KEY_REGISTERED_ON_PARTNERS to true))
+            .addOnSuccessListener {
+                showToast(requireContext(), getString(R.string.profile_has_been_registered_on_partners))
+            }
+            .addOnFailureListener {
+                errorHandler.errorHandling(it, getString(R.string.failed_to_register_on_partners))
+            }
     }
 
     companion object {

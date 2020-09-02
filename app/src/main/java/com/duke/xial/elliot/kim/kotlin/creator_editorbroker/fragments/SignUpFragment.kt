@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseException
@@ -34,7 +35,7 @@ class SignUpFragment: Fragment() {
                 showToast(requireContext(), getString(R.string.code_lost))
         }
         override fun onVerificationFailed(e: FirebaseException) {
-            (requireActivity() as MainActivity).errorHandler.errorHandling(e)
+            errorHandler.errorHandling(e)
         }
 
         override fun onCodeSent(verificationId: String, forceResendingToken: PhoneAuthProvider.ForceResendingToken) {

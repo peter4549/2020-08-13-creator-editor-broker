@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
@@ -15,31 +14,26 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.*
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserInformationModel.Companion.KEY_PUSH_TOKEN
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_PUSH_TOKEN
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.*
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
-import java.text.DateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var fireStoreDocumentReference: DocumentReference
     private lateinit var userSnapshotListenerRegistration: ListenerRegistration
-    private lateinit var userDocumentReference: DocumentReference
+    lateinit var userDocumentReference: DocumentReference
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
-    val errorHandler = ErrorHandler(this)
+
     val prListFragment = PrListFragment()
     val publicPartnersFragment = PublicPartnersFragment()
     val chatRoomsFragment = ChatRoomsFragment()
@@ -56,10 +50,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initializeTabLayoutViewPager(tab_layout, view_pager)
 
+        if (!errorHandlerInitialized())
+            errorHandler = ErrorHandler(this)
+
         firebaseAuth = FirebaseAuth.getInstance()
         setAuthStateListener()
 
         contentCategories = createContentCategories()
+        createCategoriesMap(contentCategories)
 
         @Suppress("DEPRECATION")
         locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -68,6 +66,8 @@ class MainActivity : AppCompatActivity() {
             resources.configuration.locale
 
         userTypes = createUserTypes()
+        userTypesMap[1] = userTypes[1]
+        userTypesMap[2] = userTypes[2]
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -129,6 +129,12 @@ class MainActivity : AppCompatActivity() {
         getString(R.string.category_travel_event)
     )
 
+    private fun createCategoriesMap(categories: Array<String>) {
+        for ((index, category) in categories.withIndex()) {
+            categoriesMap[index + 1] = category
+        }
+    }
+
     private fun createUserTypes(): Array<String> = arrayOf(
         "-",
         getString(R.string.creator),
@@ -147,16 +153,16 @@ class MainActivity : AppCompatActivity() {
     private val eventAfterSignIn = {
         showToast(this, getString(R.string.signed_in))
         //readUserData()
-        fireStoreDocumentReference = FirebaseFirestore.getInstance()
+        userDocumentReference = FirebaseFirestore.getInstance()
             .collection(COLLECTION_USERS)
             .document(firebaseAuth.currentUser?.uid.toString())
-        setUserDocumentListener(firebaseAuth.uid.toString())
+        setUserSnapshotListener()
         popAllFragments()
     }
 
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
-        currentUserInformation = null
+        currentUser = null
         startFragment(
             SignInFragment.newInstance(),
             R.id.frame_layout_activity_main,
@@ -200,8 +206,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun startChatFragment(targetUser: UserModel) {
+        startFragment(
+            ChatFragment(targetUser),
+            R.id.frame_layout_activity_main, TAG_CHAT_FRAGMENT
+        )
+    }
+
     private fun startEnterUserInformationFragment() {
-        println("HAHAHAHAHAHAHHAHHAHAHAH")// 프래그먼트 commit 에러 조사.
         startFragment(
             EnterUserInformationFragment.newInstance(),
             R.id.frame_layout_activity_main,
@@ -209,11 +221,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    fun getUserData(map: Map<String, Any>): UserInformationModel =
-        Gson().fromJson(JSONObject(map).toString(), UserInformationModel::class.java)
+    fun getUserData(map: Map<String, Any>): UserModel =
+        Gson().fromJson(JSONObject(map).toString(), UserModel::class.java)
 
     override fun onPause() {
-        if (currentUserInformation != null)
+        if (currentUser != null)
             updateChangedUserInformation()
         super.onPause()
     }
@@ -230,17 +242,17 @@ class MainActivity : AppCompatActivity() {
         val map = mutableMapOf<String, Any>()
 
         if (ChangedData.channelIdsChanged)
-            map[UserInformationModel.KEY_CHANNEL_IDS] = currentUserInformation!!.channelIds
+            map[UserModel.KEY_CHANNEL_IDS] = currentUser!!.channelIds
 
         if (ChangedData.chatRoomsChanged) /** 챗룸정보 불필요할 수 있음.*/
-            map[UserInformationModel.KEY_CHAT_ROOM_IDS] = currentUserInformation!!.chatRoomIds
+            map[UserModel.KEY_CHAT_ROOM_IDS] = currentUser!!.chatRoomIds
 
         if (ChangedData.prListChanged)
-            map[UserInformationModel.KEY_MY_PR_IDS] = currentUserInformation!!.myPrIds
+            map[UserModel.KEY_MY_PR_IDS] = currentUser!!.myPrIds
 
         if (map.isNotEmpty()) {
             @Suppress("UNCHECKED_CAST")
-            fireStoreDocumentReference
+            userDocumentReference
                 .update(map)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -258,15 +270,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUserDocumentListener(uid: String) {
-        userDocumentReference = FirebaseFirestore.getInstance()
-            .collection(COLLECTION_USERS).document(uid)
+    private fun setUserSnapshotListener() {
         userSnapshotListenerRegistration = userDocumentReference.addSnapshotListener { snapshot, e ->
             if (e != null)
                 errorHandler.errorHandling(e)
             else {
                 if (snapshot != null && snapshot.exists()) {
-                    currentUserInformation = getUserData(snapshot.data!!) // 이거 완료 전까지 다른 프래그먼트 터치 봉인할것.
+                    showToast(this, "SOMEUPDATE")
+                    currentUser = getUserData(snapshot.data!!) // 이거 완료 전까지 다른 프래그먼트 터치 봉인할것.
                     if (intent != null) {
                         if (intent.action == "action.ad.astra.cloud.message.click") {
                             val chatRoomId = intent.extras?.get("roomId") as String?
@@ -296,7 +307,7 @@ class MainActivity : AppCompatActivity() {
                         KEY_PUSH_TOKEN to pushToken
                     )
 
-                    currentUserInformation?.pushToken = pushToken
+                    currentUser?.pushToken = pushToken
 
                     FirebaseFirestore.getInstance()
                         .collection(COLLECTION_USERS)
@@ -330,14 +341,20 @@ class MainActivity : AppCompatActivity() {
         const val TAG_CHAT_FRAGMENT = "tag_chat_fragment"
         const val TAG_ENTER_USER_INFORMATION_FRAGMENT = "tag_enter_user_information_fragment"
         const val TAG_PR_FRAGMENT = "tag_pr_fragment"
+        const val TAG_PROFILE_FRAGMENT = "tag_profile_fragment"
         const val TAG_SIGN_IN_FRAGMENT = "tag_sign_in_fragment"
         const val TAG_SIGN_UP_FRAGMENT = "tag_sign_up_fragment"
         const val TAG_WRITE_PR_FRAGMENT = "tag_write_pr_fragment"
         lateinit var contentCategories: Array<String>
+        lateinit var errorHandler: ErrorHandler
         lateinit var locale: Locale
         lateinit var userTypes: Array<String>
         private const val TAG = "MainActivity"
-        var currentUserInformation: UserInformationModel? = null
+        val categoriesMap = mutableMapOf<Int, String>()
+        val userTypesMap = mutableMapOf<Int, String>()
+        var currentUser: UserModel? = null
         var currentChatRoomId: String? = null
+
+        fun errorHandlerInitialized() = ::errorHandler.isInitialized
     }
 }

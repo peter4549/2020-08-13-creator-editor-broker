@@ -75,7 +75,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        if (MainActivity.currentUserInformation?.channelIds?.isEmpty()!!)
+        if (MainActivity.currentUser?.channelIds?.isEmpty()!!)
             text_view_empty.visibility = View.VISIBLE
         else
             text_view_empty.visibility = View.GONE
@@ -89,9 +89,9 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             bindCustomTabsService()
         }
 
-        if (MainActivity.currentUserInformation!!.channelIds.isNotEmpty()) {
+        if (MainActivity.currentUser!!.channelIds.isNotEmpty()) {
             val joinedChannelIds =
-                MainActivity.currentUserInformation!!.channelIds.joinToString(",")
+                MainActivity.currentUser!!.channelIds.joinToString(",")
             youTubeDataApi.getChannelsService().requestById(id = joinedChannelIds)
                 .enqueue(object : Callback<ChannelsItemsModel> {
                     override fun onFailure(call: Call<ChannelsItemsModel>, t: Throwable) {
@@ -113,7 +113,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                         val responseBody = response.body()
                         if (responseBody != null) {
                             val channelItems = responseBody.items
-                            val difference = MainActivity.currentUserInformation!!.channelIds.count() -
+                            val difference = MainActivity.currentUser!!.channelIds.count() -
                                     channelItems.count()
                             if (difference > 0)
                                 showToast(this@YouTubeChannelsActivity,
@@ -228,11 +228,11 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                     val responseBody = response.body()
                     if (responseBody != null) {
                         val channelItem = responseBody.items[0]
-                        if (MainActivity.currentUserInformation!!.channelIds.contains(channelItem.id))
+                        if (MainActivity.currentUser!!.channelIds.contains(channelItem.id))
                             showToast(this@YouTubeChannelsActivity,
                                 getString(R.string.channel_is_already_registered))
                         else {
-                            MainActivity.currentUserInformation!!.channelIds.add(channelItem.id)
+                            MainActivity.currentUser!!.channelIds.add(channelItem.id)
                             channelRecyclerViewAdapter.insert(createChannelModel(channelItem))
                             MainActivity.ChangedData.channelIdsChanged = true
                         }
@@ -312,7 +312,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
     }
 
     fun registerVideo(video: VideoDataModel) {
-        if (MainActivity.currentUserInformation?.channelIds?.contains(video.channelId)!!) {
+        if (MainActivity.currentUser?.channelIds?.contains(video.channelId)!!) {
             val intent = Intent()
             intent.putExtra(KEY_VIDEO_DATA, video)
             setResult(Activity.RESULT_OK, intent)

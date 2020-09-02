@@ -10,10 +10,9 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.PartnersFragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_partners.view.*
 
-class PartnersFragment : Fragment() {
+class PartnersTabFragment : Fragment() {
 
     private lateinit var tabIconResourceIds: Array<Int>
     private lateinit var tabTexts: Array<String>
@@ -52,6 +51,6 @@ class PartnersFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() = PartnersFragment()
+        fun newInstance() = PartnersTabFragment()
     }
 }

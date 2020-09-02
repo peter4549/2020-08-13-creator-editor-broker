@@ -21,6 +21,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.UserType.CREATOR
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
@@ -69,6 +70,7 @@ class PrListFragment : Fragment() {
                     println("$TAG: $firebaseFirestoreException")
                 else {
                     for (change in documentSnapshot!!.documentChanges) {
+                        showToast(requireContext(), "IAMPRLISTINTHEHOLE")
                         when (change.type) {
                             DocumentChange.Type.ADDED -> this.insert(mapToPrModel(change.document.data))
                             DocumentChange.Type.MODIFIED -> this.findMessageAndUpdate(mapToPrModel(change.document.data))

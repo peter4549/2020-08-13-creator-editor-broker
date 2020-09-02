@@ -77,7 +77,7 @@ class YouTubeVideosFragment: Fragment() {
             holder.view.text_view_view_count.text = video.statistics.viewCount
             holder.view.text_view_published_time.text = video.snippet.publishedAt
             holder.view.setOnClickListener {
-                VideoClickDialogFragment(createVideoData(video)).show(requireFragmentManager(), tag)
+                VideoClickDialogFragment(video.toVideoData()).show(requireFragmentManager(), tag)
             }
         }
 
@@ -152,18 +152,18 @@ class YouTubeVideosFragment: Fragment() {
                 .listener(null)
                 .into(imageView)
         }
-
-        private fun createVideoData(videoModel: VideoModel): VideoDataModel {
-            val snippet = videoModel.snippet
-            return VideoDataModel(
-                channelId = snippet.channelId,
-                description = snippet.description,
-                id = videoModel.id,
-                publishedAt = snippet.publishedAt,
-                thumbnailUri = snippet.thumbnails.standard?.url ?: snippet.thumbnails.default.url,
-                title = snippet.title,
-                viewCount = videoModel.statistics.viewCount
-            )
-        }
     }
+}
+
+fun VideoModel.toVideoData(): VideoDataModel {
+    val snippet = this.snippet
+    return VideoDataModel(
+        channelId = snippet.channelId,
+        description = snippet.description,
+        id = this.id,
+        publishedAt = snippet.publishedAt,
+        thumbnailUri = snippet.thumbnails.standard?.url ?: snippet.thumbnails.default.url,
+        title = snippet.title,
+        viewCount = this.statistics.viewCount
+    )
 }
