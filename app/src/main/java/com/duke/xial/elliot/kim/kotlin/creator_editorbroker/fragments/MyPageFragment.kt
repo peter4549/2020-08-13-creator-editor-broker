@@ -26,6 +26,9 @@ class MyPageFragment: Fragment() {
         initializeToolbar(view.toolbar)
 
         view.text_view_public_name.text = MainActivity.currentUser?.publicName
+        view.text_view_user_type.text = MainActivity.userTypesMap[MainActivity.currentUser?.userType]
+        view.text_view_categories.text =
+            MainActivity.currentUser?.categories?.mapNotNull { MainActivity.categoriesMap[it] }?.joinToString()
 
         view.text_view_write_pr.setOnClickListener {
             (requireActivity() as MainActivity).startFragment(WritePrFragment(),
@@ -43,7 +46,6 @@ class MyPageFragment: Fragment() {
 
     private fun initializeToolbar(toolbar: Toolbar) {
         (requireActivity() as MainActivity).setSupportActionBar(toolbar)
-        (requireActivity() as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
     }
 
@@ -55,7 +57,6 @@ class MyPageFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            android.R.id.home -> requireActivity().onBackPressed()
             R.id.item_settings -> {  }
             R.id.item_sign_out -> signOut()
         }

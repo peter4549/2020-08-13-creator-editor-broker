@@ -89,12 +89,12 @@ class SignInFragment : Fragment() {
     }
 
     private fun signInWithEmail() {
-        if (edit_text_email.text.isBlank()) {
+        if (edit_text_email.text?.isNotBlank() == true) {
             showToast(requireContext(), getString(R.string.please_enter_email))
             return
         }
 
-        if (edit_text_password.text.isBlank()) {
+        if (edit_text_password.text?.isNotBlank() == true) {
             showToast(requireContext(), getString(R.string.please_enter_password))
             return
         }

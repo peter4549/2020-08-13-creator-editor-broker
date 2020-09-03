@@ -8,10 +8,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import com.google.gson.Gson
@@ -85,6 +82,8 @@ class ErrorHandler(private val context: Context) {
                 showToast(context, context.getString(R.string.invalid_request))
             is FirebaseTooManyRequestsException ->
                 showToast(context, context.getString(R.string.too_many_requests))
+            is FirebaseAuthInvalidUserException ->
+                showToast(context, context.getString(R.string.account_not_found))
             else ->
                 showToast(context, context.getString(R.string.verification_failed))
         }

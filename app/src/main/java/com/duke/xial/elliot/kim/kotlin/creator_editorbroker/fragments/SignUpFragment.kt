@@ -1,7 +1,9 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.telephony.PhoneNumberUtils
+import android.telephony.TelephonyManager
 import android.view.*
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -19,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 class SignUpFragment: Fragment() {
     private lateinit var uiController: UiController
@@ -38,7 +41,10 @@ class SignUpFragment: Fragment() {
             errorHandler.errorHandling(e)
         }
 
-        override fun onCodeSent(verificationId: String, forceResendingToken: PhoneAuthProvider.ForceResendingToken) {
+        override fun onCodeSent(
+            verificationId: String,
+            forceResendingToken: PhoneAuthProvider.ForceResendingToken
+        ) {
             super.onCodeSent(verificationId, forceResendingToken)
             showToast(requireContext(), getString(R.string.code_sent))
             uiController.updateUi(STATE_VERIFICATION_CODE_SENT)
@@ -98,19 +104,15 @@ class SignUpFragment: Fragment() {
     }
 
     private fun sendCode(phoneNumber: String) {
-        println("BBBBBBBB" + Locale.getDefault().displayCountry.toString()) // 이걸로 스피너 구성?? 나라이름임.
-        println("CCCCCCCC" + Locale.getDefault().isO3Country.toString())  // ios3 form,, maybe not used?
-        println("OOOOOOOO" + Locale.getDefault().country) // 이게 정담. 예를 넣어야 올바른 국가코드 전번 생성.
-
-        for(i in Locale.getISOCountries().withIndex()) {  // 1: KR 이런식으로 출력.
-            println(""+ i.index + ":" + i.value)
-            //Locale
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
+            val countryCode = (requireContext().getSystemService(Context.TELEPHONY_SERVICE)
+                    as TelephonyManager).networkCountryIso.toUpperCase(Locale.ROOT)
             try {
                 PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    PhoneNumberUtils.formatNumberToE164(phoneNumber, Locale.getDefault().country),
+                    PhoneNumberUtils.formatNumberToE164(
+                        phoneNumber,
+                        countryCode
+                    ),
                     timeout,
                     TimeUnit.SECONDS,
                     requireActivity(),
@@ -185,8 +187,10 @@ class SignUpFragment: Fragment() {
                     button_send.text = getString(R.string.resend)
                 }
                 STATE_VERIFIED -> {
-                    disableViews(view.button_send, view.button_verification,
-                        view.edit_text_phone_number, view.edit_text_verification_code)
+                    disableViews(
+                        view.button_send, view.button_verification,
+                        view.edit_text_phone_number, view.edit_text_verification_code
+                    )
                     enableViews(view.button_sign_up)
                 }
             }

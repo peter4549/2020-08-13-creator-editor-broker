@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.currentUser
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
@@ -41,10 +42,24 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
                 fab_eject.isMovable = isFabOpen
                 animateFab()
             }
-            R.id.fab_chat ->
-                (requireActivity() as MainActivity).startChatFragment(pr?.publisher!!)
-            R.id.fab_favorite -> favoriteUserIdsUpdate()
-            R.id.fab_profile -> startProfileFragment(pr?.publisher!!)
+            R.id.fab_chat -> {
+                if (currentUser == null)
+                    requestProfileCreation()
+                else
+                    (requireActivity() as MainActivity).startChatFragment(pr?.publisher!!)
+            }
+            R.id.fab_favorite -> {
+                if (currentUser == null)
+                    requestProfileCreation()
+                else
+                    favoriteUserIdsUpdate()
+            }
+            R.id.fab_profile -> {
+                if (currentUser == null)
+                    requestProfileCreation()
+                else
+                    startProfileFragment(pr?.publisher!!)
+            }
         }
     }
 
@@ -66,7 +81,7 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
             updateFavoritesUi()
             setPrSnapshotListener()
 
-            if (pr.publisherId == MainActivity.currentUser?.uid)
+            if (pr.publisherId == currentUser?.uid)
                 setFabToGone()
             else
                 initializeFab(fragmentView)
@@ -165,10 +180,10 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
         fragmentView.fab_favorite.isEnabled = false
         prDocumentReference
             .update(KEY_FAVORITE_USER_IDS,
-            FieldValue.arrayUnion(MainActivity.currentUser?.uid!!))
+            FieldValue.arrayUnion(currentUser?.uid!!))
             .addOnSuccessListener {
                 println("$TAG: favoriteUserIds updated")
-                MainActivity.currentUser?.favoritePrIds
+                currentUser?.favoritePrIds
                     ?.add(pr?.registrationTime.toString())
                 updateFavoritesUi()
             }
@@ -177,6 +192,10 @@ class PrFragment(private val pr: PrModel? = null): Fragment() {
                 fragmentView.text_view_favorites.isEnabled = true
                 fragmentView.fab_favorite.isEnabled = true
             }
+    }
+
+    private fun requestProfileCreation() {
+        (requireActivity() as MainActivity).requestProfileCreation()
     }
 
     override fun onStop() {

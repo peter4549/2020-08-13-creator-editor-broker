@@ -19,22 +19,26 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:title="@string/sign_in"/>
+            app:title="@string/sign_in" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout_email"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="32dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="32dp"
             android:gravity="center_vertical"
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="@color/colorBoxStroke"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:startIconDrawable="@drawable/ic_round_email_24">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,18 +55,21 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout_password"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
             android:gravity="center_vertical"
+            app:endIconMode="password_toggle"
+            app:boxStrokeColor="@color/colorBoxStroke"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_input_layout_email">
+            app:layout_constraintTop_toBottomOf="@+id/text_input_layout_email"
+            app:startIconDrawable="@drawable/ic_round_lock_24">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,38 +87,56 @@
         <Button
             android:id="@+id/button_sign_in_with_email"
             style="@style/SignInButtonStyle"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="64dp"
-            android:background="@color/colorButtonSignIn"
-            android:drawableStart="@drawable/ic_round_email_28"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
             android:text="@string/sign_in"
+            app:backgroundTint="@color/colorButtonSignIn"
+            app:icon="@drawable/ic_enter_28"
+            app:iconTint="@color/colorLightGrey"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_input_layout_password" />
 
         <Button
-            android:id="@+id/button_sign_in_with_google"
+            android:id="@+id/button_sign_up"
             style="@style/SignInButtonStyle"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="64dp"
-            android:background="@color/colorButtonSignIn"
-            android:drawableStart="@drawable/ic_google_sign_in_28"
-            android:text="@string/sign_in_with_google"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/sign_up"
+            app:backgroundTint="@color/colorButtonSignIn"
+            app:icon="@drawable/ic_round_person_add_28"
+            app:iconTint="@color/colorLightGrey"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_sign_in_with_email" />
 
         <Button
+            android:id="@+id/button_sign_in_with_google"
+            style="@style/SignInButtonStyle"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/sign_in_with_google"
+            app:backgroundTint="@color/colorButtonSignIn"
+            app:icon="@drawable/ic_google_sign_in_28"
+            app:iconTint="@null"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_sign_up" />
+
+        <Button
             android:id="@+id/button_sign_in_with_facebook"
             style="@style/SignInButtonStyle"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="64dp"
-            android:background="@color/colorButtonSignIn"
-            android:drawableStart="@drawable/ic_facebook_sign_in_28"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="32dp"
             android:text="@string/sign_in_with_facebook"
+            app:backgroundTint="@color/colorButtonSignIn"
+            app:icon="@drawable/ic_facebook_sign_in_28"
+            app:iconTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_sign_in_with_google" />
@@ -119,29 +144,18 @@
         <Button
             android:id="@+id/button_sign_in_with_twitter"
             style="@style/SignInButtonStyle"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="64dp"
-            android:background="@color/colorButtonSignIn"
-            android:drawableStart="@drawable/ic_twitter_28"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="32dp"
             android:text="@string/sign_in_with_twitter"
+            app:backgroundTint="@color/colorButtonSignIn"
+            app:icon="@drawable/ic_twitter_28"
+            app:iconTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_sign_in_with_facebook" />
-
-        <Button
-            android:id="@+id/button_sign_up"
-            style="@style/SignInButtonStyle"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="64dp"
-            android:background="@color/colorButtonSignIn"
-            android:drawableStart="@drawable/ic_round_person_add_28"
-            android:text="@string/sign_up"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_sign_in_with_twitter" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

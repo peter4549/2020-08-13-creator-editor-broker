@@ -5,7 +5,7 @@
     <string name="facebook_app_id">332612361244166</string>
     <string name="fb_login_protocol_scheme">fb332612361244166</string>
 
-    <string name="sign_in_with_google">구글로 로그인</string>
+    <string name="sign_in_with_google">구글 로그인</string>
     <string name="email">이메일</string>
     <string name="password">패스워드</string>
     <string name="sign_in">로그인</string>
@@ -17,8 +17,8 @@
     <string name="phone_number">전화번호</string>
     <string name="phone_number_with_description">전화번호 (본인인증에만 사용됩니다.)</string>
     <string name="verification">본인인증</string>
-    <string name="sign_in_with_facebook">페이스북으로 로그인</string>
-    <string name="sign_in_with_twitter">트위터로 로그인</string>
+    <string name="sign_in_with_facebook">페이스북 로그인</string>
+    <string name="sign_in_with_twitter">트위터 로그인</string>
     <string name="failed_to_sign_in_with_google">구글 로그인에 실패했습니다.</string>
     <string name="failed_to_sign_in_with_facebook">페이스북 로그인에 실패했습니다.</string>
     <string name="failed_to_sign_in_with_twitter">트위터 로그인에 실패했습니다.</string>
@@ -36,7 +36,11 @@
     <string name="enter_public_name">공개이름을 입력하세요.</string>
     <string name="select_user_type">유저 타입을 선택하세요.</string>
     <string name="select_one_or_more_categories">1개 이상의 카테고리를 선택하세요.</string>
-
+    <string name="account_not_found">계정을 찾을 수 없습니다</string>
+    <string name="profile_creation">프로필 작성</string>
+    <string name="profile_creation_request_message_01">프로필을 작성하시겠습니까?</string>
+    <string name="profile_creation_request_message_02">프로필을 작성하셔야 이용하실 수 있습니다</string>
+    <string name="sign_in_request_message">로그인 후 이용하실 수 있습니다.</string>
 
     <!-- User Types -->
     <string name="creator">크리에이터</string>
@@ -180,5 +184,8 @@
     <string name="register_on_partners">파트너스에 등록</string>
     <string name="profile_has_been_registered_on_partners">프로필이 파트너스에 등록되었습니다.</string>
     <string name="failed_to_register_on_partners">파트너스에 등록하지 못했습니다.</string>
+
+    <string name="cancel">취소</string>
+    <string name="edit_profile">프로필 수정</string>
 
 </resources>

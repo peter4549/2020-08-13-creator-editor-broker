@@ -2,12 +2,12 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -16,10 +16,12 @@
             android:layout_width="104dp"
             android:layout_height="104dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:contentDescription="@string/thumbnail"
-            app:layout_constraintBottom_toBottomOf="@+id/text_view_target"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/text_view_title" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/text_view_title"
@@ -31,7 +33,12 @@
             android:ellipsize="end"
             android:lineSpacingMultiplier="1.1"
             android:maxLines="2"
-            android:padding="8dp"
+            android:padding="4dp"
+            android:textColor="@color/colorDefaultText"
+            app:autoSizeMaxTextSize="20sp"
+            app:autoSizeMinTextSize="16sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
             app:layout_constraintTop_toTopOf="parent"
@@ -43,7 +50,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:padding="8dp"
+            android:padding="4dp"
+            android:textColor="@color/colorLightGrey"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
             app:layout_constraintTop_toBottomOf="@+id/text_view_title"
@@ -54,7 +66,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:padding="8dp"
+            android:padding="4dp"
+            android:textColor="@color/colorLightGrey"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toStartOf="@+id/text_view_published_time"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
@@ -65,8 +82,14 @@
             android:id="@+id/text_view_published_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:padding="8dp"
+            android:layout_marginEnd="16dp"
+            android:padding="4dp"
+            android:textAlignment="textEnd"
+            android:textColor="@color/colorLightGrey"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_target"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -75,23 +98,16 @@
             tools:text="Published Time" />
 
         <TextView
-            android:id="@+id/text_view_replies"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="@+id/text_view_comments"
-            app:layout_constraintEnd_toStartOf="@+id/text_view_comments"
-            app:layout_constraintTop_toTopOf="@+id/text_view_comments"
-            app:drawableStartCompat="@drawable/ic_speech_bubble_reply_16"
-            tools:text="1" />
-
-        <TextView
             android:id="@+id/text_view_comments"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:gravity="center"
+            android:drawablePadding="4dp"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_favorites"
             app:layout_constraintEnd_toStartOf="@+id/text_view_favorites"
             app:layout_constraintTop_toTopOf="@+id/text_view_favorites"
@@ -104,6 +120,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:gravity="center"
+            android:drawablePadding="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_stars"
             app:layout_constraintEnd_toStartOf="@+id/text_view_stars"
             app:layout_constraintTop_toTopOf="@+id/text_view_stars"
@@ -116,11 +133,26 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
+            android:layout_marginBottom="8dp"
             android:gravity="center"
+            android:drawablePadding="4dp"
             app:drawableStartCompat="@drawable/ic_round_star_16"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view_published_time"
             tools:text="1" />
+
+        <TextView
+            android:id="@+id/text_view_categories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Categories"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintStart_toStartOf="@+id/text_view_target"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_target" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

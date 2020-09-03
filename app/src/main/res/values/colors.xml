@@ -2,14 +2,19 @@
 <resources>
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorAccent">@color/colorDefaultBlack</color>
 
+    <color name="colorDefaultBlack">#202020</color>
+    <color name="colorDefaultText">#202020</color>
     <color name="colorLightGrey">#A0A0A0</color>
     <color name="colorCrushedIce">#c4fff7</color>
     <color name="colorCuriousBlue">#3d85b8</color>
 
+    <!-- Edit Text -->
+    <color name="colorBoxStroke">#90caf9</color>
+
     <!-- Background Colors -->
-    <color name="colorButtonSignIn">#FFFFFF</color>
+    <color name="colorButtonSignIn">#FEFEFE</color>
     <color name="colorFragmentBackground">#FFFFFF</color>
     <color name="colorToolbarBackground">@color/colorCrushedIce</color>
 
@@ -26,5 +31,9 @@
 
     <!-- Floating Action Button -->
     <color name="colorFabBackground">@color/colorCrushedIce</color>
+
+    <!-- Dialog Fragment -->
+    <color name="colorDialogBackground">@android:color/white</color>
+    <color name="colorDialogButtonBackground">@android:color/white</color>
 
 </resources>

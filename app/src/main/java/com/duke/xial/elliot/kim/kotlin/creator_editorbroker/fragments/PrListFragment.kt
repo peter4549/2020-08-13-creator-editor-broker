@@ -129,7 +129,6 @@ class PrListFragment : Fragment() {
             holder.view.text_view_public_name.text = pr.publisherPublicName
             holder.view.text_view_target.text = targetText
             holder.view.text_view_published_time.text = pr.registrationTime.toLocalTimeString()
-            holder.view.text_view_replies.text = replies.count().toString()
             holder.view.text_view_comments.text = comments.count().toString()
             holder.view.text_view_favorites.text = pr.favoriteUserIds.count().toString()
             holder.view.text_view_stars.text = pr.stars.toString()

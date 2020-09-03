@@ -33,7 +33,7 @@ import java.lang.NullPointerException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class EnterUserInformationFragment : Fragment() {
+class CreateProfileFragment : Fragment() {
 
     private lateinit var publicName: String
     private var profileImageDeviceUri: Uri? = null
@@ -232,7 +232,7 @@ class EnterUserInformationFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() = EnterUserInformationFragment()
+        fun newInstance() = CreateProfileFragment()
 
         private const val TAG = "EnterUserInformationFragment"
     }

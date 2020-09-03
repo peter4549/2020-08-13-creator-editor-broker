@@ -1,8 +1,11 @@
 package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.MotionEvent
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -12,6 +15,8 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.cloud_messaging.Fire
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.RequestProfileCreationDialogFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.RequestSignInDialogFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.*
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
@@ -31,9 +36,9 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
     private lateinit var userSnapshotListenerRegistration: ListenerRegistration
+    private var selectedTabIndex = 0
     lateinit var userDocumentReference: DocumentReference
     val callbackManager: CallbackManager? = CallbackManager.Factory.create()
-
     val prListFragment = PrListFragment()
     val publicPartnersFragment = PublicPartnersFragment()
     val chatRoomsFragment = ChatRoomsFragment()
@@ -105,6 +110,30 @@ class MainActivity : AppCompatActivity() {
             tab.tag = position
             tab.setIcon(tabIconResourceIds[position])
         }.attach()
+
+        val linearLayout = tab_layout.getChildAt(0) as LinearLayout
+
+        @SuppressLint("ClickableViewAccessibility")
+        for (i in 0 until linearLayout.childCount) {
+            linearLayout.getChildAt(i).setOnTouchListener { _, motionEvent ->
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    selectedTabIndex = i
+
+                    when {
+                        firebaseAuth.currentUser == null -> {
+                            if (i != 0)
+                                requestSignIn()
+                        }
+                        currentUser == null -> {
+                            if (i != 0)
+                                requestProfileCreation()
+                        }
+                        else -> view_pager.setCurrentItem(i, true)
+                    }
+                }
+                true
+            }
+        }
     }
 
     private fun createContentCategories(): Array<String> = arrayOf(
@@ -163,11 +192,31 @@ class MainActivity : AppCompatActivity() {
     private val eventAfterSignOut = {
         showToast(this, getString(R.string.signed_out))
         currentUser = null
+        tab_layout.getTabAt(0)?.select()
+    }
+
+    fun startSignInFragment() {
         startFragment(
             SignInFragment.newInstance(),
             R.id.frame_layout_activity_main,
             TAG_SIGN_IN_FRAGMENT
         )
+    }
+
+
+    private fun requestSignIn() {
+        RequestSignInDialogFragment(getString(R.string.sign_in),
+            getString(R.string.sign_in_request_message)).show(supportFragmentManager, TAG)
+    }
+
+    private fun requestProfileCreationAfterSignIn() {
+        RequestProfileCreationDialogFragment(getString(R.string.profile_creation), getString(R.string.profile_creation_request_message_01))
+            .show(supportFragmentManager, TAG)
+    }
+
+    fun requestProfileCreation() {
+        RequestProfileCreationDialogFragment(getString(R.string.profile_creation), getString(R.string.profile_creation_request_message_02))
+            .show(supportFragmentManager, TAG)
     }
 
     private fun popAllFragments() {
@@ -213,9 +262,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun startEnterUserInformationFragment() {
+    fun startCreateProfileFragment() {
         startFragment(
-            EnterUserInformationFragment.newInstance(),
+            CreateProfileFragment.newInstance(),
             R.id.frame_layout_activity_main,
             TAG_ENTER_USER_INFORMATION_FRAGMENT
         )
@@ -291,7 +340,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    startEnterUserInformationFragment()
+                    requestProfileCreationAfterSignIn()
                     println("$TAG: data is null")
                 }
             }
