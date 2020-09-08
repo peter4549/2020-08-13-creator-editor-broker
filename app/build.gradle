@@ -82,4 +82,7 @@ dependencies {
 
     // PageIndicatorView
     implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+
+    // Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }

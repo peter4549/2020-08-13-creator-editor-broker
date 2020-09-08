@@ -3,12 +3,11 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GOOGLE_SIGN_IN
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up.FirebaseExceptionHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -20,15 +19,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 import kotlinx.android.synthetic.main.fragment_sign_in.view.*
-import java.lang.Exception
-import java.lang.NullPointerException
-
+import timber.log.Timber
 
 class SignInFragment : Fragment() {
 
+    private lateinit var firebaseExceptionHandler: FirebaseExceptionHandler
     private val buttonClickListener = View.OnClickListener { view ->
         when(view.id) {
             R.id.button_sign_in_with_email -> signInWithEmail()
@@ -44,32 +43,49 @@ class SignInFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_sign_in, container, false)
-        initializeToolbar(view.toolbar)
         view.button_sign_in_with_email.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_google.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_facebook.setOnClickListener(buttonClickListener)
         view.button_sign_in_with_twitter.setOnClickListener(buttonClickListener)
         view.button_sign_up.setOnClickListener(buttonClickListener)
 
+        view.edit_text_email.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                view.text_input_layout_email.error = null
+                view.text_input_layout_email.isErrorEnabled = false
+            }
+        }
+
+        view.edit_text_password.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                view.text_input_layout_password.error = null
+                view.text_input_layout_password.isErrorEnabled = false
+            }
+        }
+
+        firebaseExceptionHandler = FirebaseExceptionHandler(requireContext())
+        firebaseExceptionHandler.setErrorFunction("ERROR_EMAIL_ALREADY_IN_USE") {
+            view.text_input_layout_email.isErrorEnabled = true
+            view.text_input_layout_email.error = getString(R.string.email_already_in_use)
+        }
+        firebaseExceptionHandler.setErrorFunction("ERROR_INVALID_EMAIL") {
+            view.text_input_layout_email.isErrorEnabled = true
+            view.text_input_layout_email.error = getString(R.string.invalid_email)
+        }
+        firebaseExceptionHandler.setErrorFunction("ERROR_USER_NOT_FOUND") {
+            view.text_input_layout_email.isErrorEnabled = true
+            view.text_input_layout_email.error = getString(R.string.user_not_found)
+        }
+        firebaseExceptionHandler.setErrorFunction("ERROR_WRONG_PASSWORD") {
+            view.text_input_layout_password.isErrorEnabled = true
+            view.text_input_layout_password.error = getString(R.string.wrong_password)
+        }
+
         return view
     }
 
-    private fun initializeToolbar(toolbar: Toolbar) {
-        (requireActivity() as MainActivity).setSupportActionBar(toolbar)
-        (requireActivity() as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> requireActivity().onBackPressed()
-        }
-        return super.onOptionsItemSelected(item)
+    private fun firebaseExceptionHandling(e: FirebaseException, showToast: Boolean = true, `throw`: Boolean = false) {
+        firebaseExceptionHandler.exceptionHandling(e, showToast, `throw`)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -82,19 +98,20 @@ class SignInFragment : Fragment() {
                     val account = task.getResult(ApiException::class.java)
                     firebaseAuthWithGoogle(account)
                 } catch (e: ApiException) {
-                    errorHandling(e, getString(R.string.failed_to_sign_in_with_google))
+                    showToast(requireContext(), getString(R.string.failed_to_sign_in_with_google))
+                    e.printStackTrace()
                 }
             }
         }
     }
 
     private fun signInWithEmail() {
-        if (edit_text_email.text?.isNotBlank() == true) {
+        if (edit_text_email.text?.isBlank() == true) {
             showToast(requireContext(), getString(R.string.please_enter_email))
             return
         }
 
-        if (edit_text_password.text?.isNotBlank() == true) {
+        if (edit_text_password.text?.isBlank() == true) {
             showToast(requireContext(), getString(R.string.please_enter_password))
             return
         }
@@ -105,9 +122,9 @@ class SignInFragment : Fragment() {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful)
-                    println("$TAG: sign in with email")
+                    Timber.d("Email sign in successful")
                 else
-                    errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_email))
+                    firebaseExceptionHandling(task.exception!! as FirebaseException)
             }
     }
 
@@ -126,11 +143,10 @@ class SignInFragment : Fragment() {
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                println("$TAG: Google sign in successful")
-            }
+            if (task.isSuccessful)
+                Timber.d("Google sign in successful")
             else
-                errorHandling(task.exception!!, getString(R.string.failed_to_sign_in_with_google))
+                firebaseExceptionHandling(task.exception!! as FirebaseException)
         }
     }
 
@@ -145,13 +161,12 @@ class SignInFragment : Fragment() {
                 }
 
                 override fun onCancel() {
-                    println("$TAG: Facebook sign in canceled")
+                    Timber.e("Facebook sign in canceled")
                 }
 
                 override fun onError(error: FacebookException?) {
-                    errorHandling(error ?: FacebookException("failed to sign in with Facebook"),
-                            getString(R.string.failed_to_sign_in_with_facebook)
-                    )
+                    showToast(requireContext(), getString(R.string.failed_to_sign_in_with_facebook))
+                    error?.printStackTrace()
                 }
             })
     }
@@ -160,9 +175,9 @@ class SignInFragment : Fragment() {
         val credential = FacebookAuthProvider.getCredential(result?.accessToken?.token!!)
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful)
-                println("$TAG: Facebook sign in successful")
+                Timber.d("Facebook sign in successful")
             else
-                errorHandling(task.exception!!)
+                firebaseExceptionHandling(task.exception!! as FirebaseException)
         }
     }
 
@@ -170,21 +185,22 @@ class SignInFragment : Fragment() {
         val provider = OAuthProvider.newBuilder("twitter.com")
         val pendingResultTask = (requireActivity() as MainActivity).firebaseAuth.pendingAuthResult
         if (pendingResultTask != null) {
-            // There's something already here! Finish the sign-in for your user.
             pendingResultTask
                 .addOnSuccessListener(
-                    OnSuccessListener<AuthResult?> { authResult ->
+                    OnSuccessListener { authResult ->
                         // IdP Data: authResult.getAdditionalUserInfo().getProfile()
                         // OAuth Access Token: authResult.getCredential().getAccessToken()
                         // OAuth Secret: authResult.getCredential().getSecret()
                         if (authResult != null)
                             firebaseAuthWithTwitter(authResult)
-                        else
-                            errorHandling(NullPointerException("authResult is null"),
-                                getString(R.string.failed_to_sign_in_with_twitter))
+                        else {
+                            showToast(requireContext(), getString(R.string.failed_to_sign_in_with_twitter))
+                            Timber.e("authResult is null")
+                        }
                     })
                 .addOnFailureListener{
-                    errorHandling(it, getString(R.string.failed_to_sign_in_with_twitter))
+                    showToast(requireContext(), getString(R.string.failed_to_sign_in_with_twitter))
+                    it.printStackTrace()
                 }
         } else {
             (requireActivity() as MainActivity).firebaseAuth
@@ -193,7 +209,8 @@ class SignInFragment : Fragment() {
                     firebaseAuthWithTwitter(authResult)
                 }
                 .addOnFailureListener {
-                    errorHandling(it, getString(R.string.failed_to_sign_in_with_twitter))
+                    showToast(requireContext(), getString(R.string.failed_to_sign_in_with_twitter))
+                    it.printStackTrace()
                 }
         }
     }
@@ -203,14 +220,15 @@ class SignInFragment : Fragment() {
         if (credential != null) {
             FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
                 if (task.isSuccessful)
-                    println("$TAG: Twitter sign in successful")
+                    Timber.d("Twitter sign in successful")
                 else {
-                    errorHandler.errorHandling(task.exception!!)
+                    firebaseExceptionHandling(task.exception!! as FirebaseException)
                 }
             }
-        } else
-            errorHandling(NullPointerException("credential is null"),
-                getString(R.string.failed_to_sign_in_with_twitter))
+        } else {
+            showToast(requireContext(), getString(R.string.failed_to_sign_in_with_twitter))
+            Timber.e("credential is null")
+        }
     }
 
     private fun startSignUpFragment() {
@@ -220,12 +238,7 @@ class SignInFragment : Fragment() {
         )
     }
 
-    private fun errorHandling(e: Exception, toastMessage: String? = null, throwing: Boolean = false) {
-        errorHandler.errorHandling(e, toastMessage, throwing=throwing)
-    }
-
     companion object {
-        private const val TAG = "SignInFragment"
         @JvmStatic
         fun newInstance() = SignInFragment()
     }

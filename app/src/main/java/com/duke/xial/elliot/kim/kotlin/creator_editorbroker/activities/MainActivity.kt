@@ -31,6 +31,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
+import timber.log.Timber
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupTimber()
         initializeTabLayoutViewPager(tab_layout, view_pager)
 
         if (!errorHandlerInitialized())
@@ -73,6 +75,10 @@ class MainActivity : AppCompatActivity() {
         userTypes = createUserTypes()
         userTypesMap[1] = userTypes[1]
         userTypesMap[2] = userTypes[2]
+    }
+
+    private fun setupTimber() {
+        Timber.plant(Timber.DebugTree())
     }
 
     override fun onNewIntent(intent: Intent?) {

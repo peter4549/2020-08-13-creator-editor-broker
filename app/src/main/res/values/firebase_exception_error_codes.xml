@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!-- "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL", "An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address."
+"ERROR_CREDENTIAL_ALREADY_IN_USE", "This credential is already associated with a different user account."
+"ERROR_CUSTOM_TOKEN_MISMATCH", "The custom token corresponds to a different audience."
+"ERROR_EMAIL_ALREADY_IN_USE", "The email address is already in use by another account."
+"ERROR_INVALID_CREDENTIAL", "The supplied auth credential is malformed or has expired."
+"ERROR_INVALID_CUSTOM_TOKEN", "The custom token format is incorrect. Please check the documentation."
+"ERROR_INVALID_EMAIL", "The email address is badly formatted."
+"ERROR_INVALID_USER_TOKEN", "The user\'s credential is no longer valid. The user must sign in again."
+"ERROR_OPERATION_NOT_ALLOWED", "This operation is not allowed. You must enable this service in the console."
+"ERROR_REQUIRES_RECENT_LOGIN", "This operation is sensitive and requires recent authentication. Log in again before retrying this request."
+"ERROR_USER_DISABLED", "The user account has been disabled by an administrator."
+"ERROR_USER_MISMATCH", "The supplied credentials do not correspond to the previously signed in user."
+"ERROR_USER_NOT_FOUND", "There is no user record corresponding to this identifier. The user may have been deleted."
+"ERROR_USER_TOKEN_EXPIRED", "The user\'s credential is no longer valid. The user must sign in again."
+"ERROR_WEAK_PASSWORD", "The given password is invalid."
+"ERROR_WRONG_PASSWORD", "The password is invalid or the user does not have a password." -->
+
+<resources>
+    <string name="unknown_error_message">알 수 없는 오류가 발생했습니다.</string>
+
+    <!-- FirebaseAuthException  -->
+    <string name="account_exists_with_different_credential">이메일은 같지만 자격 증명이 다른 계정이 이미 존재합니다.
+        이 이메일 주소와 연결된 제공 업체를 사용하여 로그인하십시오.</string>
+    <string name="credential_already_in_use">이 자격 증명은 이미 다른 계정과 연결되어 있습니다.</string>
+    <string name="custom_token_mismatch">사용자 지정 토큰이 일치하지 않습니다.</string>
+    <string name="email_already_in_use">이미 사용 중인 이메일입니다.</string>
+    <string name="invalid_credential">자격 증명이 유효하지 않습니다.</string>
+    <string name="invalid_custom_token">사용자 지정 토큰 형식이 잘못되었습니다.</string>
+    <string name="invalid_email">이메일 형식이 올바르지 않습니다.</string>
+    <string name="invalid_user_token">자격 증명이 더 이상 유효하지 않습니다. 다시 로그인하십시오.</string>
+    <string name="operation_not_allowed">허용되지 않은 작업입니다.</string>
+    <string name="requires_recent_login">최근 자격 증명이 필요한 작업입니다. 다시 로그인하십시오.</string>
+    <string name="user_disabled">비활성화된 계정입니다.</string>
+    <string name="user_mismatch">제공된 자격 증명이 이전에 로그인 한 사용자와 일치하지 않습니다.</string>
+    <string name="user_not_found">계정을 찾을 수 없습니다.</string>
+    <string name="user_token_expired">자격 증명이 더 이상 유효하지 않습니다. 다시 로그인하십시오.</string>
+    <string name="weak_password">주어진 암호가 유효하지 않습니다.</string>
+    <string name="wrong_password">잘못된 비밀번호입니다.</string>
+
+    <string name="action_code_exception">만료되었거나 유효하지 않은 대역 외 코드입니다.</string>
+</resources>

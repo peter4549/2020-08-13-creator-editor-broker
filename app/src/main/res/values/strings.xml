@@ -120,7 +120,6 @@
     <string name="verified">인증되었습니다.</string>
     <string name="verification_code_dose_not_match">인증코드가 일치하지 않습니다.</string>
     <string name="password_too_weak">너무 약한 비밀번호입니다.</string>
-    <string name="invalid_email">유효하지 않은 이메일입니다.</string>
     <string name="email_already_signed_up">이미 가입된 이메일입니다.</string>
     <string name="failed_to_create_account">계정 생성에 실패했습니다.</string>
 
@@ -187,5 +186,8 @@
 
     <string name="cancel">취소</string>
     <string name="edit_profile">프로필 수정</string>
+    <string name="logo">Logo</string>
+
+
 
 </resources>

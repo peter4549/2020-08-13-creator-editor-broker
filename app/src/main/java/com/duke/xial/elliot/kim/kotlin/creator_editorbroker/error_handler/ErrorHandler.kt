@@ -75,15 +75,16 @@ class ErrorHandler(private val context: Context) {
         }
     }
 
+    // 세분화 할것.
     private fun firebaseExceptionHandling(e: FirebaseException) {
         hasSpecificMessage = true
         when(e) {
             is FirebaseAuthInvalidCredentialsException ->
                 showToast(context, context.getString(R.string.invalid_request))
-            is FirebaseTooManyRequestsException ->
-                showToast(context, context.getString(R.string.too_many_requests))
             is FirebaseAuthInvalidUserException ->
                 showToast(context, context.getString(R.string.account_not_found))
+            is FirebaseTooManyRequestsException ->
+                showToast(context, context.getString(R.string.too_many_requests))
             else ->
                 showToast(context, context.getString(R.string.verification_failed))
         }
@@ -94,7 +95,7 @@ class ErrorHandler(private val context: Context) {
         println("message: ${error.message}")
         println("domain: ${error.errors?.get(0)?.domain}")
         println("reason: ${error.errors?.get(0)?.reason}")
-        println("status: ${error.status}")
+        println("statufs: ${error.status}")
     }
 
     private fun youtubePlayerExceptionHandling(e: YouTubePlayerException) {
@@ -156,7 +157,9 @@ class ErrorHandler(private val context: Context) {
         }
     }
 
+    // https://firebase.google.com/docs/storage/android/handle-errors
     private fun fireStoreExceptionHandling(e: FirebaseFirestoreException) {
+
         when(e.code) {
             FirebaseFirestoreException.Code.ABORTED -> {
                 showToast(context, "작업이 중단되었습니다.")

@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">@color/colorDefaultBlack</color>
+    <color name="colorPrimary">@color/colorSilver</color>
+    <color name="colorPrimaryDark">@color/colorSilver</color>
+    <color name="colorAccent">@color/colorSilver</color>
+    <color name="colorControlHighlight">@color/colorCrushedIce</color>
 
     <color name="colorDefaultBlack">#202020</color>
+    <color name="colorDefaultBlue">@color/colorBabyBlue</color>
     <color name="colorDefaultText">#202020</color>
+    <color name="colorLightText">@android:color/white</color>
     <color name="colorLightGrey">#A0A0A0</color>
     <color name="colorCrushedIce">#c4fff7</color>
     <color name="colorCuriousBlue">#3d85b8</color>
+    <color name="colorSilver">#C0C0C0</color>
+    <color name="colorCornflower">#6593F5</color>
+
+    <color name="colorBabyBlue">#89CFF0</color>
+    <color name="colorLightBlue">#ADD8E6</color>
+    <color name="colorFlame">#e25822</color>
 
     <!-- Edit Text -->
-    <color name="colorBoxStroke">#90caf9</color>
+    <color name="colorBoxStroke">@color/colorBabyBlue</color>
 
     <!-- Background Colors -->
     <color name="colorButtonSignIn">#FEFEFE</color>
@@ -35,5 +44,7 @@
     <!-- Dialog Fragment -->
     <color name="colorDialogBackground">@android:color/white</color>
     <color name="colorDialogButtonBackground">@android:color/white</color>
+
+    <color name="mtrl_textinput_default_box_stroke_color">@color/colorLightBlue</color>
 
 </resources>
