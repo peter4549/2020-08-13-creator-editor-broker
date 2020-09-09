@@ -7,8 +7,8 @@
 
     <color name="colorDefaultBlack">#202020</color>
     <color name="colorDefaultBlue">@color/colorBabyBlue</color>
-    <color name="colorDefaultText">#202020</color>
-    <color name="colorLightText">@android:color/white</color>
+    <color name="colorDefaultText">@color/colorBlueGrey</color>
+    <color name="colorAccentText">#FEFEFE</color>
     <color name="colorLightGrey">#A0A0A0</color>
     <color name="colorCrushedIce">#c4fff7</color>
     <color name="colorCuriousBlue">#3d85b8</color>
@@ -18,12 +18,17 @@
     <color name="colorBabyBlue">#89CFF0</color>
     <color name="colorLightBlue">#ADD8E6</color>
     <color name="colorFlame">#e25822</color>
+    <color name="colorBlueGrey">#263238</color>
+
+    <!-- Button -->
+    <color name="colorAccentButtonBackground">@color/colorBabyBlue</color>
+    <color name="colorDefaultButtonBackground">#FEFEFE</color>
 
     <!-- Edit Text -->
     <color name="colorBoxStroke">@color/colorBabyBlue</color>
 
     <!-- Background Colors -->
-    <color name="colorButtonSignIn">#FEFEFE</color>
+    <color name="colorEditTextBackground">#FEFEFE</color>
     <color name="colorFragmentBackground">#FFFFFF</color>
     <color name="colorToolbarBackground">@color/colorCrushedIce</color>
 

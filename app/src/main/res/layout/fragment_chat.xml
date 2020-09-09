@@ -40,12 +40,12 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_send"
+        app:layout_constraintEnd_toStartOf="@+id/button_send_verification_code"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Chat Message" />
 
     <ImageButton
-        android:id="@+id/button_send"
+        android:id="@+id/button_send_verification_code"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="@color/colorCrushedIce"

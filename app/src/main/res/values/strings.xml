@@ -15,7 +15,6 @@
     <string name="categories_selection">카테고리 선택</string>
     <string name="categories_selection_description">주 컨텐츠와 관련된 카테고리를 선택해주세요.</string>
     <string name="phone_number">전화번호</string>
-    <string name="phone_number_with_description">전화번호 (본인인증에만 사용됩니다.)</string>
     <string name="verification">본인인증</string>
     <string name="sign_in_with_facebook">페이스북 로그인</string>
     <string name="sign_in_with_twitter">트위터 로그인</string>
@@ -98,27 +97,20 @@
     <string name="there_are_no_registered_videos">등록된 비디오가 없습니다.</string>
     <string name="settings">설정</string>
     <string name="sign_out">로그아웃</string>
-    <string name="please_enter_email">이메일을 입력해주세요.</string>
-    <string name="please_enter_password">비밀번호를 입력해주세요.</string>
+    <string name="please_enter_your_email">이메일을 입력해주세요.</string>
+    <string name="please_enter_your_password">비밀번호를 입력해주세요.</string>
     <string name="sign_up">회원가입</string>
     <string name="ok">확인</string>
     <string name="enter_verification_code">인증번호 입력</string>
     <string name="phone_number_verification_message">본인인증 (전화번호는 본인인증에만 사용됩니다.)</string>
-    <string name="send_verification_code">인증번호 발송</string>
     <string name="verification_code">인증번호</string>
 
     <!-- Verification -->
-    <string name="code_lost">인증번호가 손실되었습니다.</string>
-    <string name="code_sent">인증번호가 발송되었습니다.</string>
     <string name="invalid_request">유효하지 않은 요청입니다. 전화번호를 확인해주세요.</string>
-    <string name="too_many_requests">너무 많은 요청으로 인증요청이 차단되었습니다. 잠시 후 다시 시도해주세요.</string>
     <string name="verification_failed">인증에 실패했습니다.</string>
     <string name="please_enter_phone_number">전화번호를 입력하세요.</string>
-    <string name="invalid_country_code">유효하지 않은 국가코드입니다.</string>
-    <string name="resend">재전송</string>
     <string name="please_enter_verification_code">인증코드를 입력하세요.</string>
-    <string name="verified">인증되었습니다.</string>
-    <string name="verification_code_dose_not_match">인증코드가 일치하지 않습니다.</string>
+
     <string name="password_too_weak">너무 약한 비밀번호입니다.</string>
     <string name="email_already_signed_up">이미 가입된 이메일입니다.</string>
     <string name="failed_to_create_account">계정 생성에 실패했습니다.</string>
@@ -187,7 +179,19 @@
     <string name="cancel">취소</string>
     <string name="edit_profile">프로필 수정</string>
     <string name="logo">Logo</string>
+    <string name="start_youbroker">유브로커 시작하기</string>
 
 
+
+    <!-- Sign Up -->
+    <string name="code_lost">인증번호가 손실되었습니다.</string>
+    <string name="code_sent">인증번호가 발송되었습니다.</string>
+    <string name="invalid_phone_number">유효하지 않은 전화번호입니다.</string>
+    <string name="request_identity_verification">본인인증 후 진행하십시오.</string>
+    <string name="resend">재전송</string>
+    <string name="send_verification_code">인증번호 발송</string>
+    <string name="too_many_requests">너무 많은 요청으로 인증요청이 차단되었습니다. 잠시 후 다시 시도하십시오.</string>
+    <string name="verification_code_mismatch">인증코드가 일치하지 않습니다.</string>
+    <string name="verified">인증되었습니다.</string>
 
 </resources>

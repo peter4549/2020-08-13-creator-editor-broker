@@ -54,6 +54,11 @@ class FirebaseExceptionHandler(private val context: Context) {
     fun exceptionHandling(e: FirebaseException, showToast: Boolean = true, `throw`: Boolean = false) {
         when (e) {
             is FirebaseAuthException -> authExceptionHandling(e, showToast, `throw`)
+            is FirebaseTooManyRequestsException -> {
+                showToast(context, context.getString(R.string.too_many_requests))
+                Timber.e("${context.getString(R.string.app_name)} FirebaseTooManyRequestsException: ${e.message}")
+                e.printStackTrace()
+            }
         }
     }
 
@@ -74,7 +79,7 @@ class FirebaseExceptionHandler(private val context: Context) {
         authErrorCodeFunctionMap[key] = errorFunction
     }
 
-    fun invokeErrorFunction(key: String) {
+    private fun invokeErrorFunction(key: String) {
         authErrorCodeFunctionMap[key]?.invoke()
     }
 }

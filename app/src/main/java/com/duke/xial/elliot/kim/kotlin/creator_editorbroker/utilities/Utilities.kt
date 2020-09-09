@@ -62,3 +62,20 @@ fun setImage(imageView: ImageView, uri: String?) {
             .into(imageView)
     }
 }
+
+fun enableViews(vararg views: View) {
+    for (view in views) {
+        view.isEnabled = true
+    }
+}
+
+fun disableViews(vararg views: View) {
+    for (view in views) {
+        view.isEnabled = false
+    }
+}
+
+fun clearViewsFocus(vararg views: View) {
+    for (view in views)
+        view.clearFocus()
+}

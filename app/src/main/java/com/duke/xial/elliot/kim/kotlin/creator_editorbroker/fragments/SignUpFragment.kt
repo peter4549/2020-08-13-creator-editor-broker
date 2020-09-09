@@ -9,25 +9,33 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up.FirebaseExceptionHandler
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.clearViewsFocus
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.disableViews
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
-import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
 import kotlinx.android.synthetic.main.fragment_sign_up.view.*
+import kotlinx.android.synthetic.main.fragment_sign_up.view.button_sign_up
+import kotlinx.android.synthetic.main.fragment_sign_up.view.edit_text_email
+import kotlinx.android.synthetic.main.fragment_sign_up.view.edit_text_password
+import kotlinx.android.synthetic.main.fragment_sign_up.view.text_input_layout_email
+import kotlinx.android.synthetic.main.fragment_sign_up.view.text_input_layout_password
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class SignUpFragment: Fragment() {
+
+    private lateinit var firebaseExceptionHandler: FirebaseExceptionHandler
     private lateinit var uiController: UiController
     private val timeout = 60L
     private var resendingToken: PhoneAuthProvider.ForceResendingToken? = null
     private var verificationCode: String? = null
+    private var verified = false
 
     private val callbacks = object :
         PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -38,7 +46,7 @@ class SignUpFragment: Fragment() {
                 showToast(requireContext(), getString(R.string.code_lost))
         }
         override fun onVerificationFailed(e: FirebaseException) {
-            errorHandler.errorHandling(e)
+            firebaseExceptionHandler.exceptionHandling(e)
         }
 
         override fun onCodeSent(
@@ -51,6 +59,28 @@ class SignUpFragment: Fragment() {
             resendingToken = forceResendingToken
         }
     }
+    private val onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        if (hasFocus) {
+            when (view) {
+                edit_text_email -> {
+                    text_input_layout_email.error = null
+                    text_input_layout_email.isErrorEnabled = false
+                }
+                edit_text_password -> {
+                    text_input_layout_password.error = null
+                    text_input_layout_password.isErrorEnabled = false
+                }
+                edit_text_phone_number -> {
+                    text_input_layout_phone_number.error = null
+                    text_input_layout_phone_number.isErrorEnabled = false
+                }
+                edit_text_verification_code -> {
+                    text_input_layout_verification_code.error = null
+                    text_input_layout_verification_code.isErrorEnabled = false
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,9 +90,28 @@ class SignUpFragment: Fragment() {
         val view = inflater.inflate(R.layout.fragment_sign_up, container, false)
         initializeToolbar(view.toolbar)
         uiController = UiController(view)
-        uiController.updateUi(STATE_INITIALIZED)
+        firebaseExceptionHandler = FirebaseExceptionHandler(requireContext())
+        firebaseExceptionHandler.setErrorFunction("ERROR_EMAIL_ALREADY_IN_USE") {
+            view.text_input_layout_email.isErrorEnabled = true
+            view.text_input_layout_email.error = getString(R.string.email_already_in_use)
+        }
+        firebaseExceptionHandler.setErrorFunction("ERROR_INVALID_EMAIL") {
+            view.text_input_layout_email.isErrorEnabled = true
+            view.text_input_layout_email.error = getString(R.string.invalid_email)
+        }
+        firebaseExceptionHandler.setErrorFunction("ERROR_WEAK_PASSWORD") {
+            view.text_input_layout_password.isErrorEnabled = true
+            view.text_input_layout_password.error = getString(R.string.weak_password)
+        }
 
-        view.button_send.setOnClickListener {
+        view.edit_text_email.onFocusChangeListener = onFocusChangeListener
+        view.edit_text_password.onFocusChangeListener = onFocusChangeListener
+        view.edit_text_phone_number.onFocusChangeListener = onFocusChangeListener
+        view.edit_text_verification_code.onFocusChangeListener = onFocusChangeListener
+
+        view.button_send_verification_code.setOnClickListener {
+            clearViewsFocus(edit_text_phone_number, text_input_layout_phone_number)
+
             val phoneNumber = view.edit_text_phone_number.text.toString()
             if (phoneNumber.isBlank())
                 showToast(requireContext(), getString(R.string.please_enter_phone_number))
@@ -70,7 +119,9 @@ class SignUpFragment: Fragment() {
                 sendCode(phoneNumber)
         }
 
-        view.button_verification.setOnClickListener {
+        view.button_ok.setOnClickListener {
+            clearViewsFocus(edit_text_verification_code, text_input_layout_verification_code)
+
             val code = view.edit_text_verification_code.text.toString()
             if (code.isBlank())
                 showToast(requireContext(), getString(R.string.please_enter_verification_code))
@@ -79,7 +130,15 @@ class SignUpFragment: Fragment() {
         }
 
         view.button_sign_up.setOnClickListener {
-            signUp()
+            clearViewsFocus(edit_text_email, edit_text_password,
+                edit_text_phone_number, edit_text_verification_code,
+                text_input_layout_email, text_input_layout_password,
+                text_input_layout_phone_number, text_input_layout_verification_code)
+
+            if (verified)
+                signUp()
+            else
+                showToast(requireContext(), getString(R.string.request_identity_verification))
         }
 
         return view
@@ -120,7 +179,11 @@ class SignUpFragment: Fragment() {
                 )
             } catch (e: IllegalArgumentException) {
                 e.printStackTrace()
-                showToast(requireContext(), getString(R.string.invalid_country_code))
+                showToast(requireContext(), getString(R.string.invalid_phone_number))
+                launch(Dispatchers.Main) {
+                    text_input_layout_phone_number.isErrorEnabled = true
+                    text_input_layout_phone_number.error = getString(R.string.invalid_phone_number)
+                }
             }
         }
     }
@@ -129,9 +192,12 @@ class SignUpFragment: Fragment() {
         if (verificationCode != null) {
             if (code == verificationCode) {
                 showToast(requireContext(), getString(R.string.verified))
+                verified = true
                 uiController.updateUi(STATE_VERIFIED)
             } else {
-                showToast(requireContext(), getString(R.string.verification_code_dose_not_match))
+                showToast(requireContext(), getString(R.string.verification_code_mismatch))
+                text_input_layout_verification_code.isErrorEnabled = true
+                text_input_layout_verification_code.error = getString(R.string.verification_code_mismatch)
             }
         }
     }
@@ -141,12 +207,12 @@ class SignUpFragment: Fragment() {
         val password = edit_text_password.text.toString()
 
         if (email.isBlank()) {
-            showToast(requireContext(), getString(R.string.please_enter_email))
+            showToast(requireContext(), getString(R.string.please_enter_your_email))
             return
         }
 
         if (password.isBlank()) {
-            showToast(requireContext(), getString(R.string.please_enter_password))
+            showToast(requireContext(), getString(R.string.please_enter_your_password))
             return
         }
 
@@ -156,64 +222,29 @@ class SignUpFragment: Fragment() {
                 if (task.isSuccessful)
                     println("$TAG: account created")
                 else
-                    showExceptionMessage(task)
+                    firebaseExceptionHandler.exceptionHandling(task.exception as FirebaseException)
             }
-    }
-
-    private fun showExceptionMessage(task: Task<AuthResult>) {
-        try {
-            throw task.exception!!
-        } catch (e: FirebaseAuthWeakPasswordException) {
-            showToast(requireContext(), getString(R.string.password_too_weak))
-            edit_text_password.requestFocus()
-        } catch (e: FirebaseAuthInvalidCredentialsException) {
-            showToast(requireContext(), getString(R.string.invalid_email))
-            edit_text_email.requestFocus()
-        } catch (e: FirebaseAuthUserCollisionException) {
-            showToast(requireContext(), getString(R.string.email_already_signed_up))
-            edit_text_email.requestFocus()
-        } catch (e: Exception) {
-            showToast(requireContext(), getString(R.string.failed_to_create_account))
-        }
     }
 
     inner class UiController(private val view: View) {
         fun updateUi(state: Int) {
             when(state) {
-                STATE_INITIALIZED -> {
-                    disableViews(view.button_sign_up)
-                }
                 STATE_VERIFICATION_CODE_SENT -> {
-                    button_send.text = getString(R.string.resend)
+                    button_send_verification_code.text = getString(R.string.resend)
                 }
                 STATE_VERIFIED -> {
                     disableViews(
-                        view.button_send, view.button_verification,
+                        view.button_send_verification_code, view.button_ok,
                         view.edit_text_phone_number, view.edit_text_verification_code
                     )
-                    enableViews(view.button_sign_up)
                 }
             }
         }
     }
 
-    private fun enableViews(vararg views: View) {
-        for (v in views) {
-            v.isEnabled = true
-        }
-    }
-
-    private fun disableViews(vararg views: View) {
-        for (v in views) {
-            v.isEnabled = false
-        }
-    }
-
     companion object {
-        private const val STATE_INITIALIZED = 0
         private const val STATE_VERIFICATION_CODE_SENT = 1
         private const val STATE_VERIFIED = 2
-        private const val STATE_VERIFICATION_FAILED = 3
         private const val TAG = "SignUpFragment"
     }
 }

@@ -37,7 +37,7 @@
     <string name="user_mismatch">제공된 자격 증명이 이전에 로그인 한 사용자와 일치하지 않습니다.</string>
     <string name="user_not_found">계정을 찾을 수 없습니다.</string>
     <string name="user_token_expired">자격 증명이 더 이상 유효하지 않습니다. 다시 로그인하십시오.</string>
-    <string name="weak_password">주어진 암호가 유효하지 않습니다.</string>
+    <string name="weak_password">비밀번호가 너무 약합니다.</string>
     <string name="wrong_password">잘못된 비밀번호입니다.</string>
 
     <string name="action_code_exception">만료되었거나 유효하지 않은 대역 외 코드입니다.</string>

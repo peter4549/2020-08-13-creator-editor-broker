@@ -2,15 +2,18 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorLightGrey</item>
-        <item name="colorPrimaryDark">@color/colorLightGrey</item>
+        <item name="colorPrimary">@color/colorSilver</item>
+        <item name="colorPrimaryDark">@color/colorSilver</item>
         <item name="colorAccent">@color/colorCrushedIce</item>
-        <item name="android:textViewStyle">@style/TextViewStyle</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
+        <item name="android:editTextStyle">@style/EditTextFontStyle</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
     </style>
 
     <style name="MaterialComponentsTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:colorControlHighlight">@color/colorControlHighlight</item>
+        <item name="android:editTextStyle">@style/EditTextFontStyle</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
     </style>
 
     <style name="SignInButtonStyle">
@@ -19,12 +22,17 @@
         <item name="android:fontFamily">@font/paybooc_otf_bold_font_family</item>
         <item name="android:gravity">center</item>
         <item name="android:padding">16dp</item>
-        <item name="android:textColor">@color/colorDefaultBlack</item>
+        <item name="android:textColor">@color/colorDefaultText</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextViewStyle" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:fontFamily">@font/paybooc_otf_bold_font_family</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/colorDefaultText</item>
+    </style>
+
+    <style name="EditTextFontStyle" parent="@android:style/Widget.DeviceDefault.EditText">
         <item name="android:fontFamily">@font/paybooc_otf_bold_font_family</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/colorDefaultText</item>
@@ -47,8 +55,18 @@
         <item name="colorControlActivated">@color/colorBabyBlue</item>
     </style>
 
-    <style name="FontNanumBarunGothic">
+    <style name="FontPayboocOtfBold">
         <item name="fontFamily">@font/paybooc_otf_bold_font_family</item>
+    </style>
+
+    <style name="FontPayboocOtfExtraBold">
+        <item name="fontFamily">@font/paybooc_otf_extra_bold_font_family</item>
+    </style>
+
+    <style name="ToolbarTitleStyle" parent="@style/Base.TextAppearance.AppCompat.Title">
+        <item name="android:fontFamily">@font/paybooc_otf_extra_bold_font_family</item>
+        <item name="android:textColor">@color/colorDefaultText</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
 </resources>

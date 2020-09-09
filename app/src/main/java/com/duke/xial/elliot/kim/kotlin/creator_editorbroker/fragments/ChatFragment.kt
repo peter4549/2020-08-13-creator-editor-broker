@@ -43,16 +43,13 @@ class ChatFragment(private val targetUser: UserModel? = null,
 
     private lateinit var chatMessagesCollectionReference: CollectionReference
     private lateinit var chatMessagesRecyclerViewAdapter: ChatMessageRecyclerViewAdapter
-    private lateinit var chatRoomsCollectionReference: CollectionReference
-    private lateinit var chatRoomDocumentReference: DocumentReference
+    private lateinit var chatRoomCollectionReference: CollectionReference
     private lateinit var currentChatRoom: ChatRoomModel
     private lateinit var listenerRegistration: ListenerRegistration
-    private lateinit var previousChatMessages: MutableList<ChatMessageModel>
     private lateinit var user: UserModel
     private lateinit var usersCollectionReference: CollectionReference
     private val gson = Gson()
     private var chatRoomCreated = false
-    private var chatMessagesIsInitialized = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,7 +58,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_chat, container, false)
 
-        chatRoomsCollectionReference = FirebaseFirestore.getInstance().collection(
+        chatRoomCollectionReference = FirebaseFirestore.getInstance().collection(
             COLLECTION_CHAT_ROOMS
         )
         usersCollectionReference = FirebaseFirestore.getInstance().collection(
@@ -75,7 +72,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
             openExistingChatRoom(existingChatRoomId, view)
         }
 
-        view.button_send.setOnClickListener {
+        view.button_send_verification_code.setOnClickListener {
             if (edit_text_chat_message.text.isBlank())
                 showToast(requireContext(), getString(R.string.please_enter_your_message))
             else {
@@ -92,14 +89,8 @@ class ChatFragment(private val targetUser: UserModel? = null,
         return view
     }
 
-    override fun onPause() {
-        if (::listenerRegistration.isInitialized)
-            listenerRegistration.remove()
-        super.onPause()
-    }
-
     private fun openExistingChatRoom(roomId: String, view: View) {
-        chatRoomsCollectionReference.document(roomId).get()
+        chatRoomCollectionReference.document(roomId).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot != null && snapshot.data != null)
                     currentChatRoom = gson.fromJson(JSONObject(snapshot.data!!).toString(),
@@ -129,10 +120,10 @@ class ChatFragment(private val targetUser: UserModel? = null,
 
         MainActivity.currentUser?.chatRoomIds?.add(roomId)
 
-        chatRoomsCollectionReference
+        chatRoomCollectionReference
             .document(currentChatRoom.roomId)
             .set(currentChatRoom).addOnSuccessListener {
-                chatRoomsCollectionReference
+                chatRoomCollectionReference
                     .document(currentChatRoom.roomId)
                     .collection(COLLECTION_MESSAGES)
                     .add(firstChatMessage)
@@ -152,7 +143,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
     }
 
     private fun startChatWithCheckExistingChatRoom(targetUserId: String, view: View) {
-        chatRoomsCollectionReference
+        chatRoomCollectionReference
             .whereArrayContains(KEY_USER_IDS, targetUserId)
             .get()
             .addOnSuccessListener { snapshot ->
@@ -245,13 +236,13 @@ class ChatFragment(private val targetUser: UserModel? = null,
         gson.fromJson(JSONObject(map).toString(), ChatRoomModel::class.java)
 
     private fun sendMessage(message: String) {
-        button_send.isEnabled = false
+        button_send_verification_code.isEnabled = false
         val newChatMessage = generateChatMessage(message, getCurrentTime())
         //val newPosition = currentChatRoom.chatMessages.count() // 리사이클러뷰의 카운트로 선정.
 
         chatMessagesCollectionReference.add(newChatMessage)
             .addOnSuccessListener {
-                button_send.isEnabled = true
+                button_send_verification_code.isEnabled = true
                 val pushTokens = currentChatRoom.users
                     .filter { it.pushToken != user.pushToken }
                     .mapNotNull { it.pushToken }
@@ -266,7 +257,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
                     }
                 }
 
-                chatRoomsCollectionReference.document(currentChatRoom.roomId)
+                chatRoomCollectionReference.document(currentChatRoom.roomId)
                     .update(mapOf(KEY_LAST_MESSAGE to currentChatRoom.lastMessage,
                         KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
                     .addOnSuccessListener {
@@ -277,7 +268,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
                     }
             }
             .addOnFailureListener {
-                button_send.isEnabled = true
+                button_send_verification_code.isEnabled = true
                 errorHandling(it, getString(R.string.failed_to_send_message))
             }
 
@@ -308,11 +299,11 @@ class ChatFragment(private val targetUser: UserModel? = null,
 
     override fun onStop() {
         MainActivity.currentChatRoomId = null
-        chatRoomsCollectionReference
+        chatRoomCollectionReference
 
         // Update unread count
         currentChatRoom.unreadCounter[user.uid] = 0L
-        chatRoomsCollectionReference.document(currentChatRoom.roomId)
+        chatRoomCollectionReference.document(currentChatRoom.roomId)
             .update(mapOf(KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
             .addOnSuccessListener {
                 println("$TAG: unread count updated")
@@ -320,6 +311,10 @@ class ChatFragment(private val targetUser: UserModel? = null,
             .addOnFailureListener {
                 errorHandling(it)
             }
+
+        if (::listenerRegistration.isInitialized)
+            listenerRegistration.remove()
+
         super.onStop()
     }
 
@@ -383,7 +378,7 @@ class ChatFragment(private val targetUser: UserModel? = null,
         }
 
         private fun setChatMessageSnapshotListener() {
-            chatMessagesCollectionReference = chatRoomsCollectionReference
+            chatMessagesCollectionReference = chatRoomCollectionReference
                 .document(currentChatRoom.roomId).collection(COLLECTION_MESSAGES)
             listenerRegistration = chatMessagesCollectionReference
                 .orderBy(KEY_TIME)
