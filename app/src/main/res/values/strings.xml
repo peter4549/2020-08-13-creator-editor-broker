@@ -28,6 +28,7 @@
     <string name="signed_out">로그아웃되었습니다.</string>
     <string name="failed_to_store_profile_image">프로필 이미지 저장에 실패했습니다.</string>
     <string name="profile_stored">프로필이 저장되었습니다.</string>
+    <string name="profile_updated">프로필을 업데이트했습니다.</string>
     <string name="failed_to_store_profile">프로필 저장에 실패했습니다.</string>
     <string name="failed_to_generate_token_and_regenerated_upon_sign_in">토큰 생성에 실패했습니다.
         \n로그인시 다시 생성됩니다.</string>
@@ -193,5 +194,11 @@
     <string name="too_many_requests">너무 많은 요청으로 인증요청이 차단되었습니다. 잠시 후 다시 시도하십시오.</string>
     <string name="verification_code_mismatch">인증코드가 일치하지 않습니다.</string>
     <string name="verified">인증되었습니다.</string>
+
+    <!-- Profile -->
+    <string name="public_name_with_description">공개이름 (다른 유저들에게 보여질 이름입니다.)</string>
+    <string name="withdrawal">탈퇴</string>
+    <string name="type">타입</string>
+    <string name="category">카테고리</string>
 
 </resources>

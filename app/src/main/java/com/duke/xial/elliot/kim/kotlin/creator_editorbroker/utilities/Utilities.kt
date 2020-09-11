@@ -2,6 +2,7 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities
 
 import android.content.Context
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toast
 import com.bumptech.glide.Glide
@@ -15,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.*
 
 fun showToast(context: Context, text: String, duration: Int = Toast.LENGTH_LONG) {
@@ -78,4 +78,9 @@ fun disableViews(vararg views: View) {
 fun clearViewsFocus(vararg views: View) {
     for (view in views)
         view.clearFocus()
+}
+
+fun hideKeyboard(context: Context, view: View) {
+    val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+    inputMethodManager?.hideSoftInputFromWindow(view.windowToken, 0)
 }

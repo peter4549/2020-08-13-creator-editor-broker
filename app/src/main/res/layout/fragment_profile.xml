@@ -143,7 +143,7 @@
         app:fabSize="auto"
         app:layout_constraintBottom_toTopOf="@+id/fab_eject"
         app:layout_constraintEnd_toEndOf="@+id/fab_eject"
-        app:srcCompat="@drawable/ic_round_star_28" />
+        app:srcCompat="@drawable/ic_round_star_32" />
 
     <com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.MovableFloatingActionButton
         android:id="@+id/fab_chat"

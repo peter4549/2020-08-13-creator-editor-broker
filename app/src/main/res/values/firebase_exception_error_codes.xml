@@ -41,4 +41,6 @@
     <string name="wrong_password">잘못된 비밀번호입니다.</string>
 
     <string name="action_code_exception">만료되었거나 유효하지 않은 대역 외 코드입니다.</string>
+
+    <string name="timed_out">제한시간이 초과되었습니다.</string>
 </resources>

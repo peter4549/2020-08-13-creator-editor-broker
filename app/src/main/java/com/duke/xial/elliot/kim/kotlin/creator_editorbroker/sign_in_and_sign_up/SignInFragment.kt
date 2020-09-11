@@ -1,4 +1,4 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GOOGLE_SIGN_IN
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up.FirebaseExceptionHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException

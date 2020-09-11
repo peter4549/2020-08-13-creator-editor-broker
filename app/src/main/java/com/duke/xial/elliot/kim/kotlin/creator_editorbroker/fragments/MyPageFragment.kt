@@ -9,11 +9,16 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActiv
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_REGISTERED_ON_PARTNERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
 import kotlinx.android.synthetic.main.fragment_my_page.view.*
+import kotlinx.android.synthetic.main.fragment_my_page.view.image_view_profile
+import kotlinx.android.synthetic.main.fragment_my_page.view.text_view_public_name
+import kotlinx.android.synthetic.main.fragment_my_page.view.toolbar
 
 class MyPageFragment: Fragment() {
 
@@ -24,11 +29,18 @@ class MyPageFragment: Fragment() {
         val view = inflater.inflate(R.layout.fragment_my_page, container, false)
 
         initializeToolbar(view.toolbar)
-
+        if (MainActivity.currentUser?.profileImageUri != null &&
+            MainActivity.currentUser?.profileImageUri != "null" &&
+            MainActivity.currentUser?.profileImageUri?.isNotBlank() == true)
+            setImage(view.image_view_profile, MainActivity.currentUser?.profileImageUri)
         view.text_view_public_name.text = MainActivity.currentUser?.publicName
         view.text_view_user_type.text = MainActivity.userTypesMap[MainActivity.currentUser?.userType]
         view.text_view_categories.text =
             MainActivity.currentUser?.categories?.mapNotNull { MainActivity.categoriesMap[it] }?.joinToString()
+
+        view.text_view_profile.setOnClickListener {
+            (requireActivity() as MainActivity).startCreateProfileFragment()
+        }
 
         view.text_view_write_pr.setOnClickListener {
             (requireActivity() as MainActivity).startFragment(WritePrFragment(),

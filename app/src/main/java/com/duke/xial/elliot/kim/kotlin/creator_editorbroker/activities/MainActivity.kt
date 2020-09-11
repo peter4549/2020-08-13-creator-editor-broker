@@ -21,6 +21,8 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorH
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.*
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_PUSH_TOKEN
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.profiles.CreateProfileFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up.SignInFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.CallbackManager
 import com.google.android.material.tabs.TabLayout
@@ -353,7 +355,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createToken() { // 생성이 아닌 참조. 굳이 실행할 필요가 없다.
+    private fun createToken() { // 생성이 아닌 참조. 굳이 실행할 필요가 없다. 여기서는. 프러ㅗ필 생성시 하면 되고, 차후 변동은 리스너에서 처리.
         FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val pushToken = task.result?.token

@@ -18,6 +18,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel.Companion.KEY_FAVORITE_USER_IDS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.profiles.ProfileFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleDown
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.scaleUp
 import com.google.firebase.firestore.DocumentReference

@@ -1,12 +1,11 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.profiles
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
@@ -20,21 +19,26 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GALLERY
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Storage.COLLECTION_PROFILE_IMAGES
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_enter_user_information.*
+import kotlinx.android.synthetic.main.fragment_enter_user_information.edit_text_email
+import kotlinx.android.synthetic.main.fragment_enter_user_information.text_input_layout_email
 import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.lang.NullPointerException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateProfileFragment : Fragment() {
 
+    private lateinit var email: String
     private lateinit var publicName: String
     private var profileImageDeviceUri: Uri? = null
     private var profileImageDownloadUri: Uri? = null
@@ -45,7 +49,22 @@ class CreateProfileFragment : Fragment() {
             R.id.image_view_profile -> openGallery()
             R.id.button_register -> {
                 if (checkRequiredFields())
-                    storeData(profileImageDeviceUri)
+                    storeProfileImageAndUserProfile(profileImageDeviceUri)
+            }
+        }
+    }
+
+    private val onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        if (hasFocus) {
+            when (view) {
+                edit_text_email -> {
+                    text_input_layout_email.error = null
+                    text_input_layout_email.isErrorEnabled = false
+                }
+                edit_text_public_name -> {
+                    text_input_public_name.error = null
+                    text_input_public_name.isErrorEnabled = false
+                }
             }
         }
     }
@@ -55,11 +74,35 @@ class CreateProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_enter_user_information, container, false)
+        initializeToolbar(view.toolbar)
         initializeSpinners(view)
         view.image_view_profile.setOnClickListener(onClickListener)
         view.button_register.setOnClickListener(onClickListener)
 
+        view.edit_text_email.onFocusChangeListener = onFocusChangeListener
+        view.edit_text_public_name.onFocusChangeListener = onFocusChangeListener
+
+        if (MainActivity.currentUser != null)
+            displayExistingUserProfile(MainActivity.currentUser!!, view)
+
         return view
+    }
+
+    private fun initializeToolbar(toolbar: Toolbar) {
+        (requireActivity() as MainActivity).setSupportActionBar(toolbar)
+        (requireActivity() as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
+    }
+
+    private fun displayExistingUserProfile(user: UserModel, view: View) {
+        if (user.profileImageUri != null && user.profileImageUri != "null" &&
+            user.profileImageUri?.isNotBlank() == true)
+            setImage(view.image_view_profile, user.profileImageUri)
+        view.edit_text_public_name.setText(user.publicName)
+        view.spinner_user_type.setSelection(user.userType)
+        view.spinner_category_01.setSelection(user.categories[0])
+        view.spinner_category_02.setSelection(user.categories[1])
+        view.edit_text_email.setText(user.email)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -71,6 +114,18 @@ class CreateProfileFragment : Fragment() {
                     setProfileImage(data.data!!)
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> requireActivity().onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initializeSpinners(view: View) {
@@ -100,6 +155,8 @@ class CreateProfileFragment : Fragment() {
     private fun checkRequiredFields(): Boolean {
         if (edit_text_public_name.text.isBlank()) {
             showToast(requireContext(), getString(R.string.enter_public_name))
+            text_input_public_name.isErrorEnabled = true
+            text_input_public_name.error = getString(R.string.enter_public_name)
             return false
         }
 
@@ -113,7 +170,15 @@ class CreateProfileFragment : Fragment() {
             return false
         }
 
+        if (edit_text_email.text.isBlank()) {
+            showToast(requireContext(), getString(R.string.please_enter_your_email))
+            text_input_layout_email.isErrorEnabled = true
+            text_input_layout_email.error = getString(R.string.please_enter_your_email)
+            return false
+        }
+
         publicName = edit_text_public_name.text.toString()
+        email = edit_text_email.text.toString()
         selectedUserType = spinner_user_type.selectedItemPosition
         selectedCategories =
             setOf(spinner_category_01.selectedItemPosition, spinner_category_02.selectedItemPosition)
@@ -122,7 +187,7 @@ class CreateProfileFragment : Fragment() {
         return true
     }
 
-    private fun storeData(profileImageDeviceUri: Uri?) {
+    private fun storeProfileImageAndUserProfile(profileImageDeviceUri: Uri?) {
         val timestamp =
             SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(Date())
         val profileImageFileName = "$timestamp.png"
@@ -141,8 +206,18 @@ class CreateProfileFragment : Fragment() {
             null
             }
 
+        if(MainActivity.currentUser?.profileImageUri != null &&
+            MainActivity.currentUser?.profileImageUri != "") {
+            storageReference?.child(MainActivity.currentUser?.profileImageUri!!)?.delete()
+                ?.addOnSuccessListener {
+                    Timber.d("profile image deletion successful")
+                }?.addOnFailureListener {
+                    Timber.e(it)
+                }
+        }
+
         if (profileImageDeviceUri == null)
-            storeUserInformation(null)
+            storeUserProfileAfterGettingToken(null)
         else {
             storageReference?.putFile(profileImageDeviceUri)?.continueWithTask {
                 return@continueWithTask storageReference.downloadUrl
@@ -150,7 +225,7 @@ class CreateProfileFragment : Fragment() {
                 if (it.isSuccessful) {
                     profileImageDownloadUri = it.result
                     println("$TAG: profile image uploaded")
-                    storeUserInformation(profileImageDownloadUri)
+                    storeUserProfileAfterGettingToken(profileImageDownloadUri)
                 } else {
                     errorHandler.errorHandling(it.exception
                                 ?: Exception("failed to store profile image, it.exception is null"),
@@ -161,7 +236,7 @@ class CreateProfileFragment : Fragment() {
         }
     }
 
-    private fun storeUserInformation(profileImageDownloadUri: Uri?) {
+    private fun storeUserProfileAfterGettingToken(profileImageDownloadUri: Uri?) {
         val uid = (requireActivity() as MainActivity)
             .firebaseAuth.currentUser?.uid
 
@@ -171,47 +246,71 @@ class CreateProfileFragment : Fragment() {
             return
         }
 
-        val userInformation = createUserInformationModel(uid)
-        userInformation.profileImageUri = profileImageDownloadUri.toString()
+        val user = createUser(uid)
+        user.profileImageUri = profileImageDownloadUri.toString()
 
         CoroutineScope(Dispatchers.IO).launch {
             FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     task.result?.let { result ->
-                        userInformation.pushToken = result.token
-                        setUserInformationInDocument(userInformation)
+                        user.pushToken = result.token
+                        storeUserProfile(user)
                     } ?: run {
                         errorHandler.errorHandling(NullPointerException("failed to get token, task.result is null"),
                                 getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
-                        setUserInformationInDocument(userInformation)
+                        storeUserProfile(user)
                     }
                 } else {
                     task.exception?.let { e ->
                         errorHandler
                             .errorHandling(e, getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
-                        setUserInformationInDocument(userInformation)
+                        storeUserProfile(user)
                     } ?: run {
                         errorHandler.errorHandling(NullPointerException("failed to get token, task.exception is null"),
                                 getString(R.string.failed_to_generate_token_and_regenerated_upon_sign_in))
-                        setUserInformationInDocument(userInformation)
+                        storeUserProfile(user)
                     }
                 }
             }
         }
     }
 
-    private fun createUserInformationModel(uid: String) =
+    private fun createUser(uid: String) =
         UserModel(categories = selectedCategories,
+            email = email,
             publicName = publicName,
             uid = uid,
             userType = selectedUserType)
 
-    private fun setUserInformationInDocument(user: UserModel) {
+    private fun storeUserProfile(user: UserModel) {
         val documentReference = FirebaseFirestore.getInstance()
             .collection(COLLECTION_USERS).document(user.uid)
 
-        if (MainActivity.currentUser != null)
-            "프로필 업데이트"
+        if (MainActivity.currentUser != null) {
+            MainActivity.currentUser?.categories = selectedCategories
+            MainActivity.currentUser?.email = email
+            MainActivity.currentUser?.publicName = publicName
+            MainActivity.currentUser?.userType = selectedUserType
+
+            documentReference.update(mapOf(
+                UserModel.KEY_CATEGORIES to MainActivity.currentUser?.categories,
+                UserModel.KEY_EMAIL to MainActivity.currentUser?.email,
+                UserModel.KEY_PUBLIC_NAME to MainActivity.currentUser?.publicName,
+                UserModel.KEY_USER_TYPE to MainActivity.currentUser?.userType
+            )).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    showToast(requireContext(), getString(R.string.profile_updated))
+                    requireActivity().onBackPressed()
+                } else {
+                    task.exception?.let { e ->
+                        errorHandler.errorHandling(e, getString(R.string.failed_to_store_profile))
+                    } ?: run {
+                        errorHandler.errorHandling(NullPointerException("failed to store user information, task.exception is null"),
+                            getString(R.string.failed_to_store_profile))
+                    }
+                }
+            }
+        }
         else {
             documentReference.set(user).addOnCompleteListener { task ->
                 if (task.isSuccessful) {

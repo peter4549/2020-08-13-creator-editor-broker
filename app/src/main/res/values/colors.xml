@@ -5,27 +5,49 @@
     <color name="colorAccent">@color/colorSilver</color>
     <color name="colorControlHighlight">@color/colorCrushedIce</color>
 
+    <color name="colorDarkTextDisabled">@color/colorSilver</color>
+    <color name="colorDarkTextEnabled">@color/colorBlueGrey</color>
+    <color name="colorLightTextDisabled">@color/colorSilver</color>
+    <color name="colorLightTextEnabled">@color/colorDarkerGrey</color>
+
+    <color name="colorAccentButtonBackgroundDisabled">@color/colorDarkerGrey</color>
+    <color name="colorAccentButtonBackgroundEnabled">@color/colorBabyBlue</color>
+    <color name="colorButtonBackgroundDisabled">@color/colorSilver</color>
+    <color name="colorButtonBackgroundEnabled">@color/colorWhite</color>
+
+    <color name="colorAccentButtonTextDisabled">@color/colorWhite</color>
+    <color name="colorAccentButtonTextEnabled">@color/colorWhite</color>
+    <color name="colorButtonTextDisabled">@color/colorWhite</color>
+    <color name="colorButtonTextEnabled">@color/colorBlueGrey</color>
+
+    <color name="colorError">@color/colorFlame</color>
+
+    <color name="colorIconTint">@color/colorBabyBlue</color>
+
     <color name="colorDefaultBlack">#202020</color>
     <color name="colorDefaultBlue">@color/colorBabyBlue</color>
     <color name="colorDefaultText">@color/colorBlueGrey</color>
+    <color name="colorButtonDisabledText">#FEFEFE</color>
+    <color name="colorEditTextDisabledText">@color/colorSilver</color>
     <color name="colorAccentText">#FEFEFE</color>
-    <color name="colorLightGrey">#A0A0A0</color>
-    <color name="colorCrushedIce">#c4fff7</color>
-    <color name="colorCuriousBlue">#3d85b8</color>
-    <color name="colorSilver">#C0C0C0</color>
-    <color name="colorCornflower">#6593F5</color>
 
     <color name="colorBabyBlue">#89CFF0</color>
     <color name="colorLightBlue">#ADD8E6</color>
     <color name="colorFlame">#e25822</color>
     <color name="colorBlueGrey">#263238</color>
+    <color name="colorDarkerGrey">#A9A9A9</color>
+    <color name="colorSilver">#C0C0C0</color>
+    <color name="colorLightGrey">#D3D3D3</color>
+    <color name="colorCrushedIce">#C4FFF7</color>
+    <color name="colorWhite">#FEFEFE</color>
 
     <!-- Button -->
     <color name="colorAccentButtonBackground">@color/colorBabyBlue</color>
     <color name="colorDefaultButtonBackground">#FEFEFE</color>
 
     <!-- Edit Text -->
-    <color name="colorBoxStroke">@color/colorBabyBlue</color>
+    <color name="colorBoxStrokeEnabled">@color/colorBabyBlue</color>
+    <color name="colorBoxStrokeDisabled">@color/colorSilver</color>
 
     <!-- Background Colors -->
     <color name="colorEditTextBackground">#FEFEFE</color>
@@ -37,7 +59,7 @@
     <color name="colorTwitter">#1DA1F2</color>
 
     <!-- Tab Layout -->
-    <color name="colorTabIconSelected">@color/colorCuriousBlue</color>
+    <color name="colorTabIconSelected">@color/colorSilver</color>
 
     <!-- PageIndicatorView -->
     <color name="colorPageIndicatorViewSelected">#DFDFDF</color>

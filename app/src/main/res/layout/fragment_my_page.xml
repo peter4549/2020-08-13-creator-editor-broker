@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorFragmentBackground">
+    android:background="@color/colorFragmentBackground"
+    android:theme="@style/MaterialComponentsTheme">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -19,36 +20,68 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/my_page" />
 
+    <TextView
+        android:id="@+id/text_public_name_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/public_name"
+        android:textColor="@color/color_light_text"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/text_user_type_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/type"
+        android:textColor="@color/color_light_text"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+        app:layout_constraintStart_toStartOf="@+id/text_view_public_name"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_public_name" />
+
+    <TextView
+        android:id="@+id/text_categories_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/category"
+        android:textColor="@color/color_light_text"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/text_view_user_type"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_user_type" />
+
     <ImageView
         android:id="@+id/image_view_profile"
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:contentDescription="@string/profile"
+        app:layout_constraintBottom_toBottomOf="@+id/text_view_categories"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:srcCompat="@drawable/ic_round_account_circle_24"
-        android:contentDescription="@string/profile" />
+        app:layout_constraintTop_toTopOf="@+id/text_public_name_title"
+        app:srcCompat="@drawable/ic_round_account_circle_24" />
 
     <TextView
         android:id="@+id/text_view_public_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:gravity="center_vertical"
-        android:padding="8dp"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:padding="8dp"
         app:autoSizeMaxTextSize="16sp"
         app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toTopOf="@+id/text_view_user_type"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/image_view_profile"
-        app:layout_constraintTop_toTopOf="@+id/image_view_profile"
-        tools:text="Public Name"/>
+        app:layout_constraintStart_toStartOf="@+id/text_public_name_title"
+        app:layout_constraintTop_toBottomOf="@+id/text_public_name_title"
+        tools:text="Public Name" />
 
     <TextView
         android:id="@+id/text_view_user_type"
@@ -56,19 +89,19 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:gravity="center_vertical"
-        android:padding="8dp"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:padding="8dp"
         app:autoSizeMaxTextSize="16sp"
         app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toTopOf="@+id/text_view_categories"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/image_view_profile"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_public_name"
-        tools:text="User Type"/>
+        app:layout_constraintTop_toBottomOf="@+id/text_user_type_title"
+        tools:text="User Type" />
 
     <TextView
         android:id="@+id/text_view_categories"
@@ -76,46 +109,47 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:gravity="center_vertical"
-        android:padding="8dp"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:padding="8dp"
         app:autoSizeMaxTextSize="16sp"
         app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/image_view_profile"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/image_view_profile"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_user_type"
-        tools:text="Categories"/>
+        app:layout_constraintTop_toBottomOf="@+id/text_categories_title"
+        tools:text="Categories" />
 
     <TextView
         android:id="@+id/text_view_profile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:elevation="4dp"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="16dp"
-        android:text="@string/edit_profile"
-        android:textColor="@color/colorDefaultBlack"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true"
         android:drawablePadding="24dp"
-        app:autoSizeMaxTextSize="18sp"
-        app:autoSizeMinTextSize="16sp"
+        android:elevation="4dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp"
+        android:text="@string/edit_profile"
+        android:textColor="@color/colorDefaultBlack"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
+        app:drawableStartCompat="@drawable/ic_round_edit_28"
+        app:drawableTint="@color/colorIconTint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_view_profile"
-        app:drawableStartCompat="@drawable/ic_round_edit_28" />
+        app:layout_constraintTop_toBottomOf="@+id/text_view_categories" />
 
     <TextView
         android:id="@+id/text_view_write_pr"
@@ -123,24 +157,25 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:gravity="center_vertical"
-        android:paddingBottom="16dp"
+        android:paddingBottom="8dp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:text="@string/write_pr"
         android:textColor="@color/colorDefaultBlack"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:drawablePadding="24dp"
-        app:autoSizeMaxTextSize="18sp"
-        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_profile"
-        app:drawableStartCompat="@drawable/ic_round_list_alt_28"/>
+        app:drawableStartCompat="@drawable/ic_round_list_alt_28"
+        app:drawableTint="@color/colorIconTint"/>
 
     <TextView
         android:id="@+id/text_view_favorites"
@@ -148,24 +183,25 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:gravity="center_vertical"
-        android:paddingBottom="16dp"
+        android:paddingBottom="8dp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:text="@string/favorites"
         android:textColor="@color/colorDefaultBlack"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:drawablePadding="24dp"
-        app:autoSizeMaxTextSize="18sp"
-        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_write_pr"
-        app:drawableStartCompat="@drawable/ic_round_favorite_28"/>
+        app:drawableStartCompat="@drawable/ic_round_favorite_28"
+        app:drawableTint="@color/colorIconTint"/>
 
     <TextView
         android:id="@+id/text_view_my_stars"
@@ -173,24 +209,25 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:gravity="center_vertical"
-        android:paddingBottom="16dp"
+        android:paddingBottom="8dp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:text="@string/my_stars"
         android:textColor="@color/colorDefaultBlack"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:drawablePadding="24dp"
-        app:autoSizeMaxTextSize="18sp"
-        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="14sp"
         app:autoSizeStepGranularity="2sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_favorites"
-        app:drawableStartCompat="@drawable/ic_round_star_28"/>
+        app:drawableStartCompat="@drawable/ic_round_star_32"
+        app:drawableTint="@color/colorIconTint"/>
 
     <Button
         android:id="@+id/button_register_on_partners"
@@ -201,6 +238,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
