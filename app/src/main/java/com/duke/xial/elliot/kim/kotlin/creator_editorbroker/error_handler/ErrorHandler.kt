@@ -95,7 +95,7 @@ class ErrorHandler(private val context: Context) {
         println("message: ${error.message}")
         println("domain: ${error.errors?.get(0)?.domain}")
         println("reason: ${error.errors?.get(0)?.reason}")
-        println("statufs: ${error.status}")
+        println("status: ${error.status}")
     }
 
     private fun youtubePlayerExceptionHandling(e: YouTubePlayerException) {
@@ -103,10 +103,6 @@ class ErrorHandler(private val context: Context) {
         val text = when(e.reason) {
             YouTubePlayer.ErrorReason.AUTOPLAY_DISABLED ->
                 context.getString(R.string.youtube_player_error_reason_autoplay_disabled)
-            YouTubePlayer.ErrorReason.BLOCKED_FOR_APP ->
-                context.getString(R.string.youtube_player_error_reason_blocked_for_app)
-            YouTubePlayer.ErrorReason.EMBEDDING_DISABLED ->
-                context.getString(R.string.youtube_player_error_reason_embedding_disabled)
             YouTubePlayer.ErrorReason.EMPTY_PLAYLIST ->
                 context.getString(R.string.youtube_player_error_reason_empty_playlist)
             YouTubePlayer.ErrorReason.INTERNAL_ERROR ->

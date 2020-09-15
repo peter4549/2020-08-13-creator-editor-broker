@@ -14,6 +14,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutM
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_REGISTERED_ON_PARTNERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr.PrListFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange

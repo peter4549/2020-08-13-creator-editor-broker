@@ -6,7 +6,6 @@ import android.content.*
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,10 +24,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActiv
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_PLAYER
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ResponseFailureException
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.*
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2.YouTubeDataApi
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.gson.internal.LinkedTreeMap
 import kotlinx.android.synthetic.main.activity_youtube_channels.*
@@ -39,28 +35,35 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
 class YouTubeChannelsActivity: AppCompatActivity() {
 
     private var connection: CustomTabsServiceConnection? = null
     private lateinit var channelRecyclerViewAdapter: ChannelRecyclerViewAdapter
-    lateinit var errorHandler: ErrorHandler
     lateinit var youTubeDataApi: YouTubeDataApi
+    lateinit var youtubeExceptionHandler: YouTubeExceptionHandler
     var youtubeDataManager = YouTubeDataManager.getInstance()
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == CheckUrlService.ACTION_CORRECT_URL) {
                 val code = intent.getStringExtra(CheckUrlService.KEY_AUTHORIZATION_CODE) ?: CheckUrlService.INVALID_CODE
-                if (code == CheckUrlService.INVALID_CODE)
-                    errorHandler.errorHandling(Exception("failed to get authorization code"),
-                        getString(R.string.failed_to_authorization))
-                val selfIntent = Intent(this@YouTubeChannelsActivity, YouTubeChannelsActivity::class.java)
+                if (code == CheckUrlService.INVALID_CODE) {
+                    showToast(
+                        this@YouTubeChannelsActivity,
+                        getString(R.string.youtube_invalid_code)
+                    )
+                    Timber.e("failed to get authorization code")
+                } else {
+                    val selfIntent =
+                        Intent(this@YouTubeChannelsActivity, YouTubeChannelsActivity::class.java)
 
-                selfIntent.action = ACTION_NEW_INTENT
-                selfIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                selfIntent.putExtra(KEY_AUTHORIZATION_CODE, code)
-                startActivity(selfIntent)
+                    selfIntent.action = ACTION_NEW_INTENT
+                    selfIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    selfIntent.putExtra(KEY_AUTHORIZATION_CODE, code)
+                    startActivity(selfIntent)
+                }
             }
         }
     }
@@ -69,11 +72,8 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_youtube_channels)
 
-        errorHandler = ErrorHandler(this)
         youTubeDataApi = YouTubeDataApi(this)
-
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        youtubeExceptionHandler = YouTubeExceptionHandler(this)
 
         if (MainActivity.currentUser?.channelIds?.isEmpty()!!)
             text_view_empty.visibility = View.VISIBLE
@@ -82,12 +82,17 @@ class YouTubeChannelsActivity: AppCompatActivity() {
 
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboardManager.addPrimaryClipChangedListener {
-            // Guiding message.
+            showToast(this, "상단 툴바의 ✓를 클릭해주십시오.")
         }
 
         frame_layout_add_channel.setOnClickListener {
             bindCustomTabsService()
         }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            receiver,
+            IntentFilter(CheckUrlService.ACTION_CORRECT_URL)
+        )
 
         if (MainActivity.currentUser!!.channelIds.isNotEmpty()) {
             val joinedChannelIds =
@@ -95,7 +100,11 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             youTubeDataApi.getChannelsService().requestById(id = joinedChannelIds)
                 .enqueue(object : Callback<ChannelsItemsModel> {
                     override fun onFailure(call: Call<ChannelsItemsModel>, t: Throwable) {
-                        errorHandler.errorHandling(t, getString(R.string.failed_to_get_channels))
+                        showToast(
+                            this@YouTubeChannelsActivity,
+                            getString(R.string.failed_to_get_channels)
+                        )
+                        t.printStackTrace()
                         channelRecyclerViewAdapter = ChannelRecyclerViewAdapter(arrayListOf())
                         CoroutineScope(Dispatchers.Main).launch {
                             recycler_view_channels.apply {
@@ -116,8 +125,10 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                             val difference = MainActivity.currentUser!!.channelIds.count() -
                                     channelItems.count()
                             if (difference > 0)
-                                showToast(this@YouTubeChannelsActivity,
-                                    "$difference ${getString(R.string.n_channel_was_not_found)}")
+                                showToast(
+                                    this@YouTubeChannelsActivity,
+                                    "$difference ${getString(R.string.n_channel_was_not_found)}"
+                                )
 
                             val channels = response.body()?.items?.map {
                                 createChannelModel(it)
@@ -131,9 +142,13 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                                 }
                             }
                         } else {
-                            errorHandler
-                                .errorHandling(ResponseFailureException("failed to get channels",
-                                    response.errorBody()!!))
+                            youtubeExceptionHandler
+                                .youtubeDataApiExceptionHandling(
+                                    YouTubeExceptionHandler.YouTubeResponseFailureException(
+                                        "failed to get channels",
+                                        response.errorBody()!!
+                                    )
+                                )
                         }
                     }
                 })
@@ -166,19 +181,9 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         unbindCustomTabsService()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> onBackPressed()
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        when {
-            supportFragmentManager.findFragmentByTag(TAG_YOUTUBE_PLAYLISTS_FRAGMENT) != null -> super.onBackPressed()
-            else -> super.onBackPressed()
-        }
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -192,9 +197,13 @@ class YouTubeChannelsActivity: AppCompatActivity() {
 
     private fun getAccessTokenChannels(code: String) {
         youTubeDataApi.getAuthorizationService()
-            .requestAuthorization(code).enqueue(object: Callback<LinkedTreeMap<String, Any>> {
+            .requestAuthorization(code).enqueue(object : Callback<LinkedTreeMap<String, Any>> {
                 override fun onFailure(call: Call<LinkedTreeMap<String, Any>>, t: Throwable) {
-                    errorHandler.errorHandling(t, getString(R.string.failed_to_get_access_token))
+                    showToast(
+                        this@YouTubeChannelsActivity,
+                        getString(R.string.failed_to_get_access_token)
+                    )
+                    t.printStackTrace()
                 }
 
                 override fun onResponse(
@@ -207,8 +216,10 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                             responseBody["access_token"] as String
                         getChannels(accessToken)
                     } else {
-                        showToast(this@YouTubeChannelsActivity,
-                            getString(R.string.invalid_authorization_code))
+                        showToast(
+                            this@YouTubeChannelsActivity,
+                            getString(R.string.invalid_authorization_code)
+                        )
                     }
                 }
             })
@@ -216,9 +227,13 @@ class YouTubeChannelsActivity: AppCompatActivity() {
 
     private fun getChannels(accessToken: String) {
         youTubeDataApi.getChannelsService().requestByAccessToken("Bearer $accessToken")
-            .enqueue(object: Callback<ChannelsItemsModel>{
+            .enqueue(object : Callback<ChannelsItemsModel> {
                 override fun onFailure(call: Call<ChannelsItemsModel>, t: Throwable) {
-                    errorHandler.errorHandling(t, getString(R.string.failed_to_get_channels))
+                    showToast(
+                        this@YouTubeChannelsActivity,
+                        getString(R.string.failed_to_get_channels)
+                    )
+                    t.printStackTrace()
                 }
 
                 override fun onResponse(
@@ -229,33 +244,34 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                     if (responseBody != null) {
                         val channelItem = responseBody.items[0]
                         if (MainActivity.currentUser!!.channelIds.contains(channelItem.id))
-                            showToast(this@YouTubeChannelsActivity,
-                                getString(R.string.channel_is_already_registered))
+                            showToast(
+                                this@YouTubeChannelsActivity,
+                                getString(R.string.channel_is_already_registered)
+                            )
                         else {
                             MainActivity.currentUser!!.channelIds.add(channelItem.id)
                             channelRecyclerViewAdapter.insert(createChannelModel(channelItem))
                             MainActivity.ChangedData.channelIdsChanged = true
                         }
                     } else {
-                        errorHandler
-                            .errorHandling(ResponseFailureException("failed to get channels",
-                                response.errorBody()!!))
+                        youtubeExceptionHandler
+                            .youtubeDataApiExceptionHandling(
+                                YouTubeExceptionHandler.YouTubeResponseFailureException(
+                                    "failed to get channels",
+                                    response.errorBody()!!
+                                )
+                            )
                     }
                 }
             })
     }
 
     private fun createChannelModel(channelItem: ItemModel): ChannelModel {
-        return ChannelModel(id = channelItem.id,
+        return ChannelModel(
+            id = channelItem.id,
             title = channelItem.snippet.title,
-            thumbnailUri = channelItem.snippet.thumbnails.medium?.url ?:
-            channelItem.snippet.thumbnails.default.url)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,
-            IntentFilter(CheckUrlService.ACTION_CORRECT_URL)
+            thumbnailUri = channelItem.snippet.thumbnails.medium?.url
+                ?: channelItem.snippet.thumbnails.default.url
         )
     }
 
@@ -264,24 +280,40 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             return
 
         connection = object : CustomTabsServiceConnection() {
-            override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient
+            override fun onCustomTabsServiceConnected(
+                name: ComponentName, client: CustomTabsClient
             ) {
                 val builder = CustomTabsIntent.Builder()
-                val icon = BitmapFactory.decodeResource(resources, android.R.drawable.ic_btn_speak_now)
+                val icon = BitmapFactory.decodeResource(resources, R.drawable.ic_check_mark_48px)
                 val title = getString(R.string.complete)
 
-                builder.setToolbarColor(ContextCompat.getColor(applicationContext, R.color.colorFragmentBackground))
+                builder.setToolbarColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.colorFragmentBackground
+                    )
+                )
                 builder.setActionButton(icon, title, createPendingIntent(), true)
-                builder.setExitAnimations(applicationContext, R.anim.anim_slide_in_left, R.anim.anim_slide_out_left)
-                builder.setStartAnimations(applicationContext, R.anim.anim_slide_in_right, R.anim.anim_slide_out_right)
+                builder.setExitAnimations(
+                    applicationContext,
+                    R.anim.anim_slide_in_right,
+                    R.anim.anim_slide_out_right
+                )
+                builder.setStartAnimations(
+                    applicationContext,
+                    R.anim.anim_slide_in_left,
+                    R.anim.anim_slide_out_left
+                )
 
                 val customTabsIntent = builder.build()
                 customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 customTabsIntent.intent.setPackage(CUSTOM_TAB_PACKAGE_NAME)
-                customTabsIntent.launchUrl(this@YouTubeChannelsActivity, Uri.parse(
-                    youTubeDataApi.getGoogleAuthorizationServerUrl()
-                ))
+                customTabsIntent.launchUrl(
+                    this@YouTubeChannelsActivity, Uri.parse(
+                        youTubeDataApi.getGoogleAuthorizationServerUrl()
+                    )
+                )
             }
 
             override fun onServiceDisconnected(componentName: ComponentName?) {
@@ -289,15 +321,19 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             }
         }
 
-        if (CustomTabsClient.bindCustomTabsService(this,
-                CUSTOM_TAB_PACKAGE_NAME, connection!!))
+        if (CustomTabsClient.bindCustomTabsService(
+                this,
+                CUSTOM_TAB_PACKAGE_NAME, connection!!
+            ))
             println("$TAG: custom tabs service connected")
-        else
-            errorHandler.errorHandling(Exception("failed to connect custom tabs service"),
-                getString(R.string.failed_to_connect_authorization_service))
+        else {
+            showToast(this, getString(R.string.failed_to_connect_authorization_service))
+            Timber.e("failed to connect custom tabs service")
+        }
     }
 
     private fun createPendingIntent() : PendingIntent {
+        stopService(Intent(this, CheckUrlService::class.java))
         val intent = Intent(this, CheckUrlService::class.java)
         return PendingIntent.getService(this, 0, intent, 0)
     }
@@ -321,8 +357,10 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             showToast(this, getString(R.string.only_videos_from_my_channel_can_be_registered))
     }
 
-    inner class ChannelRecyclerViewAdapter(private val channels: ArrayList<ChannelModel>,
-                                           layoutId: Int = R.layout.item_view_channel)
+    inner class ChannelRecyclerViewAdapter(
+        private val channels: ArrayList<ChannelModel>,
+        layoutId: Int = R.layout.item_view_channel
+    )
         : BaseRecyclerViewAdapter<ChannelModel>(layoutId, channels)  {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -333,6 +371,7 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             holder.view.setOnClickListener {
                 if (youtubeDataManager.playlistsInUse.keys.contains(channel.id)) {
                     startPlaylistsFragment(YouTubePlaylistsFragment().apply {
+                        setChannelId(channel.id)
                         setNextPageToken(youtubeDataManager.nextPageTokensOfPlaylists[channel.id])
                         setPlaylists(youtubeDataManager.playlistsInUse[channel.id])
                     })
@@ -359,7 +398,11 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                     .requestByChannelId(channelId = channelId)
                     .enqueue(object : Callback<PlaylistsModel> {
                         override fun onFailure(call: Call<PlaylistsModel>, t: Throwable) {
-                            errorHandler.errorHandling(t, getString(R.string.failed_to_get_playlists))
+                            showToast(
+                                this@YouTubeChannelsActivity,
+                                getString(R.string.failed_to_get_playlists)
+                            )
+                            t.printStackTrace()
                         }
 
                         override fun onResponse(
@@ -373,20 +416,28 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                                     playlists.items.map { createPlayListModel(it) } as ArrayList<PlaylistDataModel>
                                 val youtubePlaylistsFragment =
                                     YouTubePlaylistsFragment().apply {
+                                        setChannelId(channelId)
                                         setNextPageToken(nextPageToken)
                                         setPlaylists(playlistDataList)
                                     }
 
-                                youtubeDataManager.registerNextPageTokenAndPlaylists(channelId,
-                                    nextPageToken, playlistDataList)
+                                youtubeDataManager.registerNextPageTokenAndPlaylists(
+                                    channelId,
+                                    nextPageToken, playlistDataList
+                                )
                                 CoroutineScope(Dispatchers.Main).launch {
                                     startPlaylistsFragment(youtubePlaylistsFragment)
                                 }
-                            } else
-                                errorHandler
-                                    .errorHandling(ResponseFailureException("failed to get playlists",
-                                        response.errorBody()!!),
-                                    getString(R.string.failed_to_get_playlists))
+                            } else {
+                                youtubeExceptionHandler
+                                    .youtubeDataApiExceptionHandling(
+                                        YouTubeExceptionHandler.YouTubeResponseFailureException(
+                                            "failed to get playlists",
+                                            response.errorBody()!!
+                                        ),
+                                        getString(R.string.failed_to_get_playlists)
+                                    )
+                            }
                         }
                     })
         }
@@ -396,7 +447,9 @@ class YouTubeChannelsActivity: AppCompatActivity() {
             id = item.id,
             title = item.snippet.title,
             description = item.snippet.description,
-            thumbnailUri = item.snippet.thumbnails.standard?.url ?: item.snippet.thumbnails.default.url)
+            thumbnailUri = item.snippet.thumbnails.standard?.url
+                ?: item.snippet.thumbnails.default.url
+        )
 
         private fun startPlaylistsFragment(playlistsFragment: YouTubePlaylistsFragment) {
             supportFragmentManager.beginTransaction()
@@ -406,9 +459,10 @@ class YouTubeChannelsActivity: AppCompatActivity() {
                     R.anim.anim_slide_out_left_wihtout_fading,
                     R.anim.anim_slide_in_right_without_fading,
                     R.anim.anim_slide_out_right_without_fading
-                ).replace(R.id.constraint_layout_activity_youtube_channels,
-                    playlistsFragment, TAG_YOUTUBE_PLAYLISTS_FRAGMENT)
-                .commit()
+                ).replace(
+                    R.id.constraint_layout_activity_youtube_channels,
+                    playlistsFragment, TAG_YOUTUBE_PLAYLISTS_FRAGMENT
+                ).commit()
         }
     }
 
@@ -416,8 +470,9 @@ class YouTubeChannelsActivity: AppCompatActivity() {
         const val ACTION_NEW_INTENT = "youtube.channels.activity.action.new.intent"
         const val KEY_AUTHORIZATION_CODE = "key_authorization_code"
         const val KEY_VIDEO_DATA = "key_video_data"
+        const val TAG_YOUTUBE_PLAYLISTS_FRAGMENT = "tag_youtube_playlists_fragment"
+        const val TAG_YOUTUBE_VIDEOS_FRAGMENT = "tag_youtube_videos_fragment"
         private const val CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome"
         private const val TAG = "YouTubeChannelsActivity"
-        private const val TAG_YOUTUBE_PLAYLISTS_FRAGMENT = "tag_youtube_playlists_fragment"
     }
 }

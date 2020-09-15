@@ -3,6 +3,7 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.View
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
@@ -29,7 +30,10 @@ class YouTubePlayerActivity : YouTubeBaseActivity() {
         video = intent.getSerializableExtra(KEY_VIDEO_DATA) as VideoDataModel
 
         text_view_title.text = video.title
+        text_view_view_count.text = video.viewCount
+        text_view_published_at.text = video.publishedAt
         text_view_description.text = video.description
+
         if (intent.getBooleanExtra(KEY_FROM_WRITE_PR_FRAGMENT, false))
             button_register.setOnClickListener {
                 val intent = Intent()

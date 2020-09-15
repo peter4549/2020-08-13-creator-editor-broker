@@ -73,6 +73,7 @@ data class PrModel(var categories: MutableList<Int>,
     companion object {
         const val KEY_FAVORITE_USER_IDS = "favoriteUserIds"
         const val KEY_PUBLISHER = "publisher"
+        const val KEY_TARGET = "target"
     }
 }
 

@@ -1,13 +1,13 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.Spinner
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,9 +25,11 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdap
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_CHANNELS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.Tier
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.getCurrentTime
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.getProgressDialog
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.hashString
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube.YouTubeChannelsActivity
@@ -45,7 +47,22 @@ import kotlinx.coroutines.launch
 class WritePrFragment: Fragment() {
 
     private lateinit var imageRecyclerViewAdapter: ImageRecyclerViewAdapter
+    private lateinit var progressDialog: AlertDialog
     private lateinit var targets: Array<String>
+    private val onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        if (hasFocus) {
+            when (view) {
+                edit_text_title -> {
+                    text_input_title.error = null
+                    text_input_title.isErrorEnabled = false
+                }
+                edit_text_description -> {
+                    text_input_description.error = null
+                    text_input_description.isErrorEnabled = false
+                }
+            }
+        }
+    }
     private var selectedImageViewPosition = 0
 
     override fun onCreateView(
@@ -54,8 +71,14 @@ class WritePrFragment: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_write_pr, container, false)
 
+        initializeToolbar(view.toolbar)
         initializeSpinner(view.spinner_target)
         initializeImageRecyclerView(view.recycler_view)
+
+        progressDialog = getProgressDialog(requireContext())
+
+        view.edit_text_title.onFocusChangeListener = onFocusChangeListener
+        view.edit_text_description.onFocusChangeListener = onFocusChangeListener
 
         view.button_register.setOnClickListener {
             registerPr()
@@ -77,6 +100,24 @@ class WritePrFragment: Fragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            android.R.id.home -> requireActivity().onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun initializeToolbar(toolbar: Toolbar) {
+        (requireActivity() as MainActivity).setSupportActionBar(toolbar)
+        (requireActivity() as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
     }
 
     private fun initializeSpinner(spinner: Spinner) {
@@ -110,10 +151,14 @@ class WritePrFragment: Fragment() {
         when {
             title.isBlank() -> {
                 showToast(requireContext(), getString(R.string.please_enter_title))
+                text_input_title.isErrorEnabled = true
+                text_input_title.error = getString(R.string.please_enter_title)
                 return
             }
             description.isBlank() -> {
                 showToast(requireContext(), getString(R.string.please_enter_description))
+                text_input_description.isErrorEnabled = true
+                text_input_description.error = getString(R.string.please_enter_description)
                 return
             }
             target == 0 -> {
@@ -121,6 +166,9 @@ class WritePrFragment: Fragment() {
                 return
             }
         }
+
+        button_register.isEnabled = false
+        progressDialog.show()
 
         CoroutineScope(Dispatchers.IO).launch {
             val userInformation = MainActivity.currentUser!!
@@ -140,35 +188,37 @@ class WritePrFragment: Fragment() {
                 publisher = userInformation
             )
 
-            if (userInformation.myPrIds.count() < 1)
-                setPrToFireStore(pr)
+            if (userInformation.myPrIds.count() < 10) // for test
+                setPr(pr)
             else
                 showToast(requireContext(), "기본회원은 1개만 가능.")
                 // updatePrToFireStore(pr)
         }
     }
 
-    private fun setPrToFireStore(pr: PrModel) {
+    private fun setPr(pr: PrModel) {
         FirebaseFirestore.getInstance()
             .collection(COLLECTION_PR_LIST)
             .document(pr.id)
             .set(pr)
             .addOnCompleteListener { task ->
+                progressDialog.dismiss()
                 if (task.isSuccessful) {
                     showToast(requireContext(), "PR이 등록되었습니다.1")
                     clearUi()
                     MainActivity.currentUser!!.myPrIds.add(pr.id)
                     MainActivity.ChangedData.prListChanged = true
                     //button_upload.isEnabled = true
+                    requireActivity().onBackPressed()
                 }
                 else {
                     errorHandler.errorHandling(task.exception!!, "PR을 등록하지 못했습니다.")
-                    //button_upload.isEnabled = true
+                    button_register.isEnabled = true
                 }
             }
     }
 
-    private fun updatePrToFireStore(pr: PrModel) {
+    private fun updatePr(pr: PrModel) {
         FirebaseFirestore.getInstance()
             .collection(COLLECTION_PR_LIST)
             .document(pr.id)
@@ -192,6 +242,12 @@ class WritePrFragment: Fragment() {
                                          layoutId: Int = R.layout.item_view_image)
         : BaseRecyclerViewAdapter<VideoDataModel?>(layoutId, videos) {
 
+        private val maxWorkCount =
+            if (MainActivity.currentUser?.tier == Tier.PREMIUM)
+                2
+            else
+                4
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             super.onBindViewHolder(holder, position)
             val video = videos[position]
@@ -199,10 +255,14 @@ class WritePrFragment: Fragment() {
                 setThumbnail(holder.view.image_view_thumbnail, video.thumbnailUri)
 
             holder.view.image_view_thumbnail.setOnClickListener {
-                selectedImageViewPosition = position
-                // selectedImageView = it as ImageView
-                // VideoOptionDialogFragment().show(requireFragmentManager(), TAG)
-                startYouTubeChannelsActivity()
+                if (items.count() < maxWorkCount) {
+                    selectedImageViewPosition = position
+                    // selectedImageView = it as ImageView
+                    // VideoOptionDialogFragment().show(requireFragmentManager(), TAG)
+                    startYouTubeChannelsActivity()
+                } else {
+                    showToast(requireContext(), "작품은 세 개 까지 등록하실 수 있습니다.")
+                }
             }
         }
 
@@ -230,9 +290,11 @@ class WritePrFragment: Fragment() {
 
         fun update(position: Int, item: VideoDataModel) {
             super.update(position, item)
-            insert(null, position + 1)
-            recyclerView.scheduleLayoutAnimation()
-            notifyItemInserted(position + 1)
+            if (itemCount < maxWorkCount - 1) {
+                insert(null, position + 1)
+                recyclerView.scheduleLayoutAnimation()
+                notifyItemInserted(position + 1)
+            }
         }
     }
 

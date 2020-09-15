@@ -1,10 +1,12 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ImageView
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -16,14 +18,13 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.BaseRecyclerViewAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutManagerWrapper
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.SpinnerAdapter
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_PR_LIST
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.UserType.CREATOR
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.toLocalTimeString
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -35,21 +36,42 @@ import org.json.JSONObject
 class PrListFragment : Fragment() {
 
     private lateinit var listenerRegistration: ListenerRegistration
+    private lateinit var prListRecyclerViewAdapter: PrListRecyclerViewAdapter
     @Suppress("SpellCheckingInspection")
     private val gson = GsonBuilder().create()
+    private val targets: Array<String?> = arrayOfNulls(2)
+    private var selectedTarget = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_pr_list, container, false)
+        targets[0] = getString(R.string.pr_list_find_creator)
+        targets[1] = getString(R.string.pr_list_find_editor)
+        initializeSpinners(view.spinner_target, targets.filterNotNull().toTypedArray())
+        prListRecyclerViewAdapter = PrListRecyclerViewAdapter(R.layout.item_view_pr)
         initRecyclerView(view.recycler_view_pr_list)
         return view
     }
 
+
+
+    private fun initializeSpinners(spinner: Spinner, array: Array<String>) {
+        spinner.adapter = SpinnerAdapter(requireContext(), array)
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                selectedTarget = position
+                prListRecyclerViewAdapter.registerPrListSnapshotListener()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {  }
+        }
+    }
+
     private fun initRecyclerView(recyclerView: RecyclerView) {
         recyclerView.apply {
-            adapter = PrListRecyclerViewAdapter(R.layout.item_view_pr)
+            adapter = prListRecyclerViewAdapter
             layoutManager = GridLayoutManagerWrapper(requireContext(), 1)
         }
     }
@@ -57,20 +79,24 @@ class PrListFragment : Fragment() {
     inner class PrListRecyclerViewAdapter(layoutId: Int)
         : BaseRecyclerViewAdapter<PrModel>(layoutId) {
 
-        private val collectionReference: CollectionReference =
-            FirebaseFirestore.getInstance().collection(COLLECTION_PR_LIST)
+        private val collectionReference = FirebaseFirestore.getInstance()
+            .collection(COLLECTION_PR_LIST)
 
-        init {
-            setPrListSnapshotListener()
-        }
+        fun registerPrListSnapshotListener() {
+            if (::listenerRegistration.isInitialized)
+                listenerRegistration.remove()
 
-        private fun setPrListSnapshotListener() {
-            listenerRegistration = collectionReference.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-                if (firebaseFirestoreException != null)
-                    println("$TAG: $firebaseFirestoreException")
+            items.clear()
+            notifyDataSetChanged()
+
+            listenerRegistration = collectionReference
+                .whereEqualTo(PrModel.KEY_TARGET, selectedTarget + 1)
+                .addSnapshotListener { documentSnapshot, fireStoreException ->
+                if (fireStoreException != null)
+                    println("$TAG: $fireStoreException")
                 else {
                     for (change in documentSnapshot!!.documentChanges) {
-                        showToast(requireContext(), "IAMPRLISTINTHEHOLE")
+                        showToast(requireContext(), "I AM PR LISTIN THE HOLE")
                         when (change.type) {
                             DocumentChange.Type.ADDED -> this.insert(mapToPrModel(change.document.data))
                             DocumentChange.Type.MODIFIED -> this.findMessageAndUpdate(mapToPrModel(change.document.data))
@@ -78,6 +104,7 @@ class PrListFragment : Fragment() {
                             else -> { println("$TAG: unexpected DocumentChange Type") }
                         }
                     }
+                    notifyDataSetChanged()
                 }
             }
         }
@@ -91,20 +118,6 @@ class PrListFragment : Fragment() {
 
             items[position] = prModel
             notifyItemChanged(position)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun insertPrArrayList(map: MutableMap<String?, Any?>) {
-            items.addAll(0, (map[PR_LIST] as ArrayList<Map<*, *>>).map { mapToPrModel(it) })
-            recyclerView.scheduleLayoutAnimation()
-            notifyDataSetChanged()
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun removePrArrayList(map: MutableMap<String?, Any?>) {
-            items.removeAll((map[PR_LIST] as ArrayList<Map<*, *>>).map { mapToPrModel(it) })
-            recyclerView.scheduleLayoutAnimation()
-            notifyDataSetChanged()
         }
 
         private fun mapToPrModel(map: Map<*, *>) =
@@ -123,18 +136,19 @@ class PrListFragment : Fragment() {
             }
 
             val comments = pr.comments.filter { it.uid != pr.publisherId }
-            val replies = pr.comments.filter { it.uid == pr.publisherId } // 필요없을듯.
 
             holder.view.text_view_title.text = pr.title
-            holder.view.text_view_public_name.text = pr.publisherPublicName
+            // holder.view.text_view_public_name.text = pr.publisherPublicName
             holder.view.text_view_target.text = targetText
             holder.view.text_view_published_time.text = pr.registrationTime.toLocalTimeString()
+            holder.view.text_view_categories.text = pr.categories.mapNotNull { MainActivity.categoriesMap[it] }.joinToString()
             holder.view.text_view_comments.text = comments.count().toString()
             holder.view.text_view_favorites.text = pr.favoriteUserIds.count().toString()
             holder.view.text_view_stars.text = pr.stars.toString()
 
             holder.view.setOnClickListener {
-                (requireActivity() as MainActivity).startFragment(PrFragment(pr),
+                (requireActivity() as MainActivity).startFragment(
+                    PrFragment(pr),
                     R.id.frame_layout_activity_main,
                     MainActivity.TAG_PR_FRAGMENT,
                     VERTICAL)

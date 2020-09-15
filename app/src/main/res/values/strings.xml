@@ -82,20 +82,6 @@
 
     <string name="complete">완료</string>
     <string name="failed_to_authorization">인증에 실패했습니다.</string>
-    <string name="failed_to_connect_authorization_service">인증 서비스 연결에 실패했습니다.</string>
-    <string name="failed_to_get_videos">비디오를 불러오는데 실패했습니다.</string>
-
-    <string name="failed_to_get_access_token">액세스 토큰을 얻는데 실패했습니다.</string>
-    <string name="failed_to_get_channels">채널을 가져오는데 실패했습니다.</string>
-    <string name="failed_to_get_playlists">플레이리스트를 가져오는데 실패했습니다.</string>
-    <string name="channel_thumbnail">Channel Thumbnail</string>
-    <string name="playlists">플레이리스트</string>
-    <string name="all_videos">모든 비디오</string>
-    <string name="n_channel_was_not_found">개의 채널을 찾지 못했습니다.</string>
-    <string name="channel_is_already_registered">이미 등록된 채널입니다.</string>
-    <string name="invalid_authorization_code">유효하지 않은 인증 코드입니다.</string>
-    <string name="videos">비디오</string>
-    <string name="there_are_no_registered_videos">등록된 비디오가 없습니다.</string>
     <string name="settings">설정</string>
     <string name="sign_out">로그아웃</string>
     <string name="please_enter_your_email">이메일을 입력해주세요.</string>
@@ -110,7 +96,7 @@
     <string name="invalid_request">유효하지 않은 요청입니다. 전화번호를 확인해주세요.</string>
     <string name="verification_failed">인증에 실패했습니다.</string>
     <string name="please_enter_phone_number">전화번호를 입력하세요.</string>
-    <string name="please_enter_verification_code">인증코드를 입력하세요.</string>
+    <string name="please_enter_verification_code">인증 코드를 입력하세요.</string>
 
     <string name="password_too_weak">너무 약한 비밀번호입니다.</string>
     <string name="email_already_signed_up">이미 가입된 이메일입니다.</string>
@@ -122,21 +108,6 @@
     <string name="add_to_my_works">내 작품에 추가</string>
     <string name="please_try_again">다시 시도 해주세요.</string>
     <string name="failed_to_initialize_player">플레이어를 초기화하지 못했습니다.</string>
-
-    <!-- YouTube Player Error Reason -->
-    <string name="youtube_player_error_reason_autoplay_disabled">autoplay 제한으로 인해 플레이어가 재생목록의 다음 동영상으로 자동으로 이동하지 않았습니다.</string>
-    <string name="youtube_player_error_reason_blocked_for_app">콘텐츠 소유자가 이 앱에서 동영상 퍼가기를 차단했기 때문에 현재 동영상을 로드하지 못했습니다.</string>
-    <string name="youtube_player_error_reason_embedding_disabled">콘텐츠 소유자가 이 동영상의 퍼가기를 허용하지 않기 때문에 현재 동영상을 로드하지 못했습니다.</string>
-    <string name="youtube_player_error_reason_empty_playlist">로드된 재생목록에 동영상이 포함되어 있지 않아 재생을 시작하지 못했습니다.</string>
-    <string name="youtube_player_error_reason_internal_error">내부 오류로 인해 현재 동영상을 로드하지 못했습니다.</string>
-    <string name="youtube_player_error_reason_network_error">네트워크 요청 실패로 인해 오류가 발생했습니다.</string>
-    <string name="youtube_player_error_reason_not_playable">현재 동영상이 재생 가능한 상태가 아니기 때문에 동영상을 로드하지 못했습니다.</string>
-    <string name="youtube_player_error_reason_player_view_too_small">플레이어의 뷰가 너무 작아 재생이 중지되었습니다.</string>
-    <string name="youtube_player_error_reason_unauthorized_overlay">플레이어에 뷰가 오버레이되어 재생이 중지되었습니다.</string>
-    <string name="youtube_player_error_reason_unexpected_service_disconnection">YouTube API 서비스와의 예상치 못한 연결 해제로 인해 재생이 취소되고 플레이어가 해제되었습니다.</string>
-    <string name="youtube_player_error_reason_unknown">오류의 원인을 알 수 없습니다.</string>
-    <string name="youtube_player_error_reason_user_declined_high_bandwidth">사용자가 고대역폭 스트림의 재생 허용을 거부했기 때문에 재생이 취소되었습니다.</string>
-    <string name="youtube_player_error_reason_user_declined_restricted_content">제한된 콘텐츠의 재생이 거부되었기 때문에 재생이 취소되었습니다.</string>
 
     <string name="unknown_error_has_occurred">알 수 없는 오류가 발생했습니다.</string>
 
@@ -192,7 +163,7 @@
     <string name="resend">재전송</string>
     <string name="send_verification_code">인증번호 발송</string>
     <string name="too_many_requests">너무 많은 요청으로 인증요청이 차단되었습니다. 잠시 후 다시 시도하십시오.</string>
-    <string name="verification_code_mismatch">인증코드가 일치하지 않습니다.</string>
+    <string name="verification_code_mismatch">인증 코드가 일치하지 않습니다.</string>
     <string name="verified">인증되었습니다.</string>
 
     <!-- Profile -->
@@ -200,5 +171,7 @@
     <string name="withdrawal">탈퇴</string>
     <string name="type">타입</string>
     <string name="category">카테고리</string>
+    <string name="etc">기타</string>
+    <string name="pr_hint">PR, 경력사항 등</string>
 
 </resources>

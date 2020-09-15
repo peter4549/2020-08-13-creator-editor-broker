@@ -38,9 +38,10 @@ open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
             isClickable = false
             isFocusable = false
             gravity = Gravity.CENTER
-            setPadding(8, 16, 8, 16)
+            maxLines = 2
+            setPadding(8, 24, 8, 24)
             setText(text)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 24F)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         }
 
         linearLayout.addView(textViewTitle, 0)
@@ -62,10 +63,10 @@ open class BaseDialogFragment: DialogFragment(), DynamicChildViewDialog {
             isFocusable = true
             setBackgroundResource(typedValue.resourceId)
             gravity = Gravity.CENTER
-            setPadding(8, 16, 8, 16)
+            setPadding(16, 16, 16, 16)
             setTag(tag)
             setText(text)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
             setOnClickListener(onClickListener)
             if (drawableResourceId != null)
                 setCompoundDrawablesWithIntrinsicBounds(drawableResourceId, 0, 0, 0)

@@ -3,10 +3,11 @@ package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 
-class CustomTabsReceiver : BroadcastReceiver() { // 딱히 필요없어보임??
+class CustomTabsReceiver : BroadcastReceiver() { // 딱히 필요없어보임?? 더 보류./// 레알 필요없어 보인다. 오우수ㅏㅔㅅ;
     override fun onReceive(context: Context?, intent: Intent?) {
         val url = intent?.dataString!!
 
@@ -17,7 +18,8 @@ class CustomTabsReceiver : BroadcastReceiver() { // 딱히 필요없어보임??
             context?.startActivity(approvalCodeIntent)
         } else {
             context?.let {
-                showToast(context, "인증 코드가 표시된 페이지에서 클릭하십시오.")
+                // showToast(context, context.getString(R.string.click_on_the_page_where_the_verification_code_is_displayed))
+                showToast(context, "AAAAAA")
             }
         }
     }

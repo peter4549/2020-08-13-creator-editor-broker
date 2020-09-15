@@ -7,6 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <FrameLayout
+        android:id="@+id/frame_layout_activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="0dp"
@@ -26,18 +36,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:tabIconTint="@color/selector_tab_layout"
-        app:tabIndicatorColor="@color/colorCrushedIce"
-        app:tabTextColor="@color/selector_tab_layout"/>
-
-    <FrameLayout
-        android:id="@+id/frame_layout_activity_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:tabIconTint="@color/color_tab_layout"
+        app:tabIndicatorColor="@color/colorTabIconSelected"
+        app:tabTextColor="@color/color_tab_layout"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

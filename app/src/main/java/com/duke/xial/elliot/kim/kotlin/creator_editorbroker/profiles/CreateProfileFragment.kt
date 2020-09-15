@@ -24,10 +24,10 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.fragment_enter_user_information.*
-import kotlinx.android.synthetic.main.fragment_enter_user_information.edit_text_email
-import kotlinx.android.synthetic.main.fragment_enter_user_information.text_input_layout_email
-import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
+import kotlinx.android.synthetic.main.fragment_create_profile.*
+import kotlinx.android.synthetic.main.fragment_create_profile.edit_text_email
+import kotlinx.android.synthetic.main.fragment_create_profile.text_input_layout_email
+import kotlinx.android.synthetic.main.fragment_create_profile.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,7 +73,7 @@ class CreateProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_enter_user_information, container, false)
+        val view = inflater.inflate(R.layout.fragment_create_profile, container, false)
         initializeToolbar(view.toolbar)
         initializeSpinners(view)
         view.image_view_profile.setOnClickListener(onClickListener)

@@ -37,6 +37,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
 class ChatFragment(private val targetUser: UserModel? = null,
                    private val existingChatRoomId: String? = null): Fragment() {
@@ -302,15 +303,17 @@ class ChatFragment(private val targetUser: UserModel? = null,
         chatRoomCollectionReference
 
         // Update unread count
-        currentChatRoom.unreadCounter[user.uid] = 0L
-        chatRoomCollectionReference.document(currentChatRoom.roomId)
-            .update(mapOf(KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
-            .addOnSuccessListener {
-                println("$TAG: unread count updated")
-            }
-            .addOnFailureListener {
-                errorHandling(it)
-            }
+        if (::currentChatRoom.isInitialized) {
+            currentChatRoom.unreadCounter[user.uid] = 0L
+            chatRoomCollectionReference.document(currentChatRoom.roomId)
+                .update(mapOf(KEY_UNREAD_COUNTER to currentChatRoom.unreadCounter))
+                .addOnSuccessListener {
+                    Timber.d("unread count updated")
+                }
+                .addOnFailureListener {
+                    errorHandling(it)
+                }
+        }
 
         if (::listenerRegistration.isInitialized)
             listenerRegistration.remove()

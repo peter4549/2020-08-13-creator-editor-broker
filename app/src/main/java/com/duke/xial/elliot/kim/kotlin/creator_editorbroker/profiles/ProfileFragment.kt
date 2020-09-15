@@ -18,7 +18,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.adapters.GridLayoutM
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_PR_LIST
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_YOUTUBE_CHANNELS
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.WritePrFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr.WritePrFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.VideoDataModel

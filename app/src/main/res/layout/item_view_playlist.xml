@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,33 +27,36 @@
             android:id="@+id/text_view_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
             android:gravity="center_vertical"
+            android:maxLines="1"
             android:padding="8dp"
-            android:textSize="20sp"
+            android:textColor="@color/color_dark_text"
+            android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/text_view_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
-            app:layout_constraintTop_toTopOf="@+id/image_view_thumbnail" />
+            app:layout_constraintTop_toTopOf="@+id/image_view_thumbnail"
+            tools:text="Playlist Title"/>
 
         <TextView
             android:id="@+id/text_view_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:padding="8dp"
-            android:textSize="14sp"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.1"
+            android:maxLines="2"
+            android:paddingBottom="8dp"
+            android:textColor="@color/color_light_text"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/image_view_thumbnail"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/text_view_title"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
+            app:layout_constraintStart_toStartOf="@+id/text_view_title"
             app:layout_constraintTop_toBottomOf="@+id/text_view_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

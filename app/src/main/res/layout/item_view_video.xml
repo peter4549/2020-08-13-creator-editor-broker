@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp"
     android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,8 +14,8 @@
 
         <ImageView
             android:id="@+id/image_view_thumbnail"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
@@ -27,46 +28,49 @@
             android:id="@+id/text_view_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
             android:gravity="center_vertical"
-            android:padding="8dp"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/text_view_view_count"
+            android:textColor="@color/color_dark_text"
+            android:textSize="14sp"
+            android:maxLines="2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
             app:layout_constraintTop_toTopOf="@+id/image_view_thumbnail"
-            tools:text="Title"/>
+            tools:text="Title" />
 
         <TextView
             android:id="@+id/text_view_view_count"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp"
-            android:padding="8dp"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/image_view_thumbnail"
-            app:layout_constraintEnd_toStartOf="@+id/text_view_published_time"
-            app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
+            android:layout_marginTop="8dp"
+            android:drawablePadding="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/color_light_text"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/text_view_title"
+            app:layout_constraintStart_toStartOf="@+id/text_view_title"
             app:layout_constraintTop_toBottomOf="@+id/text_view_title"
-            tools:text="View Count"/>
+            app:drawableStartCompat="@drawable/ic_round_visibility_16"
+            app:drawableTint="@color/color_light_text"
+            tools:text="View Count" />
 
         <TextView
             android:id="@+id/text_view_published_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:padding="8dp"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/text_view_view_count"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/text_view_view_count"
-            app:layout_constraintTop_toTopOf="@+id/text_view_view_count"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/paybooc_otf_medium_font_family"
+            android:maxLines="1"
+            android:textColor="@color/color_light_text"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/text_view_view_count"
+            app:layout_constraintStart_toStartOf="@+id/text_view_view_count"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_view_count"
             tools:text="Published Time" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

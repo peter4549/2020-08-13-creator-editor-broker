@@ -1,4 +1,4 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +14,7 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActiv
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.currentUser
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.PR_LIST
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.SingleImageViewFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.PrModel.Companion.KEY_FAVORITE_USER_IDS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel

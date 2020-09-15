@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="2dp"
     android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,13 +14,11 @@
 
         <ImageView
             android:id="@+id/image_view_thumbnail"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:contentDescription="@string/thumbnail"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,8 +32,9 @@
             android:ellipsize="end"
             android:lineSpacingMultiplier="1.1"
             android:maxLines="2"
-            android:padding="4dp"
-            android:textColor="@color/colorDefaultText"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp"
+            android:textColor="@color/color_dark_text"
             app:autoSizeMaxTextSize="20sp"
             app:autoSizeMinTextSize="16sp"
             app:autoSizeStepGranularity="2sp"
@@ -45,73 +45,86 @@
             tools:text="Title" />
 
         <TextView
-            android:id="@+id/text_view_public_name"
+            android:id="@+id/text_view_published_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:padding="4dp"
-            android:textColor="@color/colorLightGrey"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity="2sp"
+            android:fontFamily="@font/paybooc_otf_medium_font_family"
+            android:padding="8dp"
+            android:textColor="@color/color_light_text"
+            android:textSize="12sp"
+            android:visibility="visible"
             app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
             app:layout_constraintTop_toBottomOf="@+id/text_view_title"
-            tools:text="Public Name"/>
+            tools:text="Published Time"/>
 
         <TextView
-            android:id="@+id/text_view_target"
+            android:id="@+id/text_view_categories"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:padding="4dp"
-            android:textColor="@color/colorLightGrey"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity="2sp"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp"
+            android:textColor="@color/color_light_text"
+            android:textSize="12sp"
             app:autoSizeTextType="uniform"
-            app:layout_constraintEnd_toStartOf="@+id/text_view_published_time"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/image_view_thumbnail"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_public_name"
-            tools:text="Target" />
+            app:layout_constraintTop_toBottomOf="@+id/text_view_published_time"
+            tools:text="Categories" />
 
-        <TextView
+        <!-- <TextView
             android:id="@+id/text_view_published_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:padding="4dp"
             android:textAlignment="textEnd"
-            android:textColor="@color/colorLightGrey"
+            android:textColor="@color/color_light_text"
             app:autoSizeMaxTextSize="14sp"
             app:autoSizeMinTextSize="12sp"
             app:autoSizeStepGranularity="2sp"
             app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toBottomOf="@+id/text_view_target"
+            app:layout_constraintBottom_toBottomOf="@+id/text_view_categories"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/text_view_target"
-            app:layout_constraintTop_toTopOf="@+id/text_view_target"
-            tools:text="Published Time" />
+            app:layout_constraintStart_toEndOf="@+id/text_view_categories"
+            app:layout_constraintTop_toTopOf="@+id/text_view_categories"
+            tools:text="Published Time" /> -->
+
+        <TextView
+            android:id="@+id/text_view_target"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textColor="@color/color_dark_text"
+            app:autoSizeMaxTextSize="14sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="@+id/image_view_thumbnail"
+            app:layout_constraintStart_toStartOf="@+id/text_view_categories"
+            tools:text="Target" />
 
         <TextView
             android:id="@+id/text_view_comments"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:gravity="center"
             android:drawablePadding="4dp"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity="2sp"
+            android:gravity="center"
+            android:textSize="12sp"
             app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_favorites"
             app:layout_constraintEnd_toStartOf="@+id/text_view_favorites"
             app:layout_constraintTop_toTopOf="@+id/text_view_favorites"
             app:drawableStartCompat="@drawable/ic_speech_bubble_16"
+            app:drawableTint="@color/colorIconTint"
             tools:text="1" />
 
         <TextView
@@ -119,40 +132,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:gravity="center"
             android:drawablePadding="4dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/text_view_stars"
             app:layout_constraintEnd_toStartOf="@+id/text_view_stars"
             app:layout_constraintTop_toTopOf="@+id/text_view_stars"
             app:drawableStartCompat="@drawable/ic_round_favorite_16"
+            app:drawableTint="@color/colorIconTint"
             tools:text="1" />
 
         <TextView
             android:id="@+id/text_view_stars"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:gravity="center"
             android:drawablePadding="4dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            app:autoSizeTextType="uniform"
             app:drawableStartCompat="@drawable/ic_round_star_16"
+            app:drawableTint="@color/colorIconTint"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_published_time"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_target"
             tools:text="1" />
-
-        <TextView
-            android:id="@+id/text_view_categories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Categories"
-            app:autoSizeMaxTextSize="14sp"
-            app:autoSizeMinTextSize="12sp"
-            app:autoSizeStepGranularity="2sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintStart_toStartOf="@+id/text_view_target"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_target" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

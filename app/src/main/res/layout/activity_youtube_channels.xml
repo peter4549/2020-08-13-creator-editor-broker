@@ -4,8 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/constraint_layout_activity_youtube_channels"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:background="@color/colorFragmentBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -30,16 +32,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-    <TextView
-        android:id="@+id/text_view_add_channel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:drawablePadding="8dp"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/add_channel"
-        app:drawableStartCompat="@drawable/ic_round_add_circle_24" />
+        <TextView
+            android:id="@+id/text_view_add_channel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
+            android:drawablePadding="16dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:text="@string/add_channel"
+            android:textColor="@color/color_accent_button_background"
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/ic_round_add_circle_24"
+            app:drawableTint="@color/color_accent_button_background"/>
 
     </FrameLayout>
 

@@ -294,7 +294,6 @@ class SignUpFragment: Fragment() {
     companion object {
         private const val STATE_VERIFICATION_CODE_SENT = 1
         private const val STATE_VERIFIED = 2
-        private const val TAG = "SignUpFragment"
         private const val TIME_OUT = 120L
     }
 }

@@ -21,15 +21,15 @@
     <color name="colorButtonTextEnabled">@color/colorBlueGrey</color>
 
     <color name="colorError">@color/colorFlame</color>
-
     <color name="colorIconTint">@color/colorBabyBlue</color>
 
     <color name="colorDefaultBlack">#202020</color>
     <color name="colorDefaultBlue">@color/colorBabyBlue</color>
     <color name="colorDefaultText">@color/colorBlueGrey</color>
-    <color name="colorButtonDisabledText">#FEFEFE</color>
+    <color name="colorButtonDisabledText">@color/colorWhite</color>
     <color name="colorEditTextDisabledText">@color/colorSilver</color>
-    <color name="colorAccentText">#FEFEFE</color>
+    <color name="colorAccentText">@color/colorWhite</color>
+    <color name="colorProgressDialogBackground">#80263238</color>
 
     <color name="colorBabyBlue">#89CFF0</color>
     <color name="colorLightBlue">#ADD8E6</color>
@@ -40,6 +40,16 @@
     <color name="colorLightGrey">#D3D3D3</color>
     <color name="colorCrushedIce">#C4FFF7</color>
     <color name="colorWhite">#FEFEFE</color>
+
+    <!-- Tab Layout -->
+    <color name="colorTabIconSelected">@color/colorBabyBlue</color>
+    <color name="colorTabIconUnselected">@color/colorSilver</color>
+
+    <!-- Spinner -->
+    <color name="colorSpinnerBackground">@color/colorWhite</color>
+    <color name="colorSpinnerText">@color/colorBabyBlue</color>
+
+    <!-- ===== -->
 
     <!-- Button -->
     <color name="colorAccentButtonBackground">@color/colorBabyBlue</color>
@@ -52,14 +62,11 @@
     <!-- Background Colors -->
     <color name="colorEditTextBackground">#FEFEFE</color>
     <color name="colorFragmentBackground">#FFFFFF</color>
-    <color name="colorToolbarBackground">@color/colorCrushedIce</color>
+    <color name="colorToolbarBackground">#FEFEFE</color>
 
     <!-- Tint Colors -->
     <color name="colorFacebook">#3B5998</color>
     <color name="colorTwitter">#1DA1F2</color>
-
-    <!-- Tab Layout -->
-    <color name="colorTabIconSelected">@color/colorSilver</color>
 
     <!-- PageIndicatorView -->
     <color name="colorPageIndicatorViewSelected">#DFDFDF</color>

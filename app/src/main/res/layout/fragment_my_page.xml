@@ -24,7 +24,7 @@
         android:id="@+id/text_public_name_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/public_name"
         android:textColor="@color/color_light_text"
@@ -55,8 +55,8 @@
 
     <ImageView
         android:id="@+id/image_view_profile"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/profile"
         app:layout_constraintBottom_toBottomOf="@+id/text_view_categories"
@@ -87,7 +87,6 @@
         android:id="@+id/text_view_user_type"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:gravity="center_vertical"
@@ -100,6 +99,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+        app:layout_constraintStart_toStartOf="@+id/text_user_type_title"
         app:layout_constraintTop_toBottomOf="@+id/text_user_type_title"
         tools:text="User Type" />
 
@@ -107,7 +107,6 @@
         android:id="@+id/text_view_categories"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:gravity="center_vertical"
@@ -120,6 +119,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/image_view_profile"
+        app:layout_constraintStart_toStartOf="@+id/text_categories_title"
         app:layout_constraintTop_toBottomOf="@+id/text_categories_title"
         tools:text="Categories" />
 

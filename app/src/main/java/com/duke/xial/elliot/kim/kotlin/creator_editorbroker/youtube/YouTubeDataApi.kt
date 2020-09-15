@@ -1,4 +1,4 @@
-package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.retrofit2
+package com.duke.xial.elliot.kim.kotlin.creator_editorbroker.youtube
 
 import android.content.Context
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
@@ -56,6 +56,7 @@ class YouTubeDataApi(context: Context) {
         @GET("/youtube/v3/playlists")
         fun requestByChannelId(
             @Query("key") key: String = googleApiKey,
+            @Query("pageToken") pageToken: String = "",
             @Query("part") part: String = "snippet",
             @Query("channelId") channelId: String,
             @Query("maxResults") maxResults: Int = 10
@@ -67,6 +68,7 @@ class YouTubeDataApi(context: Context) {
         fun requestById(
             @Query("key") key: String = googleApiKey,
             @Query("part") part: String = "contentDetails",
+            @Query("pageToken") pageToken: String = "",
             @Query("playlistId") playlistId: String,
             @Query("maxResults") maxResults: Int = 20
         ): Call<PlaylistItemsModel>

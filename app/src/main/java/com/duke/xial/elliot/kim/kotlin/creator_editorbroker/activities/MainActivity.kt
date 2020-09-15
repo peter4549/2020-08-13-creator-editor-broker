@@ -15,12 +15,12 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.cloud_messaging.Fire
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.FireStore.COLLECTION_USERS
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.HORIZONTAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.RequestProfileCreationDialogFragment
-import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.RequestSignInDialogFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.dailog_fragments.TwoButtonDialogFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.error_handler.ErrorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.fragments.*
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_PUSH_TOKEN
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr.PrListFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.profiles.CreateProfileFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.sign_in_and_sign_up.SignInFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
@@ -201,6 +201,7 @@ class MainActivity : AppCompatActivity() {
         showToast(this, getString(R.string.signed_out))
         currentUser = null
         tab_layout.getTabAt(0)?.select()
+        popAllFragments()
     }
 
     fun startSignInFragment() {
@@ -213,18 +214,28 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun requestSignIn() {
-        RequestSignInDialogFragment(getString(R.string.sign_in),
-            getString(R.string.sign_in_request_message)).show(supportFragmentManager, TAG)
-    }
-
-    private fun requestProfileCreationAfterSignIn() {
-        RequestProfileCreationDialogFragment(getString(R.string.profile_creation), getString(R.string.profile_creation_request_message_01))
-            .show(supportFragmentManager, TAG)
+        val  dialogFragment = TwoButtonDialogFragment(getString(R.string.sign_in),
+            getString(R.string.sign_in_request_message))
+        dialogFragment.setupFirstButton(getString(R.string.cancel)) {
+            dialogFragment.dismiss()
+        }
+        dialogFragment.setupSecondButton(getString(R.string.ok)) {
+            startSignInFragment()
+            dialogFragment.dismiss()
+        }
+        dialogFragment.show(supportFragmentManager, TAG)
     }
 
     fun requestProfileCreation() {
-        RequestProfileCreationDialogFragment(getString(R.string.profile_creation), getString(R.string.profile_creation_request_message_02))
-            .show(supportFragmentManager, TAG)
+        val dialogFragment = TwoButtonDialogFragment(getString(R.string.profile_creation), getString(R.string.profile_creation_request_message_02))
+        dialogFragment.setupFirstButton(getString(R.string.cancel)) {
+            dialogFragment.dismiss()
+        }
+        dialogFragment.setupSecondButton(getString(R.string.ok)) {
+            startCreateProfileFragment()
+            dialogFragment.dismiss()
+        }
+        dialogFragment.show(supportFragmentManager, TAG)
     }
 
     private fun popAllFragments() {
@@ -348,8 +359,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    requestProfileCreationAfterSignIn()
-                    println("$TAG: data is null")
+                    Timber.d("data is null")
                 }
             }
         }

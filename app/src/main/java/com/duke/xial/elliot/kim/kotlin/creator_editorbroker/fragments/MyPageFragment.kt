@@ -9,12 +9,13 @@ import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActiv
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity.Companion.errorHandler
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.VERTICAL
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.models.UserModel.Companion.KEY_REGISTERED_ON_PARTNERS
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.pr.WritePrFragment
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.settings.SettingsFragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.setImage
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import kotlinx.android.synthetic.main.fragment_enter_user_information.view.*
 import kotlinx.android.synthetic.main.fragment_my_page.view.*
 import kotlinx.android.synthetic.main.fragment_my_page.view.image_view_profile
 import kotlinx.android.synthetic.main.fragment_my_page.view.text_view_public_name
@@ -22,38 +23,45 @@ import kotlinx.android.synthetic.main.fragment_my_page.view.toolbar
 
 class MyPageFragment: Fragment() {
 
+    private lateinit var fragmentView: View
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_my_page, container, false)
+        fragmentView = inflater.inflate(R.layout.fragment_my_page, container, false)
 
-        initializeToolbar(view.toolbar)
-        if (MainActivity.currentUser?.profileImageUri != null &&
-            MainActivity.currentUser?.profileImageUri != "null" &&
-            MainActivity.currentUser?.profileImageUri?.isNotBlank() == true)
-            setImage(view.image_view_profile, MainActivity.currentUser?.profileImageUri)
-        view.text_view_public_name.text = MainActivity.currentUser?.publicName
-        view.text_view_user_type.text = MainActivity.userTypesMap[MainActivity.currentUser?.userType]
-        view.text_view_categories.text =
-            MainActivity.currentUser?.categories?.mapNotNull { MainActivity.categoriesMap[it] }?.joinToString()
+        initializeToolbar(fragmentView.toolbar)
 
-        view.text_view_profile.setOnClickListener {
+        fragmentView.text_view_profile.setOnClickListener {
             (requireActivity() as MainActivity).startCreateProfileFragment()
         }
 
-        view.text_view_write_pr.setOnClickListener {
-            (requireActivity() as MainActivity).startFragment(WritePrFragment(),
+        fragmentView.text_view_write_pr.setOnClickListener {
+            (requireActivity() as MainActivity).startFragment(
+                WritePrFragment(),
                 R.id.frame_layout_activity_main,
                 MainActivity.TAG_WRITE_PR_FRAGMENT,
                 VERTICAL)
         }
 
-        view.button_register_on_partners.setOnClickListener {
+        fragmentView.button_register_on_partners.setOnClickListener {
             registerOnPartners()
         }
 
-        return view
+        return fragmentView
+    }
+
+    override fun onResume() {
+        if (MainActivity.currentUser?.profileImageUri != null &&
+            MainActivity.currentUser?.profileImageUri != "null" &&
+            MainActivity.currentUser?.profileImageUri?.isNotBlank() == true)
+            setImage(fragmentView.image_view_profile, MainActivity.currentUser?.profileImageUri, true)
+        fragmentView.text_view_public_name.text = MainActivity.currentUser?.publicName
+        fragmentView.text_view_user_type.text = MainActivity.userTypesMap[MainActivity.currentUser?.userType]
+        fragmentView.text_view_categories.text =
+            MainActivity.currentUser?.categories?.mapNotNull { MainActivity.categoriesMap[it] }?.joinToString()
+        super.onResume()
     }
 
     private fun initializeToolbar(toolbar: Toolbar) {
@@ -69,7 +77,8 @@ class MyPageFragment: Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            R.id.item_settings -> {  }
+            R.id.item_settings -> (requireActivity() as MainActivity)
+                .startFragment(SettingsFragment(), R.id.frame_layout_activity_main)
             R.id.item_sign_out -> signOut()
         }
         return super.onOptionsItemSelected(item)

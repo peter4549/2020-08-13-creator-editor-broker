@@ -14,19 +14,19 @@
         android:layout_height="wrap_content"
         android:background="@color/colorFragmentBackground"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/videos" />
 
     <TextView
-        android:id="@+id/text_view_empty"
+        android:id="@+id/text_error"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:gravity="center"
         android:text="@string/there_are_no_registered_videos"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
@@ -39,6 +39,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_view_empty" />
+        app:layout_constraintTop_toBottomOf="@+id/text_error" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

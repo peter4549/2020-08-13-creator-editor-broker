@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.R
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.activities.MainActivity
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.constants.REQUEST_CODE_GOOGLE_SIGN_IN
+import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.hideKeyboard
 import com.duke.xial.elliot.kim.kotlin.creator_editorbroker.utilities.showToast
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -28,6 +29,7 @@ class SignInFragment : Fragment() {
 
     private lateinit var firebaseExceptionHandler: FirebaseExceptionHandler
     private val buttonClickListener = View.OnClickListener { view ->
+        hideKeyboard(requireContext(), view)
         when(view.id) {
             R.id.button_sign_in_with_email -> signInWithEmail()
             R.id.button_sign_in_with_google -> signInWithGoogle()

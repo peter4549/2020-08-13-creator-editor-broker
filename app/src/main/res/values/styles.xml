@@ -46,10 +46,10 @@
     </style>
 
     <style name="TextInputLayoutOutlinedBoxStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:theme">@style/TextInputEditTextOutlinedBoxTheme</item>
+        <item name="android:theme">@style/TextInputEditTextTheme</item>
     </style>
 
-    <style name="TextInputEditTextOutlinedBoxTheme" parent="ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox">
+    <style name="TextInputEditTextTheme" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
         <item name="colorPrimary">@color/colorBabyBlue</item>
         <item name="colorPrimaryDark">@color/colorBabyBlue</item>
         <item name="colorAccent">@color/colorBabyBlue</item>
